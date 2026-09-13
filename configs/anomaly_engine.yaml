@@ -1,0 +1,18 @@
+# Config for Phase 9: B1 Anomaly Engine
+baseline:
+  # Robust score threshold for "HIGHLY_ABNORMAL" (e.g. 3.0 * MAD)
+  highly_abnormal_mad_threshold: 3.5
+  # Robust score threshold for "UNUSUAL"
+  unusual_mad_threshold: 2.0
+  # Smallest allowed MAD to prevent div by zero
+  min_mad_safeguard: 0.1
+
+temporal:
+  # Min days for history to be sufficient for a reliable score
+  min_history_days: 7
+
+change_point:
+  # Rolling window size for simple transition detection
+  rolling_window: 3
+  # Deviation size to declare a change point
+  transition_threshold: 2.5

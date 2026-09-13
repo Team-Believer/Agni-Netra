@@ -1,5 +1,21 @@
 {
-    "total_rows": 0,
-    "unique_dates": 0,
-    "status": "FAILED_NO_CREDENTIALS"
+    "total_rows": 23624,
+    "missing_values": 0,
+    "invalid_coordinates": 0,
+    "invalid_frp": 0,
+    "duplicate_rows": 0,
+    "confidence_distribution": {
+        "n": 21753,
+        "l": 1624,
+        "h": 247
+    },
+    "satellite_counts": {
+        "N20": 8187,
+        "N": 7936,
+        "N21": 7501
+    },
+    "day_night_distribution": {
+        "D": 13400,
+        "N": 10224
+    }
 }

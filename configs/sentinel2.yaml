@@ -1,0 +1,15 @@
+# Config for Phase 10: Sentinel-2 Corroboration Pipeline
+stac:
+  endpoint: "https://earth-search.aws.element84.com/v1"
+  collection: "sentinel-2-l2a"
+
+matching:
+  # Max time delta in hours to consider an image representative of an event
+  max_time_delta_hours: 120
+  
+  # Max cloud cover percentage allowed
+  max_cloud_cover_percent: 60.0
+
+pilot:
+  # Number of diverse events to sample for the pilot run
+  sample_size: 30

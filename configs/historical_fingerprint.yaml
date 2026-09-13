@@ -1,0 +1,12 @@
+# Config for Historical Thermal Fingerprinting
+history_window_days: 90
+
+sufficiency:
+  # Minimum unique days of observation to be considered SUFFICIENT
+  min_unique_days_sufficient: 7
+  # Minimum unique days for PARTIAL
+  min_unique_days_partial: 2
+
+statistics:
+  robust: true
+  percentiles: [25, 50, 75, 90, 99]

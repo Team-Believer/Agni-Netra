@@ -1,14 +1,13 @@
 {
-    "dataset_version": "v2_historical_pending",
-    "provenance": "NONE",
-    "time_range": "Requested 90+ days",
-    "geography": "India / South Asia",
+    "dataset_version": "firms-india-90d-v1",
+    "provenance": "REAL_SOURCE",
+    "requested_bbox": "68,6,98,36",
     "sensors": [
-        "NOAA-20",
-        "NOAA-21",
-        "S-NPP"
+        "VIIRS_SNPP_NRT",
+        "VIIRS_NOAA20_NRT",
+        "VIIRS_NOAA21_NRT"
     ],
-    "row_count": 0,
-    "quality_statistics": "NO_DATA",
-    "status": "FAILED_NO_CREDENTIALS"
+    "row_count": 70805,
+    "unique_dates": 90,
+    "creation_timestamp": "2026-09-13T19:12:45.238877"
 }

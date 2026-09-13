@@ -1,0 +1,14 @@
+# Config for 90-day Event Reconstruction
+clustering:
+  method: "dbscan_temporal_hybrid"
+  spatial_eps_km: 1.0
+  min_samples: 1
+  # Distance threshold to warn about chain-linking (km)
+  chain_warn_km: 5.0
+
+temporal:
+  # The time gap (hours) after which an observation is considered a separate distinct state or intermittent
+  intermittent_gap_hours: 72
+
+features:
+  utc_conversion: true

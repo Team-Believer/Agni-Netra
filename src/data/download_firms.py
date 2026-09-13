@@ -4,6 +4,7 @@ import pandas as pd
 from datetime import datetime
 import json
 import logging
+from dotenv import load_dotenv
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
@@ -11,7 +12,8 @@ def download_firms_data(output_dir: str = 'data/raw/firms'):
     os.makedirs(output_dir, exist_ok=True)
     
     # Check for credentials
-    map_key = os.environ.get('MAP_KEY')
+    load_dotenv()
+    map_key = os.getenv('MAP_KEY')
     if not map_key:
         logging.warning("No MAP_KEY environment variable found. Real credentials are required for custom API queries.")
         logging.info("Falling back to public unauthenticated 7-day rolling data for South Asia (VIIRS S-NPP and NOAA-20).")
