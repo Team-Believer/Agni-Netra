@@ -1,0 +1,6 @@
+{
+    "observation_count": 0,
+    "unique_days": 0,
+    "status": "FAILED_NO_CREDENTIALS",
+    "conclusion": "Cannot assess historical fingerprint readiness without authentic data."
+}

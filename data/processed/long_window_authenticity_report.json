@@ -1,0 +1,35 @@
+{
+    "generation_method": [
+        "Date shifting",
+        "Random generation / FRP modification",
+        "Pandas duplication (row replication)"
+    ],
+    "files_audited": [
+        {
+            "path": "data/raw/firms/long_window/firms_90day.csv",
+            "source": "Synthetic expansion script",
+            "authenticity": "SYNTHETIC_DERIVED"
+        }
+    ],
+    "authenticity": {
+        "seven_day_dataset": "REAL_SOURCE (assumed from Phase 2 FIRMS acquisition)",
+        "ninety_day_dataset": "SYNTHETIC"
+    },
+    "counts": {
+        "real_observations": 9714,
+        "synthetic_observations": 65492,
+        "total_observations": 75206
+    },
+    "date_distribution": {
+        "unique_dates": 91,
+        "earliest_timestamp": "2026-06-15T06:16:00",
+        "latest_timestamp": "2026-09-13T09:34:00"
+    },
+    "duplication": {
+        "locations_with_synthetic_duplicates": 990
+    },
+    "location_claim_audit": {
+        "claim": "919 geographic locations have >50 observations over 90 days.",
+        "validity": "INVALID. The 90-day data was synthesized by copying the 7-day data backwards in time with random survival probability. The 919 locations are entirely an artifact of this replication."
+    }
+}

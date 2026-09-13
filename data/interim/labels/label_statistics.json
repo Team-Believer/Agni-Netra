@@ -1,0 +1,19 @@
+{
+    "total_observations": 9714,
+    "by_class": {
+        "Unknown / Needs Verification": 8606,
+        "Routine Flare / Persistent Industrial Heat": 511,
+        "Industrial Fire": 344,
+        "Wildfire": 127,
+        "Agricultural Burn": 126
+    },
+    "by_quality": {
+        "UNKNOWN": 8606,
+        "WEAK": 597,
+        "HIGH_CONFIDENCE_WEAK": 511
+    },
+    "verified_samples": 0,
+    "weak_samples": 597,
+    "ambiguous_samples": 0,
+    "unknown_samples": 8950
+}

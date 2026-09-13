@@ -1,0 +1,18 @@
+{
+    "method_tested": "Spatial DBSCAN + Temporal Fragmentation",
+    "parameters": {
+        "spatial_radius_km": 1.0,
+        "minimum_samples": 2,
+        "temporal_window_hours": 48,
+        "event_continuation_window": 72,
+        "frp_continuity_tolerance": 100
+    },
+    "total_observations": 9714,
+    "total_events": 3302,
+    "singleton_events": 1937,
+    "multi_observation_events": 1365,
+    "median_observations_per_event": 1.0,
+    "median_duration_hours": 0.0,
+    "max_duration_hours": 169.16666666666666,
+    "intermittent_event_count": 197
+}

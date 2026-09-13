@@ -1,0 +1,17 @@
+# Agni-Netra Event Reconstruction Configuration
+
+clustering_parameters:
+  spatial_radius_km: 1.0          # Max distance to consider observations part of the same event
+  minimum_samples: 2              # Minimum observations to form a non-singleton event
+  temporal_window_hours: 48       # Max allowed time gap before an event is considered ended/separate
+  event_continuation_window: 72   # Hours after which a new observation at the same location creates a NEW event
+  frp_continuity_tolerance: 100   # (Not strictly enforced in basic model, but available for advanced tracking)
+
+strategies:
+  - name: "Strategy_A_Spatial_Only"
+    description: "Pure spatial clustering using DBSCAN with Haversine distance, chronologically sorting each cluster to form events."
+    active: true
+    
+  - name: "Strategy_B_Spatiotemporal"
+    description: "Spatial clustering followed by temporal fragmentation if observations exceed the event_continuation_window."
+    active: true

@@ -1,0 +1,13 @@
+{
+    "framework": "XGBoost",
+    "xgboost_version": "3.3.0",
+    "cuda_status": "NOT_AVAILABLE",
+    "gpu_available": false,
+    "gpu_used": false,
+    "gpu_model": "None",
+    "vram_gb": 0,
+    "device_parameter": "cpu",
+    "tree_method": "hist",
+    "fallback_reason": "Torch import hangs, skipping GPU for this small 40-row dataset.",
+    "training_duration_seconds": 0.63449
+}

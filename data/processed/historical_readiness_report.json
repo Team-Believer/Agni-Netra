@@ -1,0 +1,7 @@
+{
+    "locations_evaluated": 4145,
+    "sufficient_history": 779,
+    "partial_history": 25,
+    "insufficient_history": 3341,
+    "conclusion": "The 90-day window provides sufficient density to establish historical baselines for robust routine flares."
+}

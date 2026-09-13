@@ -1,0 +1,43 @@
+{
+    "matrix": {
+        "Industrial Fire": {
+            "GOLD": 0,
+            "SILVER": 0,
+            "BRONZE": 0,
+            "UNKNOWN": 0
+        },
+        "Routine Flare / Persistent Industrial Heat": {
+            "GOLD": 0,
+            "SILVER": 0,
+            "BRONZE": 69458,
+            "UNKNOWN": 0
+        },
+        "Wildfire": {
+            "GOLD": 0,
+            "SILVER": 0,
+            "BRONZE": 0,
+            "UNKNOWN": 0
+        },
+        "Agricultural Burn": {
+            "GOLD": 0,
+            "SILVER": 0,
+            "BRONZE": 0,
+            "UNKNOWN": 0
+        },
+        "Other Anthropogenic": {
+            "GOLD": 0,
+            "SILVER": 0,
+            "BRONZE": 0,
+            "UNKNOWN": 0
+        },
+        "Unknown / Needs Verification": {
+            "GOLD": 0,
+            "SILVER": 0,
+            "BRONZE": 0,
+            "UNKNOWN": 5748
+        }
+    },
+    "independent_verified_examples": 0,
+    "scientifically_strong_classifier_possible": false,
+    "reason": "Still zero verified GOLD labels. Imbalance remains extreme."
+}

@@ -1,0 +1,49 @@
+{
+    "total_events": 3302,
+    "total_features": 25,
+    "missingness": {
+        "event_id": 0.0,
+        "mean_frp": 0.0,
+        "max_frp": 0.0,
+        "min_frp": 0.0,
+        "frp_std": 0.0,
+        "frp_cv": 0.0,
+        "frp_first": 0.0,
+        "frp_last": 0.0,
+        "frp_change": 0.0,
+        "brightness_mean": 0.0,
+        "brightness_max": 0.0,
+        "duration_hours": 0.0,
+        "observation_count": 0.0,
+        "obs_per_day": 0.0,
+        "median_gap": 0.0,
+        "max_gap": 0.0,
+        "day_night_ratio": 0.0,
+        "spatial_spread_km": 0.0,
+        "num_satellites": 0.0,
+        "expanding_indicator": 0.0,
+        "stable_indicator": 0.0,
+        "sudden_frp_increase": 0.0,
+        "min_confidence": 0.0,
+        "mean_confidence": 0.0,
+        "history_window_days": 0.0,
+        "history_sufficiency": 0.0
+    },
+    "constant_features": [
+        "day_night_ratio",
+        "history_window_days",
+        "history_sufficiency"
+    ],
+    "label_distribution": {
+        "Unknown / Needs Verification": 3262,
+        "Industrial Fire": 30,
+        "Agricultural Burn": 4,
+        "Wildfire": 3,
+        "Routine Flare / Persistent Industrial Heat": 3
+    },
+    "label_quality_distribution": {
+        "UNKNOWN": 3244,
+        "WEAK_AGGREGATED": 40,
+        "AMBIGUOUS": 18
+    }
+}

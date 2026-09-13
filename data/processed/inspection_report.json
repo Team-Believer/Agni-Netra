@@ -1,0 +1,113 @@
+{
+    "total_rows": 9714,
+    "geographic_coverage": {
+        "lat_min": 5.51157,
+        "lat_max": 39.94545,
+        "lon_min": 54.00888,
+        "lon_max": 101.99302
+    },
+    "temporal_coverage": {
+        "min": "2026-09-06T06:14:00",
+        "max": "2026-09-13T09:34:00"
+    },
+    "satellites": [
+        "N20",
+        "N"
+    ],
+    "instruments": [],
+    "schema": {
+        "latitude": {
+            "type": "float64",
+            "missing": 0
+        },
+        "longitude": {
+            "type": "float64",
+            "missing": 0
+        },
+        "bright_ti4": {
+            "type": "float64",
+            "missing": 0
+        },
+        "scan": {
+            "type": "float64",
+            "missing": 0
+        },
+        "track": {
+            "type": "float64",
+            "missing": 0
+        },
+        "acq_date": {
+            "type": "object",
+            "missing": 0
+        },
+        "acq_time": {
+            "type": "int64",
+            "missing": 0
+        },
+        "satellite": {
+            "type": "object",
+            "missing": 0
+        },
+        "confidence": {
+            "type": "object",
+            "missing": 0
+        },
+        "version": {
+            "type": "object",
+            "missing": 0
+        },
+        "bright_ti5": {
+            "type": "float64",
+            "missing": 0
+        },
+        "frp": {
+            "type": "float64",
+            "missing": 0
+        },
+        "daynight": {
+            "type": "object",
+            "missing": 0
+        },
+        "source_file": {
+            "type": "object",
+            "missing": 0
+        },
+        "acq_time_str": {
+            "type": "object",
+            "missing": 0
+        },
+        "timestamp": {
+            "type": "datetime64[ns]",
+            "missing": 0
+        }
+    },
+    "quality": {
+        "invalid_coords": 0,
+        "invalid_frp": 0
+    },
+    "spatial": {
+        "median_nearest_neighbor_km": 0.1511405806700207,
+        "mean_nearest_neighbor_km": 2.574816872280496,
+        "dense_clusters_under_1km": 7995
+    },
+    "temporal": {
+        "detections_per_day": {
+            "2026-09-06": 1854,
+            "2026-09-12": 1571,
+            "2026-09-07": 1388,
+            "2026-09-08": 1276,
+            "2026-09-11": 1230,
+            "2026-09-10": 1032,
+            "2026-09-09": 988,
+            "2026-09-13": 375
+        },
+        "day_night_split": {
+            "N": 5506,
+            "D": 4208
+        }
+    },
+    "sensors": {
+        "N": 4600,
+        "N20": 5114
+    }
+}

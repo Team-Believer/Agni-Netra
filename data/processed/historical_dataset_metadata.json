@@ -1,0 +1,14 @@
+{
+    "dataset_version": "v2_historical_pending",
+    "provenance": "NONE",
+    "time_range": "Requested 90+ days",
+    "geography": "India / South Asia",
+    "sensors": [
+        "NOAA-20",
+        "NOAA-21",
+        "S-NPP"
+    ],
+    "row_count": 0,
+    "quality_statistics": "NO_DATA",
+    "status": "FAILED_NO_CREDENTIALS"
+}

@@ -1,0 +1,46 @@
+{
+    "download_time": "2026-09-13T18:02:19.787527",
+    "requested_geography": "South Asia (including India)",
+    "sources": {
+        "suomi_npp_viirs": {
+            "url": "https://firms.modaps.eosdis.nasa.gov/data/active_fire/suomi-npp-viirs-c2/csv/SUOMI_VIIRS_C2_South_Asia_7d.csv",
+            "file": "data/raw/firms\\suomi_npp_viirs_south_asia_7d.csv",
+            "rows": 4600,
+            "columns": [
+                "latitude",
+                "longitude",
+                "bright_ti4",
+                "scan",
+                "track",
+                "acq_date",
+                "acq_time",
+                "satellite",
+                "confidence",
+                "version",
+                "bright_ti5",
+                "frp",
+                "daynight"
+            ]
+        },
+        "noaa_20_viirs": {
+            "url": "https://firms.modaps.eosdis.nasa.gov/data/active_fire/noaa-20-viirs-c2/csv/J1_VIIRS_C2_South_Asia_7d.csv",
+            "file": "data/raw/firms\\noaa_20_viirs_south_asia_7d.csv",
+            "rows": 5114,
+            "columns": [
+                "latitude",
+                "longitude",
+                "bright_ti4",
+                "scan",
+                "track",
+                "acq_date",
+                "acq_time",
+                "satellite",
+                "confidence",
+                "version",
+                "bright_ti5",
+                "frp",
+                "daynight"
+            ]
+        }
+    }
+}

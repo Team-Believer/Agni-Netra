@@ -1,0 +1,41 @@
+{
+    "model_type": "XGBoost",
+    "training_mode": "MODE A - PIPELINE SMOKE TEST",
+    "warning": "NOT VALID FOR GENERALIZATION. PROVISIONAL WEAK LABELS ONLY.",
+    "params": {
+        "objective": "multi:softprob",
+        "num_class": 4,
+        "tree_method": "hist",
+        "device": "cpu",
+        "eval_metric": "mlogloss",
+        "max_depth": 3,
+        "learning_rate": 0.1,
+        "seed": 42
+    },
+    "features": [
+        "mean_frp",
+        "max_frp",
+        "min_frp",
+        "frp_std",
+        "frp_cv",
+        "frp_first",
+        "frp_last",
+        "frp_change",
+        "brightness_mean",
+        "brightness_max",
+        "duration_hours",
+        "observation_count",
+        "obs_per_day",
+        "median_gap",
+        "max_gap",
+        "day_night_ratio",
+        "spatial_spread_km",
+        "num_satellites",
+        "expanding_indicator",
+        "stable_indicator",
+        "sudden_frp_increase",
+        "min_confidence",
+        "mean_confidence",
+        "history_window_days"
+    ]
+}

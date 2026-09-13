@@ -1,0 +1,16 @@
+[
+    {
+        "feature_name": "mean_frp",
+        "group": "THERMAL",
+        "type": "float",
+        "missingness": 0.0,
+        "leakage_risk": "LOW (Offline assumption)"
+    },
+    {
+        "feature_name": "duration_hours",
+        "group": "TEMPORAL",
+        "type": "float",
+        "missingness": 0.0,
+        "leakage_risk": "HIGH (Full event history required)"
+    }
+]

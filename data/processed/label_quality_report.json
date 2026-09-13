@@ -1,0 +1,19 @@
+{
+    "policy": {
+        "VERIFIED": "Allowed for primary evaluation and training.",
+        "HIGH_CONFIDENCE_WEAK": "Potentially usable for training with appropriate weighting (e.g., highly persistent flares).",
+        "WEAK": "Use cautiously; preferably not for primary test sets.",
+        "AMBIGUOUS": "Do not use as standard supervised labels.",
+        "UNKNOWN": "Do not use as a known class unless there is a defensible verified label. Suitable for OOD testing and abstention logic."
+    },
+    "distribution": {
+        "total": 9714,
+        "VERIFIED": 0,
+        "HIGH_CONFIDENCE_WEAK": 511,
+        "WEAK": 597,
+        "AMBIGUOUS": 0,
+        "UNKNOWN": 8606
+    },
+    "readiness_verdict": "INSUFFICIENT_FOR_PRIMARY_MODEL",
+    "reasoning": "Without ANY 'VERIFIED' ground-truth labels and 88% of data sitting in 'UNKNOWN', training a production-grade multi-class ML model is scientifically indefensible. The dataset is currently highly imbalanced. To proceed, manual annotation or integration of an authoritative verified incident database is mandatory."
+}

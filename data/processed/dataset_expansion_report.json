@@ -1,0 +1,18 @@
+{
+    "short_window_days": 7,
+    "long_window_days": 90,
+    "total_observations_short": 9714,
+    "total_observations_long": 75206,
+    "sensor_distribution": {
+        "N20": 55391,
+        "N": 19815
+    },
+    "geographic_bounds": {
+        "min_lat": 5.51157,
+        "max_lat": 39.94545,
+        "min_lon": 54.00888,
+        "max_lon": 101.99302
+    },
+    "duplicate_rate_exact": 0.0,
+    "missing_values": 42474
+}
