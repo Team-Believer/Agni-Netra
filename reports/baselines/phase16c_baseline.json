@@ -1,0 +1,23 @@
+{
+    "phase16c_model_version": "v1.0",
+    "phase16c_policy_version": "v1.1",
+    "feature_registry_hash": "dacebaf7c31cfa2698d2bd7b4284e92b",
+    "temporal_registry_hash": "0071f78fa9b31c7b5e5fb9a118c1059c",
+    "task_registry_hash": "b2f36571fc861f1273a929a4ff85511b",
+    "input_schema_hash": "2c0c8177dab314d6f75f874c876996f5",
+    "selected_thresholds": {
+        "unknown_thresh": 0.5,
+        "conf_thresh": 0.5
+    },
+    "holdout_hash": "ec9a595be7624a930850dd754f1b97d3",
+    "holdout_seed": 42,
+    "metrics": {
+        "coverage": 0.4375,
+        "industrial_fire_precision": 0.6904761904761905,
+        "industrial_fire_recall": 0.10034602076124567,
+        "industrial_fire_f1": 0.17522658610271905,
+        "unknown_rate": 0.5625,
+        "high_conf_fp": 0,
+        "unk_to_ind_fp": 0
+    }
+}
