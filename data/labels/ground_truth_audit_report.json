@@ -1,0 +1,11 @@
+{
+    "candidate_count": 300,
+    "verified_count": 0,
+    "gold_count": 0,
+    "disputed_count": 0,
+    "independence_violations": 0,
+    "duplicates_found": 0,
+    "warnings": [],
+    "status": "PENDING_HUMAN_REVIEW",
+    "note": "Framework established. Actual GOLD/SILVER labels remain pending independent human/external verification."
+}

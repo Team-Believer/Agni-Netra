@@ -1,0 +1,10 @@
+{
+    "simulated_gold_count": 41699,
+    "simulated_silver_count": 15507,
+    "simulated_disputed_count": 1073,
+    "simulated_unknown_count": 17721,
+    "macro_f1_vs_true_synthetic": 0.34675752029167617,
+    "cohen_kappa_A_vs_B": 0.452095726362598,
+    "reviewer_A_changed_mind_rate": 0.15417105263157896,
+    "real_gold_firewall_status": "PASS"
+}

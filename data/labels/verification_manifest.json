@@ -1,0 +1,14 @@
+{
+    "total_candidates": 300,
+    "blind_review_count": 60,
+    "strata_representation": {
+        "is_high_anomaly": 266,
+        "is_bronze_industrial": 30,
+        "is_bronze_flare": 3,
+        "is_bronze_wildfire_ag": 7,
+        "is_sentinel_avail": 14,
+        "is_persistent": 76,
+        "is_singleton": 137,
+        "is_random_unknown": 260
+    }
+}
