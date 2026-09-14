@@ -1,0 +1,47 @@
+{
+    "PREFIX": {
+        "T1": {
+            "Coverage": 0.178,
+            "Abstention_Rate": 0.822,
+            "ALL_EVENT_MACRO_F1": 0.11388462817629919,
+            "COVERED_SET_MACRO_F1": 0.32784962005065993,
+            "ALL_EVENT_TARGET_F1": 0.0
+        },
+        "T2": {
+            "Coverage": 0.2715,
+            "Abstention_Rate": 0.7285,
+            "ALL_EVENT_MACRO_F1": 0.1931471049609819,
+            "COVERED_SET_MACRO_F1": 0.6003232042890976,
+            "ALL_EVENT_TARGET_F1": 0.09740259740259741
+        },
+        "T3": {
+            "Coverage": 0.28,
+            "Abstention_Rate": 0.72,
+            "ALL_EVENT_MACRO_F1": 0.2017933028508157,
+            "COVERED_SET_MACRO_F1": 0.5993998035089309,
+            "ALL_EVENT_TARGET_F1": 0.09771986970684039
+        },
+        "T4": {
+            "Coverage": 0.2775,
+            "Abstention_Rate": 0.7225,
+            "ALL_EVENT_MACRO_F1": 0.20158312295110642,
+            "COVERED_SET_MACRO_F1": 0.6017857464813073,
+            "ALL_EVENT_TARGET_F1": 0.09771986970684039
+        },
+        "T5": {
+            "Coverage": 0.279,
+            "Abstention_Rate": 0.721,
+            "ALL_EVENT_MACRO_F1": 0.2023227456665956,
+            "COVERED_SET_MACRO_F1": 0.5998331807692808,
+            "ALL_EVENT_TARGET_F1": 0.09771986970684039
+        }
+    },
+    "GENERATOR_D": {
+        "Coverage": 0.128,
+        "Abstention_Rate": 0.872,
+        "ALL_EVENT_MACRO_F1": 0.09344245259840578,
+        "COVERED_SET_MACRO_F1": 0.41549450549450545,
+        "ALL_EVENT_TARGET_F1": 0.0,
+        "High_Conf_FP": 2
+    }
+}

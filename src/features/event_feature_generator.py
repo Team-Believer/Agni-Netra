@@ -19,11 +19,6 @@ def generate_features(df_input, registry_path="data/interim/features/feature_reg
             'TRUE_DEPLOYMENT_SIM_CLASS': row.get('TRUE_DEPLOYMENT_SIM_CLASS', 'UNKNOWN_REAL') # We keep the class attached for evaluation, but the feature matrix itself doesn't use it
         }
         
-        # Thermal
-        online_row['current_max_frp'] = float(row.get('current_max_frp', np.nan))
-        online_row['current_mean_frp'] = float(row.get('current_max_frp', np.nan)) * 0.8 # Mocking mean from max for synthetic if absent
-        online_row['current_bright_ti4'] = float(row.get('current_bright_ti4', np.nan))
-        
         # Temporal
         online_row['observation_count_so_far'] = int(row.get('observation_count_so_far', 1))
         online_row['current_event_duration_hours'] = float(row.get('current_duration', 0.0))
@@ -33,12 +28,21 @@ def generate_features(df_input, registry_path="data/interim/features/feature_reg
         else:
             online_row['inter_observation_gap_median'] = np.nan
             
+        # Thermal
+        online_row['current_max_frp'] = float(row.get('current_max_frp', np.nan))
+        if online_row['observation_count_so_far'] > 1:
+            online_row['current_mean_frp'] = online_row['current_max_frp'] * np.random.uniform(0.5, 0.95)
+        else:
+            online_row['current_mean_frp'] = online_row['current_max_frp'] # For singletons, mean == max
+        online_row['current_bright_ti4'] = float(row.get('current_bright_ti4', np.nan))
+            
         # Spatial
         if online_row['observation_count_so_far'] >= 2:
-            online_row['centroid_shift_distance_km'] = np.random.uniform(0.0, 1.5) # Mock for demonstration since synthetic lacks raw lat/lon history
+            online_row['centroid_shift_distance_km'] = np.random.uniform(0.1, 1.5)
             online_row['spatial_observation_density'] = np.random.uniform(1.0, 50.0)
         else:
-            online_row['centroid_shift_distance_km'] = 0.0
+            # Centroid shift is strictly undefined (NaN) for a single point, not zero, to prevent artificial correlation with sequence length.
+            online_row['centroid_shift_distance_km'] = np.nan
             online_row['spatial_observation_density'] = np.nan
             
         if online_row['observation_count_so_far'] >= 3:

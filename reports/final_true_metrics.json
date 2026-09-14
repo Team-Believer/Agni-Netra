@@ -1,0 +1,268 @@
+{
+    "ablation_audit": {
+        "audit": {
+            "GRU_ONLY": {
+                "model_name": "GRU_ONLY",
+                "feature_names": [
+                    "frp",
+                    "bright_ti4"
+                ],
+                "feature_count": 2,
+                "tensor_shape": [
+                    1,
+                    2
+                ],
+                "input_schema_hash": "6d7a3a93",
+                "parameter_count": 38276,
+                "non_nan_count_per_feature": {
+                    "frp": 8949,
+                    "bright_ti4": 8949
+                },
+                "missing_rate_per_feature": {
+                    "frp": 0.0,
+                    "bright_ti4": 0.0
+                }
+            },
+            "GRU_HISTORY": {
+                "model_name": "GRU_HISTORY",
+                "feature_names": [
+                    "frp",
+                    "bright_ti4",
+                    "hist_median_frp"
+                ],
+                "feature_count": 3,
+                "tensor_shape": [
+                    1,
+                    3
+                ],
+                "input_schema_hash": "9aad8249",
+                "parameter_count": 38468,
+                "non_nan_count_per_feature": {
+                    "frp": 8949,
+                    "bright_ti4": 8949,
+                    "hist_median_frp": 8949
+                },
+                "missing_rate_per_feature": {
+                    "frp": 0.0,
+                    "bright_ti4": 0.0,
+                    "hist_median_frp": 0.0
+                }
+            },
+            "GRU_ANOMALY": {
+                "model_name": "GRU_ANOMALY",
+                "feature_names": [
+                    "frp",
+                    "bright_ti4",
+                    "b1_anomaly"
+                ],
+                "feature_count": 3,
+                "tensor_shape": [
+                    1,
+                    3
+                ],
+                "input_schema_hash": "35f1ce3f",
+                "parameter_count": 38468,
+                "non_nan_count_per_feature": {
+                    "frp": 8949,
+                    "bright_ti4": 8949,
+                    "b1_anomaly": 8949
+                },
+                "missing_rate_per_feature": {
+                    "frp": 0.0,
+                    "bright_ti4": 0.0,
+                    "b1_anomaly": 0.0
+                }
+            },
+            "GRU_CONTEXT": {
+                "model_name": "GRU_CONTEXT",
+                "feature_names": [
+                    "frp",
+                    "bright_ti4",
+                    "proxy_industrial_context",
+                    "S2_NDVI_online"
+                ],
+                "feature_count": 4,
+                "tensor_shape": [
+                    1,
+                    4
+                ],
+                "input_schema_hash": "d81dc641",
+                "parameter_count": 38660,
+                "non_nan_count_per_feature": {
+                    "frp": 8949,
+                    "bright_ti4": 8949,
+                    "proxy_industrial_context": 8949,
+                    "S2_NDVI_online": 1738
+                },
+                "missing_rate_per_feature": {
+                    "frp": 0.0,
+                    "bright_ti4": 0.0,
+                    "proxy_industrial_context": 0.0,
+                    "S2_NDVI_online": 0.8057883562409208
+                }
+            },
+            "FULL_HYBRID": {
+                "model_name": "FULL_HYBRID",
+                "feature_names": [
+                    "frp",
+                    "bright_ti4",
+                    "hist_median_frp",
+                    "b1_anomaly",
+                    "proxy_industrial_context",
+                    "S2_NDVI_online"
+                ],
+                "feature_count": 6,
+                "tensor_shape": [
+                    1,
+                    6
+                ],
+                "input_schema_hash": "122562af",
+                "parameter_count": 39044,
+                "non_nan_count_per_feature": {
+                    "frp": 8949,
+                    "bright_ti4": 8949,
+                    "hist_median_frp": 8949,
+                    "b1_anomaly": 8949,
+                    "proxy_industrial_context": 8949,
+                    "S2_NDVI_online": 1738
+                },
+                "missing_rate_per_feature": {
+                    "frp": 0.0,
+                    "bright_ti4": 0.0,
+                    "hist_median_frp": 0.0,
+                    "b1_anomaly": 0.0,
+                    "proxy_industrial_context": 0.0,
+                    "S2_NDVI_online": 0.8057883562409208
+                }
+            }
+        },
+        "eval": {
+            "GRU_ONLY": {
+                "Coverage": 0.359,
+                "Abstention_Rate": 0.641,
+                "ALL_EVENT_MACRO_F1": 0.25262301433552886,
+                "COVERED_SET_MACRO_F1": 0.9306949806949807,
+                "ALL_EVENT_INDUSTRIAL_F1": 0.4044943820224719,
+                "COVERED_SET_INDUSTRIAL_F1": 0.9,
+                "Total_Events": 1000,
+                "Covered_Events": 359,
+                "High_Conf_FP": 1
+            },
+            "GRU_HISTORY": {
+                "Coverage": 0.317,
+                "Abstention_Rate": 0.683,
+                "ALL_EVENT_MACRO_F1": 0.23045193903078548,
+                "COVERED_SET_MACRO_F1": 0.9646954003786613,
+                "ALL_EVENT_INDUSTRIAL_F1": 0.29219143576826195,
+                "COVERED_SET_INDUSTRIAL_F1": 0.943089430894309,
+                "Total_Events": 1000,
+                "Covered_Events": 317,
+                "High_Conf_FP": 0
+            },
+            "GRU_ANOMALY": {
+                "Coverage": 0.328,
+                "Abstention_Rate": 0.672,
+                "ALL_EVENT_MACRO_F1": 0.23395536163785868,
+                "COVERED_SET_MACRO_F1": 0.6346019190558284,
+                "ALL_EVENT_INDUSTRIAL_F1": 0.30198019801980197,
+                "COVERED_SET_INDUSTRIAL_F1": 0.9172932330827067,
+                "Total_Events": 1000,
+                "Covered_Events": 328,
+                "High_Conf_FP": 2
+            },
+            "GRU_CONTEXT": {
+                "Coverage": 0.621,
+                "Abstention_Rate": 0.379,
+                "ALL_EVENT_MACRO_F1": 0.4177530503435003,
+                "COVERED_SET_MACRO_F1": 0.6967938614948632,
+                "ALL_EVENT_INDUSTRIAL_F1": 0.722495894909688,
+                "COVERED_SET_INDUSTRIAL_F1": 0.8906882591093117,
+                "Total_Events": 1000,
+                "Covered_Events": 621,
+                "High_Conf_FP": 5
+            },
+            "FULL_HYBRID": {
+                "Coverage": 0.643,
+                "Abstention_Rate": 0.357,
+                "ALL_EVENT_MACRO_F1": 0.5050235960211397,
+                "COVERED_SET_MACRO_F1": 0.7230961516102778,
+                "ALL_EVENT_INDUSTRIAL_F1": 0.6353383458646616,
+                "COVERED_SET_INDUSTRIAL_F1": 0.9234972677595629,
+                "Total_Events": 1000,
+                "Covered_Events": 643,
+                "High_Conf_FP": 2
+            }
+        },
+        "destruction": {
+            "HISTORY_DESTROYED": {
+                "prediction_difference_count": 24,
+                "metric_difference_detected": true,
+                "input_difference": "Zeroed out: ['hist_median_frp']"
+            },
+            "ANOMALY_DESTROYED": {
+                "prediction_difference_count": 133,
+                "metric_difference_detected": true,
+                "input_difference": "Zeroed out: ['b1_anomaly']"
+            },
+            "CONTEXT_DESTROYED": {
+                "prediction_difference_count": 474,
+                "metric_difference_detected": true,
+                "input_difference": "Zeroed out: ['proxy_industrial_context', 'S2_NDVI_online']"
+            }
+        },
+        "adversarial": {
+            "Coverage": 0.76,
+            "Abstention_Rate": 0.24,
+            "ALL_EVENT_MACRO_F1": 0.2793674389108498,
+            "COVERED_SET_MACRO_F1": 0.39618439642032643,
+            "ALL_EVENT_INDUSTRIAL_F1": 0.5774193548387097,
+            "COVERED_SET_INDUSTRIAL_F1": 0.6924564796905223,
+            "Total_Events": 1000,
+            "Covered_Events": 760,
+            "High_Conf_FP": 184
+        }
+    },
+    "prefixes": {
+        "T1": {
+            "Total_Events": 1000,
+            "Covered_Events": 533,
+            "Coverage": 0.533,
+            "ALL_EVENT_MACRO_F1": 0.44291119112915817,
+            "COVERED_SET_MACRO_F1": 0.6983451570455976
+        },
+        "T2": {
+            "Total_Events": 1000,
+            "Covered_Events": 637,
+            "Coverage": 0.637,
+            "ALL_EVENT_MACRO_F1": 0.4975156009544198,
+            "COVERED_SET_MACRO_F1": 0.7158576043821099
+        },
+        "T3": {
+            "Total_Events": 1000,
+            "Covered_Events": 637,
+            "Coverage": 0.637,
+            "ALL_EVENT_MACRO_F1": 0.5003582802732881,
+            "COVERED_SET_MACRO_F1": 0.7196263259163667
+        },
+        "T4": {
+            "Total_Events": 1000,
+            "Covered_Events": 638,
+            "Coverage": 0.638,
+            "ALL_EVENT_MACRO_F1": 0.5010723741037152,
+            "COVERED_SET_MACRO_F1": 0.7202420840464114
+        },
+        "T5": {
+            "Total_Events": 1000,
+            "Covered_Events": 638,
+            "Coverage": 0.638,
+            "ALL_EVENT_MACRO_F1": 0.5010723741037152,
+            "COVERED_SET_MACRO_F1": 0.7202420840464114
+        }
+    },
+    "sensor": {
+        "ALL": 0.5050235960211397,
+        "N20": 0.48759168048089474,
+        "N21": 0.48107838471155606,
+        "NPP": 0.47622437726607975
+    }
+}

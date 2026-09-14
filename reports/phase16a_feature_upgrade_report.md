@@ -19,12 +19,15 @@ The Agni-Netra feature representation layer was successfully rewritten to explic
 ## 4. Feature Quality & Missingness
 - Features correctly preserving missingness rather than silently imputing: `sentinel_ndvi_proxy`, `inter_observation_gap_median`, `spatial_observation_density`.
 - Zero-variance features: 2
-- Redundancy clusters (>0.95 Spearman): 2
-  - current_max_frp <-> current_mean_frp (1.00)
-  - observation_count_so_far <-> centroid_shift_distance_km (0.99)
+- Redundancy clusters (>0.95 Spearman): 1
+  - current_max_frp <-> current_mean_frp (0.99)
 
 ## 5. Morphology Proxies
 Per instruction, `compactness` and `directional_growth` were rejected as scientifically invalid for 375m FIRMS point detections. We instead safely encoded `centroid_shift_distance_km` and `spatial_observation_density` as explicit observation-spread proxies.
+
+## 6. Audit Decisions
+- `observation_count_so_far` <-> `centroid_shift_distance_km`: **REVISED**. Centroid shift is strictly undefined (NaN) for a single point. Previously it was encoded as 0.0, creating an artificial correlation with singletons. With explicit NaN, the artificial redundancy warning has been eliminated.
+- `current_max_frp` <-> `current_mean_frp`: **KEEP**. These are highly correlated by definition (especially for singletons where max == mean). The mock generator was updated to introduce physical variance, reducing correlation to 0.99, but they will naturally remain highly correlated. We keep both because max captures peak intensity while mean captures sustained intensity for mature events.
 
 ## Final Status
 PHASE_16A_STATUS = CONDITIONAL_PASS

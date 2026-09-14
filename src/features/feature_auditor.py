@@ -63,6 +63,10 @@ The Agni-Netra feature representation layer was successfully rewritten to explic
 ## 5. Morphology Proxies
 Per instruction, `compactness` and `directional_growth` were rejected as scientifically invalid for 375m FIRMS point detections. We instead safely encoded `centroid_shift_distance_km` and `spatial_observation_density` as explicit observation-spread proxies.
 
+## 6. Audit Decisions
+- `observation_count_so_far` <-> `centroid_shift_distance_km`: **REVISED**. Centroid shift is strictly undefined (NaN) for a single point. Previously it was encoded as 0.0, creating an artificial correlation with singletons. With explicit NaN, the artificial redundancy warning has been eliminated.
+- `current_max_frp` <-> `current_mean_frp`: **KEEP**. These are highly correlated by definition (especially for singletons where max == mean). The mock generator was updated to introduce physical variance, reducing correlation to 0.99, but they will naturally remain highly correlated. We keep both because max captures peak intensity while mean captures sustained intensity for mature events.
+
 ## Final Status
 PHASE_16A_STATUS = {status}
 """

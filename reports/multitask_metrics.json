@@ -1,0 +1,281 @@
+{
+    "0.1": {
+        "ST": {
+            "source": {
+                "Coverage": 0.145,
+                "Abstention_Rate": 0.855,
+                "ALL_EVENT_MACRO_F1": 0.0970720553504932,
+                "COVERED_SET_MACRO_F1": 0.4473327438844681,
+                "ALL_EVENT_TARGET_F1": 0.0
+            },
+            "behavior": {
+                "Coverage": 0.3365,
+                "Abstention_Rate": 0.6635,
+                "ALL_EVENT_MACRO_F1": 0.31771039476431073,
+                "COVERED_SET_MACRO_F1": 0.6567367312226059,
+                "ALL_EVENT_TARGET_F1": 0.0
+            },
+            "abnormality": {
+                "Coverage": 0.258,
+                "Abstention_Rate": 0.742,
+                "ALL_EVENT_MACRO_F1": 0.16869358016771296,
+                "COVERED_SET_MACRO_F1": 0.42056788931788935,
+                "ALL_EVENT_TARGET_F1": 0.0
+            },
+            "evidence": {
+                "Coverage": 0.0,
+                "Abstention_Rate": 1.0,
+                "ALL_EVENT_MACRO_F1": 0.0,
+                "COVERED_SET_MACRO_F1": 0.0,
+                "ALL_EVENT_TARGET_F1": 0.0
+            },
+            "unknown_gate": {
+                "Coverage": 0.9985,
+                "Abstention_Rate": 0.0015,
+                "ALL_EVENT_MACRO_F1": 0.36011066646904794,
+                "COVERED_SET_MACRO_F1": 0.5405443041806678,
+                "ALL_EVENT_TARGET_F1": 0.0
+            }
+        },
+        "MT": {
+            "source": {
+                "Coverage": 0.2965,
+                "Abstention_Rate": 0.7035,
+                "ALL_EVENT_MACRO_F1": 0.2173082079954244,
+                "COVERED_SET_MACRO_F1": 0.5167000345879761,
+                "ALL_EVENT_TARGET_F1": 0.20994475138121546
+            },
+            "behavior": {
+                "Coverage": 0.586,
+                "Abstention_Rate": 0.414,
+                "ALL_EVENT_MACRO_F1": 0.45212492835011897,
+                "COVERED_SET_MACRO_F1": 0.6490712127030552,
+                "ALL_EVENT_TARGET_F1": 0.0
+            },
+            "abnormality": {
+                "Coverage": 0.2315,
+                "Abstention_Rate": 0.7685,
+                "ALL_EVENT_MACRO_F1": 0.13880106043391224,
+                "COVERED_SET_MACRO_F1": 0.4189975423402939,
+                "ALL_EVENT_TARGET_F1": 0.0
+            },
+            "evidence": {
+                "Coverage": 0.3615,
+                "Abstention_Rate": 0.6385,
+                "ALL_EVENT_MACRO_F1": 0.14147200867336882,
+                "COVERED_SET_MACRO_F1": 0.32353348988035335,
+                "ALL_EVENT_TARGET_F1": 0.0
+            },
+            "unknown_gate": {
+                "Coverage": 0.9845,
+                "Abstention_Rate": 0.0155,
+                "ALL_EVENT_MACRO_F1": 0.3603284394390127,
+                "COVERED_SET_MACRO_F1": 0.5460954759389107,
+                "ALL_EVENT_TARGET_F1": 0.0
+            }
+        },
+        "HIERARCHICAL": {
+            "Coverage": 0.291,
+            "Abstention_Rate": 0.709,
+            "ALL_EVENT_MACRO_F1": 0.21601836399458296,
+            "COVERED_SET_MACRO_F1": 0.5202816906211125,
+            "ALL_EVENT_TARGET_F1": 0.20994475138121546
+        },
+        "CONFLICT_RATES": {
+            "LOW": 0.9085,
+            "MODERATE": 0.0,
+            "HIGH": 0.0915
+        },
+        "SAFETY": {
+            "UNKNOWN_TO_INDUSTRIAL_FP": 0,
+            "HIGH_CONF_FP": 1,
+            "HIGH_CONF_FN": 1
+        }
+    },
+    "0.15": {
+        "ST": {
+            "source": {
+                "Coverage": 0.176,
+                "Abstention_Rate": 0.824,
+                "ALL_EVENT_MACRO_F1": 0.15927769378874063,
+                "COVERED_SET_MACRO_F1": 0.6333267103253863,
+                "ALL_EVENT_TARGET_F1": 0.12218649517684887
+            },
+            "behavior": {
+                "Coverage": 0.356,
+                "Abstention_Rate": 0.644,
+                "ALL_EVENT_MACRO_F1": 0.330859526286904,
+                "COVERED_SET_MACRO_F1": 0.7852060695458744,
+                "ALL_EVENT_TARGET_F1": 0.0
+            },
+            "abnormality": {
+                "Coverage": 0.381,
+                "Abstention_Rate": 0.619,
+                "ALL_EVENT_MACRO_F1": 0.19501783465170366,
+                "COVERED_SET_MACRO_F1": 0.43379156409796604,
+                "ALL_EVENT_TARGET_F1": 0.0
+            },
+            "evidence": {
+                "Coverage": 0.019,
+                "Abstention_Rate": 0.981,
+                "ALL_EVENT_MACRO_F1": 0.02266666666666667,
+                "COVERED_SET_MACRO_F1": 0.4722222222222222,
+                "ALL_EVENT_TARGET_F1": 0.0
+            },
+            "unknown_gate": {
+                "Coverage": 0.998,
+                "Abstention_Rate": 0.002,
+                "ALL_EVENT_MACRO_F1": 0.3596953137936745,
+                "COVERED_SET_MACRO_F1": 0.5401460129696983,
+                "ALL_EVENT_TARGET_F1": 0.0
+            }
+        },
+        "MT": {
+            "source": {
+                "Coverage": 0.2465,
+                "Abstention_Rate": 0.7535,
+                "ALL_EVENT_MACRO_F1": 0.1813407747434392,
+                "COVERED_SET_MACRO_F1": 0.5726351958950409,
+                "ALL_EVENT_TARGET_F1": 0.027303754266211604
+            },
+            "behavior": {
+                "Coverage": 0.513,
+                "Abstention_Rate": 0.487,
+                "ALL_EVENT_MACRO_F1": 0.45677803212201096,
+                "COVERED_SET_MACRO_F1": 0.7515249689484571,
+                "ALL_EVENT_TARGET_F1": 0.0
+            },
+            "abnormality": {
+                "Coverage": 0.3175,
+                "Abstention_Rate": 0.6825,
+                "ALL_EVENT_MACRO_F1": 0.1993080642481879,
+                "COVERED_SET_MACRO_F1": 0.4823149093083735,
+                "ALL_EVENT_TARGET_F1": 0.0
+            },
+            "evidence": {
+                "Coverage": 0.072,
+                "Abstention_Rate": 0.928,
+                "ALL_EVENT_MACRO_F1": 0.05028725728845082,
+                "COVERED_SET_MACRO_F1": 0.4467771639042357,
+                "ALL_EVENT_TARGET_F1": 0.0
+            },
+            "unknown_gate": {
+                "Coverage": 0.9285,
+                "Abstention_Rate": 0.0715,
+                "ALL_EVENT_MACRO_F1": 0.3761250767307877,
+                "COVERED_SET_MACRO_F1": 0.5920530528743838,
+                "ALL_EVENT_TARGET_F1": 0.0
+            }
+        },
+        "HIERARCHICAL": {
+            "Coverage": 0.2465,
+            "Abstention_Rate": 0.7535,
+            "ALL_EVENT_MACRO_F1": 0.1813407747434392,
+            "COVERED_SET_MACRO_F1": 0.5726351958950409,
+            "ALL_EVENT_TARGET_F1": 0.027303754266211604
+        },
+        "CONFLICT_RATES": {
+            "LOW": 0.973,
+            "MODERATE": 0.0,
+            "HIGH": 0.027
+        },
+        "SAFETY": {
+            "UNKNOWN_TO_INDUSTRIAL_FP": 0,
+            "HIGH_CONF_FP": 14,
+            "HIGH_CONF_FN": 12
+        }
+    },
+    "0.2": {
+        "ST": {
+            "source": {
+                "Coverage": 0.023,
+                "Abstention_Rate": 0.977,
+                "ALL_EVENT_MACRO_F1": 0.0330354941012718,
+                "COVERED_SET_MACRO_F1": 0.6,
+                "ALL_EVENT_TARGET_F1": 0.0
+            },
+            "behavior": {
+                "Coverage": 0.337,
+                "Abstention_Rate": 0.663,
+                "ALL_EVENT_MACRO_F1": 0.3284129723527276,
+                "COVERED_SET_MACRO_F1": 0.8467919820352933,
+                "ALL_EVENT_TARGET_F1": 0.0
+            },
+            "abnormality": {
+                "Coverage": 0.0855,
+                "Abstention_Rate": 0.9145,
+                "ALL_EVENT_MACRO_F1": 0.09518870873882573,
+                "COVERED_SET_MACRO_F1": 0.6519480519480519,
+                "ALL_EVENT_TARGET_F1": 0.0
+            },
+            "evidence": {
+                "Coverage": 0.071,
+                "Abstention_Rate": 0.929,
+                "ALL_EVENT_MACRO_F1": 0.04886380755533327,
+                "COVERED_SET_MACRO_F1": 0.4401326517525055,
+                "ALL_EVENT_TARGET_F1": 0.0
+            },
+            "unknown_gate": {
+                "Coverage": 0.994,
+                "Abstention_Rate": 0.006,
+                "ALL_EVENT_MACRO_F1": 0.3598169051908042,
+                "COVERED_SET_MACRO_F1": 0.5418510324483776,
+                "ALL_EVENT_TARGET_F1": 0.0
+            }
+        },
+        "MT": {
+            "source": {
+                "Coverage": 0.283,
+                "Abstention_Rate": 0.717,
+                "ALL_EVENT_MACRO_F1": 0.2019707697376816,
+                "COVERED_SET_MACRO_F1": 0.5993162361499093,
+                "ALL_EVENT_TARGET_F1": 0.09771986970684039
+            },
+            "behavior": {
+                "Coverage": 0.4945,
+                "Abstention_Rate": 0.5055,
+                "ALL_EVENT_MACRO_F1": 0.4682576938976912,
+                "COVERED_SET_MACRO_F1": 0.8080228615800183,
+                "ALL_EVENT_TARGET_F1": 0.0
+            },
+            "abnormality": {
+                "Coverage": 0.3135,
+                "Abstention_Rate": 0.6865,
+                "ALL_EVENT_MACRO_F1": 0.19642337823741635,
+                "COVERED_SET_MACRO_F1": 0.48140286805059285,
+                "ALL_EVENT_TARGET_F1": 0.0
+            },
+            "evidence": {
+                "Coverage": 0.0915,
+                "Abstention_Rate": 0.9085,
+                "ALL_EVENT_MACRO_F1": 0.06273296712536083,
+                "COVERED_SET_MACRO_F1": 0.4563705960471838,
+                "ALL_EVENT_TARGET_F1": 0.0
+            },
+            "unknown_gate": {
+                "Coverage": 0.968,
+                "Abstention_Rate": 0.032,
+                "ALL_EVENT_MACRO_F1": 0.3767002572263305,
+                "COVERED_SET_MACRO_F1": 0.5773728170083523,
+                "ALL_EVENT_TARGET_F1": 0.0
+            }
+        },
+        "HIERARCHICAL": {
+            "Coverage": 0.277,
+            "Abstention_Rate": 0.723,
+            "ALL_EVENT_MACRO_F1": 0.20169822756349068,
+            "COVERED_SET_MACRO_F1": 0.6043317886077595,
+            "ALL_EVENT_TARGET_F1": 0.09771986970684039
+        },
+        "CONFLICT_RATES": {
+            "LOW": 0.957,
+            "MODERATE": 0.0,
+            "HIGH": 0.043
+        },
+        "SAFETY": {
+            "UNKNOWN_TO_INDUSTRIAL_FP": 0,
+            "HIGH_CONF_FP": 14,
+            "HIGH_CONF_FN": 13
+        }
+    }
+}

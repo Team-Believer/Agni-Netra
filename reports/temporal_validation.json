@@ -1,0 +1,25 @@
+{
+    "early_detection": {
+        "T1": {
+            "Macro_F1": 0.7959704389799124
+        },
+        "T2": {
+            "Macro_F1": 0.8208144995386807
+        },
+        "T3": {
+            "Macro_F1": 0.822995094447783
+        },
+        "T4": {
+            "Macro_F1": 0.821756419402321
+        },
+        "T5": {
+            "Macro_F1": 0.821756419402321
+        }
+    },
+    "adversarial_safety": {
+        "F1": 0.6865657320722425,
+        "Abstention_Rate": 0.264,
+        "High_Confidence_False_Positives": 83,
+        "Unknown_Rate": 0.264
+    }
+}
