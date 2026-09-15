@@ -40,6 +40,15 @@ from src.ingestion.insat3ds import (
     parse_insat3ds_file, assess_sensor_corroboration, SensorCorroborationAssessment,
     NormalizedObservation
 )
+from src.intelligence.high_t_thermal import (
+    evaluate_high_t_lane, HighTThermalAssessment, MODE_UNAVAILABLE
+)
+from src.intelligence.event_state_machine import (
+    evaluate_event_state_machine, EventStateAssessment
+)
+from src.intelligence.novel_event_detection import (
+    evaluate_event_novelty, NoveltyAssessment
+)
 
 SCHEMA_VERSION = "AGN-EVENT-INTELLIGENCE-1.0"
 PIPELINE_VERSION = "1.0.0"
@@ -260,6 +269,36 @@ def analyze_event(
         stage_statuses["low_t_heat"] = "PARTIAL"
     stage_durations["low_t_heat"] = round((time.perf_counter() - t0) * 1000.0, 3)
 
+    # --- STAGE 4: HIGH-T THERMAL PHYSICS ---
+    t0 = time.perf_counter()
+    try:
+        high_t_result = evaluate_high_t_lane(canon, raw_event=raw_event, quality_summary=quality_summary)
+        stage_statuses["high_t_physics"] = "SUCCESS" if high_t_result.available else "SKIPPED"
+    except Exception as e:
+        high_t_result = HighTThermalAssessment(
+            event_id=event_id, available=False, physics_mode=MODE_UNAVAILABLE, input_completeness=0.0,
+            thermal_intensity_score=0.0, high_temperature_signal="UNKNOWN", thermal_extremeness=0.0,
+            thermal_concentration=0.0, thermal_measurement_reliability=0.0,
+            brightness_temperature_summary={"available": False, "min": None, "mean": None, "max": None},
+            frp_summary={"available": False, "min": None, "mean": None, "max": None, "total": None},
+            source_physics_indicators={}, quality_limitations=[str(e)], reason_codes=["PROCESSING_ERROR"]
+        )
+    # --- STAGE 5: EVENT STATE MACHINE ---
+    t0 = time.perf_counter()
+    try:
+        state_assessment = evaluate_event_state_machine(
+            canon=canon,
+            low_t_result=low_t_result,
+            high_t_result=high_t_result,
+            quality_summary=quality_summary,
+            raw_event=raw_event
+        )
+        stage_statuses["event_state_machine"] = "SUCCESS"
+    except Exception as e:
+        state_assessment = evaluate_event_state_machine(canon=canon)
+        stage_statuses["event_state_machine"] = "PARTIAL"
+    stage_durations["event_state_machine"] = round((time.perf_counter() - t0) * 1000.0, 3)
+
     # --- STAGE 4: HISTORICAL ABNORMALITY ---
     t0 = time.perf_counter()
     try:
@@ -300,6 +339,26 @@ def analyze_event(
     best_idx = int(np.argmax(model_probs))
     predicted_source_class = source_classes[best_idx]
     raw_model_confidence = float(model_probs[best_idx])
+
+    # --- STAGE 8: NOVEL / OOD EVENT DETECTION ---
+    t0 = time.perf_counter()
+    try:
+        novelty_assessment = evaluate_event_novelty(
+            canon=canon,
+            model_probs=model_probs,
+            source_classes=source_classes,
+            low_t_result=low_t_result,
+            high_t_result=high_t_result,
+            abnormality_result=abnormality_result,
+            state_assessment=state_assessment,
+            quality_summary=quality_summary,
+            raw_event=raw_event
+        )
+        stage_statuses["novel_event_detection"] = "SUCCESS"
+    except Exception as e:
+        novelty_assessment = evaluate_event_novelty(canon=canon, model_probs=model_probs, source_classes=source_classes)
+        stage_statuses["novel_event_detection"] = "PARTIAL"
+    stage_durations["novel_event_detection"] = round((time.perf_counter() - t0) * 1000.0, 3)
 
     # --- STAGE 6: EVIDENCE AGGREGATION & LEDGER (INCL. INSAT-3DS CORROBORATION) ---
     t0 = time.perf_counter()
@@ -343,7 +402,10 @@ def analyze_event(
             abnormality_result=abnormality_result,
             model_probs=model_probs,
             source_classes=source_classes,
-            insat_corroboration=insat_corroboration
+            insat_corroboration=insat_corroboration,
+            high_t_result=high_t_result,
+            state_assessment=state_assessment,
+            novelty_assessment=novelty_assessment
         )
         stage_statuses["evidence_aggregation"] = "SUCCESS"
     except Exception as e:
@@ -378,7 +440,8 @@ def analyze_event(
             canon=canon,
             low_t_result=low_t_result,
             abnormality_result=abnormality_result,
-            calibrator=calibrator
+            calibrator=calibrator,
+            novelty_assessment=novelty_assessment
         )
         stage_statuses["confidence_decision"] = "SUCCESS"
     except Exception as e:
@@ -398,7 +461,8 @@ def analyze_event(
             evidence_ledger=evidence_ledger,
             canon=canon,
             low_t_result=low_t_result,
-            abnormality_result=abnormality_result
+            abnormality_result=abnormality_result,
+            state_assessment=state_assessment
         )
         stage_statuses["risk_priority"] = "SUCCESS"
     except Exception as e:
@@ -485,6 +549,10 @@ def analyze_event(
         "predicted_source_class": decision_assessment.predicted_source_class,
         "decision_state": decision_assessment.decision_state,
         "source_confidence": decision_assessment.confidence.classification_confidence,
+        "distribution_state": novelty_assessment.distribution_state,
+        "novelty_score": float(novelty_assessment.novelty_score),
+        "novelty_level": novelty_assessment.novelty_level,
+        "novelty_assessment": novelty_assessment.to_dict(),
         "model_prediction": {
             "predicted_class": predicted_source_class,
             "raw_model_confidence": raw_model_confidence,
@@ -494,11 +562,18 @@ def analyze_event(
     }
 
     behavior_assessment = {
+        "event_state": state_assessment.current_state,
+        "state_confidence": float(state_assessment.current_state_confidence),
+        "last_transition": state_assessment.last_transition,
+        "transition_reason_codes": state_assessment.transition_reason_codes,
+        "state_history": state_assessment.state_history,
         "low_t_state": low_t_result.low_t_state,
         "behavior_signal": "LOW_T_PERSISTENT" if low_t_result.low_t_state == "LOW_T_PERSISTENT" else "TRANSIENT_OR_DEVELOPING",
         "persistence_score": float(low_t_result.low_t_score),
         "thermal_stability": float(getattr(canon, 'frp_std', 0.0)),
-        "spatial_stability": float(getattr(canon, 'low_t_spatial_stability', 1.0))
+        "spatial_stability": float(getattr(canon, 'low_t_spatial_stability', 1.0)),
+        "high_t_assessment": high_t_result.to_dict(),
+        "state_assessment": state_assessment.to_dict()
     }
 
     abnormality_assessment = {

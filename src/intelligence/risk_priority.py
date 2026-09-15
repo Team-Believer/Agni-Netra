@@ -244,16 +244,28 @@ def calculate_impact(
 def calculate_urgency(
     canon: Optional[CanonicalEventFeatures] = None,
     abnormality_result: Optional[AbnormalityResult] = None,
-    decision_assessment: Optional[DecisionAssessment] = None
+    decision_assessment: Optional[DecisionAssessment] = None,
+    state_assessment: Optional[Any] = None
 ) -> Tuple[str, List[str]]:
     """
     Determines operational urgency (URGENT, HIGH, NORMAL, LOW) based on rapid change,
-    emergency signals, and verification requirements.
+    emergency signals, verification requirements, and behavioral event state.
     """
     urgency_drivers = []
 
     is_urgent = False
     is_high = False
+
+    if state_assessment is not None:
+        c_state = getattr(state_assessment, "current_state", "UNKNOWN")
+        if c_state == "ESCALATING":
+            is_urgent = True
+            urgency_drivers.append("Event State Machine indicates ESCALATING behavioral state")
+        elif c_state == "ABNORMAL":
+            is_high = True
+            urgency_drivers.append("Event State Machine indicates ABNORMAL behavioral state")
+        elif c_state == "RESOLVING":
+            urgency_drivers.append("Event State Machine indicates RESOLVING activity decline")
 
     if decision_assessment is not None:
         if decision_assessment.predicted_source_class == "ABNORMAL_EMERGENCY_FLARE":
@@ -292,7 +304,8 @@ def evaluate_risk_and_priority(
     canon: Optional[CanonicalEventFeatures] = None,
     low_t_result: Optional[LowTResult] = None,
     abnormality_result: Optional[AbnormalityResult] = None,
-    config: Optional[RiskPriorityConfig] = None
+    config: Optional[RiskPriorityConfig] = None,
+    state_assessment: Optional[Any] = None
 ) -> RiskPriorityAssessment:
     """
     Evaluates physical risk, impact, operational urgency, and priority score while integrating
@@ -330,7 +343,8 @@ def evaluate_risk_and_priority(
     urgency, urgency_drivers = calculate_urgency(
         canon=canon,
         abnormality_result=abnormality_result,
-        decision_assessment=decision_assessment
+        decision_assessment=decision_assessment,
+        state_assessment=state_assessment
     )
 
     # Map Urgency weight

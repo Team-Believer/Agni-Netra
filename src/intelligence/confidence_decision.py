@@ -190,7 +190,8 @@ def evaluate_event_decision(
     low_t_result: Optional[LowTResult] = None,
     abnormality_result: Optional[AbnormalityResult] = None,
     calibrator: Optional[ConfidenceCalibrator] = None,
-    config: Optional[ConfidenceEngineConfig] = None
+    config: Optional[ConfidenceEngineConfig] = None,
+    novelty_assessment: Optional[Any] = None
 ) -> DecisionAssessment:
     """
     Evaluates evidence quality, classifier confidence, and convergence to compute calibrated confidence
@@ -346,19 +347,26 @@ def evaluate_event_decision(
         contradiction_penalty >= config.max_contradiction_penalty_known or
         len(conflicting_families) >= 1 or
         calibrated_conf < config.min_model_confidence_known or
-        overall_decision_confidence < config.min_decision_confidence_known
+        overall_decision_confidence < config.min_decision_confidence_known or
+        (novelty_assessment is not None and getattr(novelty_assessment, "distribution_state", "") == "NOVEL")
     ):
         decision_state = DECISION_NEEDS_VERIFICATION
         operational_action = ACTION_VERIFY_REQUIRED
-        if len(conflicting_families) >= 1 or contradiction_penalty >= config.max_contradiction_penalty_known:
+        if novelty_assessment is not None and getattr(novelty_assessment, "distribution_state", "") == "NOVEL":
+            abstention_codes.append("HIGH_CONFIDENCE_OOD" if "HIGH_CONFIDENCE_OOD" in getattr(novelty_assessment, "reason_codes", []) else "FEATURE_SPACE_DEVIATION")
+            limiting_factors.append(f"Event exhibits out-of-distribution characteristics (Novelty Score: {getattr(novelty_assessment, 'novelty_score', 0.0):.2f})")
+        if contradiction_penalty >= config.max_contradiction_penalty_known:
             abstention_codes.append(REASON_STRONG_EVIDENCE_CONFLICT)
-            limiting_factors.append(f"Evidence contradiction detected in families: {conflicting_families}")
+            limiting_factors.append(f"Evidence contradiction penalty ({contradiction_penalty:.2f}) exceeds threshold for autonomous decision")
+        if len(conflicting_families) >= 1:
+            abstention_codes.append(REASON_STRONG_EVIDENCE_CONFLICT)
+            limiting_factors.append(f"Conflicting evidence families present: {conflicting_families}")
         if calibrated_conf < config.min_model_confidence_known:
             abstention_codes.append(REASON_MODEL_UNCERTAINTY)
-            limiting_factors.append(f"Model confidence ({calibrated_conf:.2f}) below auto-classification threshold ({config.min_model_confidence_known:.2f})")
+            limiting_factors.append(f"Model confidence ({calibrated_conf:.2f}) below autonomous threshold ({config.min_model_confidence_known})")
         if overall_decision_confidence < config.min_decision_confidence_known:
             abstention_codes.append(REASON_SOURCE_AMBIGUITY)
-            limiting_factors.append(f"Overall decision confidence ({overall_decision_confidence:.2f}) requires human verification")
+            limiting_factors.append(f"Overall decision confidence ({overall_decision_confidence:.2f}) below autonomous threshold ({config.min_decision_confidence_known})")
 
     # --- GATE 4: KNOWN ---
     else:

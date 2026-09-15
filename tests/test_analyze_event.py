@@ -47,7 +47,7 @@ def test_complete_event_flow_all_stages():
     assert res.pipeline_version == PIPELINE_VERSION
     assert res.event_id == "evt_test_p18"
     assert res.pipeline_status["status"] == "COMPLETE"
-    assert len(res.pipeline_status["stages"]) == 10
+    assert len(res.pipeline_status["stages"]) == 13
 
 
 def test_json_serializability():
@@ -72,7 +72,8 @@ def test_stage_execution_order():
     stages = list(res.pipeline_status["stages"].keys())
     expected_stages = [
         "validation", "observation_quality", "canonical_features", "low_t_heat",
-        "historical_abnormality", "model_inference", "evidence_aggregation",
+        "high_t_physics", "event_state_machine", "historical_abnormality",
+        "model_inference", "novel_event_detection", "evidence_aggregation",
         "confidence_decision", "risk_priority", "explanation_engine"
     ]
     assert stages == expected_stages

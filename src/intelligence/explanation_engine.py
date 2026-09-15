@@ -97,6 +97,24 @@ def _build_why_section(
     if temp_items:
         supporting_reasons.append("Event exhibits repeated detections and temporal persistence")
 
+    # 1B. High-T Thermal Physics
+    tp_items = [e for e in supporting_items if e.evidence_family == "THERMAL_PHYSICS"]
+    if tp_items:
+        for tpi in tp_items:
+            supporting_reasons.append(tpi.description)
+
+    # 1C. Behavioral State Machine
+    bs_items = [e for e in supporting_items if e.evidence_family == "BEHAVIOR_STATE"]
+    if bs_items:
+        for bsi in bs_items:
+            supporting_reasons.append(bsi.description)
+
+    # 1D. OOD / Novelty Evidence
+    ood_items = [e for e in supporting_items if e.evidence_family == "OOD_NOVELTY"]
+    if ood_items:
+        for oodi in ood_items:
+            supporting_reasons.append(oodi.description)
+
     # 2. GEO Thermal (INSAT-3DS High-Cadence)
     geo_items = [e for e in supporting_items if e.evidence_family == "GEO_THERMAL"]
     if geo_items:

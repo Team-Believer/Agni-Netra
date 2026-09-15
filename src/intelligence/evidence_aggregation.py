@@ -73,12 +73,98 @@ def aggregate_event_evidence(
     abnormality_result: Optional[AbnormalityResult] = None,
     model_probs: Optional[np.ndarray] = None,
     source_classes: Optional[List[str]] = None,
-    insat_corroboration: Optional[Any] = None
+    insat_corroboration: Optional[Any] = None,
+    high_t_result: Optional[Any] = None,
+    state_assessment: Optional[Any] = None,
+    novelty_assessment: Optional[Any] = None
 ) -> EventEvidenceLedger:
     
     ledger_items = []
+
+    # 0A. OOD Novelty Evidence
+    if novelty_assessment is not None:
+        d_state = getattr(novelty_assessment, "distribution_state", "UNKNOWN")
+        n_score = getattr(novelty_assessment, "novelty_score", 0.0)
+        n_level = getattr(novelty_assessment, "novelty_level", "UNKNOWN")
+        if d_state == "NOVEL":
+            ledger_items.append(_create_evidence_item(
+                "OOD_NOVELTY", "OBSERVED", "SUPPORTING",
+                "STRONG" if n_score >= 0.75 else "MODERATE",
+                f"Event exhibits out-of-distribution characteristics (Novelty Score: {n_score:.2f}, Level: {n_level}).",
+                source="NovelEventDetection"
+            ))
+        elif d_state == "KNOWN_LIKE":
+            ledger_items.append(_create_evidence_item(
+                "OOD_NOVELTY", "OBSERVED", "NEUTRAL", "WEAK",
+                f"Event pattern is consistent with known training distributions (Novelty Score: {n_score:.2f}).",
+                source="NovelEventDetection"
+            ))
+        else:
+            ledger_items.append(_create_evidence_item(
+                "OOD_NOVELTY", "UNAVAILABLE", "MISSING", "WEAK",
+                "MISSING: Novelty could not be assessed reliably due to data quality or sparse observations.",
+                source="NovelEventDetection"
+            ))
+
+    # 0B. Event State Machine / Behavioral State Evidence
+    if state_assessment is not None:
+        c_state = getattr(state_assessment, "current_state", "UNKNOWN")
+        c_conf = getattr(state_assessment, "current_state_confidence", 0.5)
+        l_trans = getattr(state_assessment, "last_transition", "")
+        if c_state in ["PERSISTING", "STABLE", "ESCALATING", "ABNORMAL", "REACTIVATED"]:
+            ledger_items.append(_create_evidence_item(
+                "BEHAVIOR_STATE", "OBSERVED", "SUPPORTING",
+                "STRONG" if c_conf >= 0.80 else "MODERATE",
+                f"Event state evaluates to {c_state} ({l_trans}).",
+                source="EventStateMachine"
+            ))
+        elif c_state == "INTERMITTENT":
+            ledger_items.append(_create_evidence_item(
+                "BEHAVIOR_STATE", "OBSERVED", "CONFLICTING", "MODERATE",
+                f"Event exhibits intermittent temporal activity ({l_trans}).",
+                source="EventStateMachine"
+            ))
+        else:
+            ledger_items.append(_create_evidence_item(
+                "BEHAVIOR_STATE", "OBSERVED", "NEUTRAL", "WEAK",
+                f"Event state evaluates to {c_state} ({l_trans}).",
+                source="EventStateMachine"
+            ))
     
-    # 0. INSAT-3DS High-Cadence GEO Thermal Evidence
+    # 0A. High-T Thermal Physics Evidence
+    if high_t_result is not None and getattr(high_t_result, "available", False):
+        sig = getattr(high_t_result, "high_temperature_signal", "UNKNOWN")
+        phys_mode = getattr(high_t_result, "physics_mode", "REDUCED_THERMAL_PHYSICS_MODE")
+        frp_max = getattr(high_t_result, "frp_summary", {}).get("max", 0.0)
+        
+        if sig in ["STRONG", "MODERATE"]:
+            ledger_items.append(_create_evidence_item(
+                "THERMAL_PHYSICS", "OBSERVED", "SUPPORTING",
+                "STRONG" if sig == "STRONG" else "MODERATE",
+                f"Thermal physics exhibit {sig.lower()} high-temperature signal ({phys_mode}, FRP max: {frp_max} MW).",
+                source="HighTThermalPhysics"
+            ))
+        elif sig == "WEAK":
+            ledger_items.append(_create_evidence_item(
+                "THERMAL_PHYSICS", "OBSERVED", "NEUTRAL", "WEAK",
+                f"Thermal physics exhibit low-intensity characteristics ({phys_mode}).",
+                source="HighTThermalPhysics"
+            ))
+        
+        rel = getattr(high_t_result, "thermal_measurement_reliability", 1.0)
+        if rel < 1.0:
+            ledger_items.append(_create_evidence_item(
+                "THERMAL_PHYSICS", "DERIVED", "CONFLICTING", "MODERATE",
+                f"Possible sensor saturation reduces thermal measurement reliability ({rel:.2f}).",
+                source="HighTThermalPhysics"
+            ))
+    else:
+        ledger_items.append(_create_evidence_item(
+            "THERMAL_PHYSICS", "UNAVAILABLE", "MISSING", "WEAK",
+            "MISSING: High-temperature thermal physics evidence unavailable.", source="HighTThermalPhysics"
+        ))
+
+    # 0B. INSAT-3DS High-Cadence GEO Thermal Evidence
     if insat_corroboration is not None:
         c_state = getattr(insat_corroboration, 'corroboration_state', 'NOT_AVAILABLE')
         summary_text = getattr(insat_corroboration, 'summary', 'INSAT-3DS evidence unavailable.')

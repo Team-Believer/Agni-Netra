@@ -1,0 +1,804 @@
+{
+  "title": "AI_DEMO_SCENARIO_PACKAGE",
+  "schema_version": "AGN-EVENT-INTELLIGENCE-1.0",
+  "pipeline_version": "1.0.0",
+  "ground_truth_disclaimer": "REAL_OBSERVATION (GROUND_TRUTH_STATUS = NOT_ESTABLISHED)",
+  "scenarios": {
+    "SCENARIO_1": {
+      "scenario_id": "SCENARIO_1",
+      "scenario_name": "PERSISTENT_ROUTINE_SOURCE",
+      "description": "Persistent / Routine Thermal Source",
+      "available": true,
+      "unavailable_reason": null,
+      "real_event_id": "AGN-E-000871",
+      "observation_ids": [
+        "obs_6611",
+        "obs_6612",
+        "obs_6613",
+        "obs_1909",
+        "obs_1910",
+        "obs_1911",
+        "obs_1912"
+      ],
+      "observation_count": 7,
+      "event_time": {
+        "first_observation": "2026-09-08T07:18:00",
+        "last_observation": "2026-09-08T07:37:00",
+        "duration": "0.32 hours"
+      },
+      "location": {
+        "latitude": 10.422605714285714,
+        "longitude": 79.25486
+      },
+      "ai_result": {
+        "source_class": "WILDFIRE",
+        "decision_state": "UNKNOWN",
+        "distribution_state": "KNOWN_LIKE",
+        "event_state": "PERSISTING",
+        "abnormality_level": "UNKNOWN",
+        "novelty_level": "KNOWN_LIKE",
+        "confidence_level": "LOW",
+        "risk_level": "MODERATE",
+        "priority_level": "P3",
+        "urgency": "NORMAL",
+        "operational_action": "INFORMATIONAL"
+      },
+      "evidence_summary": {
+        "supporting_families": [
+          "BEHAVIOR_STATE",
+          "TEMPORAL",
+          "THERMAL",
+          "THERMAL_PHYSICS"
+        ],
+        "conflicting_families": [],
+        "missing_families": [
+          "CONTEXT",
+          "GEO_THERMAL",
+          "HISTORICAL",
+          "SENTINEL"
+        ],
+        "evidence_completeness": 0.3333333333333333,
+        "evidence_convergence": "HIGH"
+      },
+      "behavior_summary": "Observed event state: PERSISTING. Low-T status: TRANSIENT_OR_DEVELOPING.",
+      "why": {
+        "headline": "Event is classified as WILDFIRE with MODERATE decision confidence supported by BEHAVIOR_STATE, TEMPORAL, THERMAL, THERMAL_PHYSICS evidence.",
+        "supporting_families": [
+          "BEHAVIOR_STATE",
+          "TEMPORAL",
+          "THERMAL",
+          "THERMAL_PHYSICS"
+        ],
+        "supporting_reasons": [
+          "Thermal intensity is elevated above detection baseline",
+          "Event exhibits repeated detections and temporal persistence",
+          "Thermal physics exhibit moderate high-temperature signal (REDUCED_THERMAL_PHYSICS_MODE, FRP max: 106.24 MW).",
+          "Event state evaluates to PERSISTING (INITIAL -> PERSISTING).",
+          "Model-derived probability score (0.60) favors WILDFIRE"
+        ]
+      },
+      "why_not": {
+        "competing_hypotheses": [],
+        "conflicting_families": [],
+        "limiting_reasons": [
+          "Missing evidence: MISSING: INSAT-3DS GEO thermal evidence is unavailable for period.",
+          "Missing evidence: MISSING: Sentinel optical confirmation.",
+          "Missing evidence: MISSING: Facility/Context operating state.",
+          "Missing evidence: MISSING: Sufficient historical baseline for abnormality detection.",
+          "Low overall evidence completeness (0.33)"
+        ]
+      },
+      "what_changed": {
+        "change_detected": false,
+        "change_reasons": [
+          "Historical baseline is insufficient to establish change or abnormality."
+        ],
+        "historical_comparison": "Historical baseline unavailable or insufficient."
+      },
+      "uncertainty": {
+        "confidence_level": "MODERATE",
+        "evidence_completeness": 0.3333333333333333,
+        "evidence_convergence": 1.0,
+        "uncertainty_reasons": [
+          "CRITICAL_EVIDENCE_MISSING",
+          "INSUFFICIENT_HISTORICAL_BASELINE",
+          "LOW_EVIDENCE_COMPLETENESS"
+        ],
+        "missing_information": [
+          "MISSING: INSAT-3DS GEO thermal evidence is unavailable for period.",
+          "MISSING: Sentinel optical confirmation.",
+          "MISSING: Facility/Context operating state.",
+          "MISSING: Sufficient historical baseline for abnormality detection."
+        ]
+      },
+      "verification_state": "REVIEW_RECOMMENDED",
+      "limitations": [
+        "INSAT-3DS",
+        "SENTINEL",
+        "CONTEXT_FACILITY_DATA",
+        "HISTORICAL_BASELINE"
+      ],
+      "provenance": {
+        "observation_ids": [
+          "obs_AGN-E-000871_0"
+        ],
+        "event_id": "AGN-E-000871",
+        "evidence_source_ids": [
+          "6ad5eb7e-9c0e-4e39-8027-86e1c59715ad",
+          "8dd84faa-53bb-419f-bd90-8d66c848db06",
+          "96c5ec6c-d4ce-4341-9b69-1fb0bd8d5252",
+          "a485951c-e1a2-42b3-88ce-f72fc448ba2c",
+          "aa082863-4cb4-452b-b850-1e224840fddc",
+          "cc9e1733-abcb-47db-9457-50d39ce8dffd",
+          "e635cf77-32b5-46e9-97f1-eef4aab628d0",
+          "e8471176-5caa-4b86-86e9-b662eb820d49",
+          "f0856491-ae19-4c68-b9de-c5a5ec94e23e",
+          "f714999d-6453-4fb6-be62-c73b4fb01001",
+          "qual_glint_1"
+        ],
+        "evidence_family_ids": [
+          "BEHAVIOR_STATE",
+          "CONTEXT",
+          "DATA_QUALITY",
+          "GEO_THERMAL",
+          "HISTORICAL",
+          "MODEL",
+          "OOD_NOVELTY",
+          "SENTINEL",
+          "TEMPORAL",
+          "THERMAL",
+          "THERMAL_PHYSICS"
+        ],
+        "reason_codes": [
+          "CRITICAL_EVIDENCE_MISSING",
+          "INSUFFICIENT_HISTORICAL_BASELINE",
+          "LOW_EVIDENCE_COMPLETENESS"
+        ]
+      },
+      "ground_truth_status": "NOT_ESTABLISHED",
+      "observation_type": "REAL_OBSERVATION"
+    },
+    "SCENARIO_2": {
+      "scenario_id": "SCENARIO_2",
+      "scenario_name": "ESCALATING_ABNORMAL_EVENT",
+      "description": "Escalating / Abnormal Event",
+      "available": true,
+      "unavailable_reason": null,
+      "real_event_id": "AGN-E-000005",
+      "observation_ids": [
+        "obs_5180",
+        "obs_14",
+        "obs_15",
+        "obs_16",
+        "obs_17",
+        "obs_5426",
+        "obs_5427",
+        "obs_5428",
+        "obs_5429",
+        "obs_5430",
+        "obs_5431",
+        "obs_5432",
+        "obs_5433",
+        "obs_699",
+        "obs_700",
+        "obs_701",
+        "obs_702",
+        "obs_703",
+        "obs_704",
+        "obs_705",
+        "obs_706",
+        "obs_5891",
+        "obs_6586",
+        "obs_6587",
+        "obs_1771",
+        "obs_2026",
+        "obs_2027",
+        "obs_2028",
+        "obs_6811",
+        "obs_6812",
+        "obs_6813",
+        "obs_6814",
+        "obs_6815",
+        "obs_6816",
+        "obs_6817",
+        "obs_6818",
+        "obs_7200"
+      ],
+      "observation_count": 37,
+      "event_time": {
+        "first_observation": "2026-09-06T06:20:00",
+        "last_observation": "2026-09-09T07:03:00",
+        "duration": "72.72 hours"
+      },
+      "location": {
+        "latitude": 26.57142081081081,
+        "longitude": 101.67028756756758
+      },
+      "ai_result": {
+        "source_class": "WILDFIRE",
+        "decision_state": "UNKNOWN",
+        "distribution_state": "KNOWN_LIKE",
+        "event_state": "STABLE",
+        "abnormality_level": "UNKNOWN",
+        "novelty_level": "KNOWN_LIKE",
+        "confidence_level": "LOW",
+        "risk_level": "LOW",
+        "priority_level": "P3",
+        "urgency": "NORMAL",
+        "operational_action": "INFORMATIONAL"
+      },
+      "evidence_summary": {
+        "supporting_families": [
+          "BEHAVIOR_STATE",
+          "TEMPORAL",
+          "THERMAL"
+        ],
+        "conflicting_families": [],
+        "missing_families": [
+          "CONTEXT",
+          "GEO_THERMAL",
+          "HISTORICAL",
+          "SENTINEL"
+        ],
+        "evidence_completeness": 0.3333333333333333,
+        "evidence_convergence": "HIGH"
+      },
+      "behavior_summary": "Observed event state: STABLE. Low-T status: TRANSIENT_OR_DEVELOPING.",
+      "why": {
+        "headline": "Event is classified as WILDFIRE with MODERATE decision confidence supported by BEHAVIOR_STATE, TEMPORAL, THERMAL evidence.",
+        "supporting_families": [
+          "BEHAVIOR_STATE",
+          "TEMPORAL",
+          "THERMAL"
+        ],
+        "supporting_reasons": [
+          "Thermal intensity is elevated above detection baseline",
+          "Event exhibits repeated detections and temporal persistence",
+          "Event state evaluates to STABLE (INITIAL -> STABLE).",
+          "Model-derived probability score (0.60) favors WILDFIRE"
+        ]
+      },
+      "why_not": {
+        "competing_hypotheses": [],
+        "conflicting_families": [],
+        "limiting_reasons": [
+          "Missing evidence: MISSING: INSAT-3DS GEO thermal evidence is unavailable for period.",
+          "Missing evidence: MISSING: Sentinel optical confirmation.",
+          "Missing evidence: MISSING: Facility/Context operating state.",
+          "Missing evidence: MISSING: Sufficient historical baseline for abnormality detection.",
+          "Low overall evidence completeness (0.33)"
+        ]
+      },
+      "what_changed": {
+        "change_detected": false,
+        "change_reasons": [
+          "Historical baseline is insufficient to establish change or abnormality."
+        ],
+        "historical_comparison": "Historical baseline unavailable or insufficient."
+      },
+      "uncertainty": {
+        "confidence_level": "MODERATE",
+        "evidence_completeness": 0.3333333333333333,
+        "evidence_convergence": 0.8,
+        "uncertainty_reasons": [
+          "CRITICAL_EVIDENCE_MISSING",
+          "INSUFFICIENT_HISTORICAL_BASELINE",
+          "LOW_EVIDENCE_COMPLETENESS"
+        ],
+        "missing_information": [
+          "MISSING: INSAT-3DS GEO thermal evidence is unavailable for period.",
+          "MISSING: Sentinel optical confirmation.",
+          "MISSING: Facility/Context operating state.",
+          "MISSING: Sufficient historical baseline for abnormality detection."
+        ]
+      },
+      "verification_state": "REVIEW_RECOMMENDED",
+      "limitations": [
+        "INSAT-3DS",
+        "SENTINEL",
+        "CONTEXT_FACILITY_DATA",
+        "HISTORICAL_BASELINE"
+      ],
+      "provenance": {
+        "observation_ids": [
+          "obs_AGN-E-000005_0"
+        ],
+        "event_id": "AGN-E-000005",
+        "evidence_source_ids": [
+          "09784a75-bacd-4ce2-b37b-3d9f6afe98b0",
+          "3a4ddca8-b6dc-4e03-9409-eed5346df539",
+          "42f3cb38-1f88-4fbb-b046-8cee064e62d7",
+          "4e8e08ae-e471-4acf-82ed-6629d69affe9",
+          "65ade8d8-2fd6-4f51-b821-0316775a83cd",
+          "80789030-d91a-48d4-9de3-e32235804147",
+          "964987db-8816-4d1b-9aa9-be3cc257ba44",
+          "9fc80e62-ecc1-4ab2-a9b1-24ec3fa34eda",
+          "ecdf659e-f238-4a4e-8af0-32588e4aacf6",
+          "f1437faa-35b5-44c1-bdd0-5b3c949d7599",
+          "qual_glint_1"
+        ],
+        "evidence_family_ids": [
+          "BEHAVIOR_STATE",
+          "CONTEXT",
+          "DATA_QUALITY",
+          "GEO_THERMAL",
+          "HISTORICAL",
+          "MODEL",
+          "OOD_NOVELTY",
+          "SENTINEL",
+          "TEMPORAL",
+          "THERMAL",
+          "THERMAL_PHYSICS"
+        ],
+        "reason_codes": [
+          "CRITICAL_EVIDENCE_MISSING",
+          "INSUFFICIENT_HISTORICAL_BASELINE",
+          "LOW_EVIDENCE_COMPLETENESS"
+        ]
+      },
+      "ground_truth_status": "NOT_ESTABLISHED",
+      "observation_type": "REAL_OBSERVATION"
+    },
+    "SCENARIO_3": {
+      "scenario_id": "SCENARIO_3",
+      "scenario_name": "SPARSE_INSUFFICIENT_OBSERVATION",
+      "description": "Sparse / Insufficient Observation",
+      "available": true,
+      "unavailable_reason": null,
+      "real_event_id": "AGN-E-000002",
+      "observation_ids": [
+        "obs_8"
+      ],
+      "observation_count": 1,
+      "event_time": {
+        "first_observation": "2026-09-06T06:35:00",
+        "last_observation": "2026-09-06T06:35:00",
+        "duration": "0.00 hours"
+      },
+      "location": {
+        "latitude": 19.90937,
+        "longitude": 99.2664
+      },
+      "ai_result": {
+        "source_class": "WILDFIRE",
+        "decision_state": "INSUFFICIENT_OBSERVATION",
+        "distribution_state": "UNKNOWN",
+        "event_state": "NEW",
+        "abnormality_level": "UNKNOWN",
+        "novelty_level": "UNKNOWN",
+        "confidence_level": "LOW",
+        "risk_level": "LOW",
+        "priority_level": "P3",
+        "urgency": "NORMAL",
+        "operational_action": "INFORMATIONAL"
+      },
+      "evidence_summary": {
+        "supporting_families": [
+          "THERMAL"
+        ],
+        "conflicting_families": [],
+        "missing_families": [
+          "CONTEXT",
+          "GEO_THERMAL",
+          "HISTORICAL",
+          "OOD_NOVELTY",
+          "SENTINEL"
+        ],
+        "evidence_completeness": 0.16666666666666666,
+        "evidence_convergence": "HIGH"
+      },
+      "behavior_summary": "Observed event state: NEW. Low-T status: TRANSIENT_OR_DEVELOPING.",
+      "why": {
+        "headline": "Event is classified as WILDFIRE with LOW decision confidence supported by THERMAL evidence.",
+        "supporting_families": [
+          "THERMAL"
+        ],
+        "supporting_reasons": [
+          "Thermal intensity is elevated above detection baseline",
+          "Model-derived probability score (0.60) favors WILDFIRE"
+        ]
+      },
+      "why_not": {
+        "competing_hypotheses": [],
+        "conflicting_families": [],
+        "limiting_reasons": [
+          "Missing evidence: MISSING: Novelty could not be assessed reliably due to data quality or sparse observations.",
+          "Missing evidence: MISSING: INSAT-3DS GEO thermal evidence is unavailable for period.",
+          "Missing evidence: MISSING: Sentinel optical confirmation.",
+          "Missing evidence: MISSING: Facility/Context operating state.",
+          "Missing evidence: MISSING: Sufficient historical baseline for abnormality detection.",
+          "Low overall evidence completeness (0.17)"
+        ]
+      },
+      "what_changed": {
+        "change_detected": false,
+        "change_reasons": [
+          "Historical baseline is insufficient to establish change or abnormality."
+        ],
+        "historical_comparison": "Historical baseline unavailable or insufficient."
+      },
+      "uncertainty": {
+        "confidence_level": "LOW",
+        "evidence_completeness": 0.16666666666666666,
+        "evidence_convergence": 0.35,
+        "uncertainty_reasons": [
+          "INSUFFICIENT_HISTORICAL_BASELINE",
+          "INSUFFICIENT_TEMPORAL_HISTORY"
+        ],
+        "missing_information": [
+          "MISSING: Novelty could not be assessed reliably due to data quality or sparse observations.",
+          "MISSING: INSAT-3DS GEO thermal evidence is unavailable for period.",
+          "MISSING: Sentinel optical confirmation.",
+          "MISSING: Facility/Context operating state.",
+          "MISSING: Sufficient historical baseline for abnormality detection."
+        ]
+      },
+      "verification_state": "INSUFFICIENT_DATA",
+      "limitations": [
+        "INSAT-3DS",
+        "SENTINEL",
+        "CONTEXT_FACILITY_DATA",
+        "HISTORICAL_BASELINE"
+      ],
+      "provenance": {
+        "observation_ids": [
+          "obs_AGN-E-000002_0"
+        ],
+        "event_id": "AGN-E-000002",
+        "evidence_source_ids": [
+          "4b18ba03-8b16-4a1c-8176-14f45905ada0",
+          "5ffbc1c8-5b8a-449a-be87-c092dbf6df54",
+          "7cd20e54-7f1a-46c4-b34e-7ac27eefd4f4",
+          "bb959583-c25e-4626-99f6-ac1373019392",
+          "d8e66f9b-2bd8-4bac-a233-dcd0ab481758",
+          "d902a4d1-a433-46f2-9654-457bc1fe4097",
+          "dc55d376-b0a5-4d77-8ddf-a6a730afb9ba",
+          "f34b6198-f3ff-4ed4-85d6-f227fa5de095",
+          "fc0f4e2d-bd91-4af4-bafd-58ebd382a4f6",
+          "qual_glint_1"
+        ],
+        "evidence_family_ids": [
+          "BEHAVIOR_STATE",
+          "CONTEXT",
+          "DATA_QUALITY",
+          "GEO_THERMAL",
+          "HISTORICAL",
+          "MODEL",
+          "OOD_NOVELTY",
+          "SENTINEL",
+          "THERMAL",
+          "THERMAL_PHYSICS"
+        ],
+        "reason_codes": [
+          "INSUFFICIENT_HISTORICAL_BASELINE",
+          "INSUFFICIENT_TEMPORAL_HISTORY"
+        ]
+      },
+      "ground_truth_status": "NOT_ESTABLISHED",
+      "observation_type": "REAL_OBSERVATION"
+    },
+    "SCENARIO_4": {
+      "scenario_id": "SCENARIO_4",
+      "scenario_name": "CONFLICTING_EVIDENCE_EVENT",
+      "description": "Conflicting Evidence Event",
+      "available": false,
+      "unavailable_reason": "NO_REAL_EVENT_MEETS_SCENARIO_CRITERIA",
+      "real_event_id": "NONE",
+      "observation_ids": [],
+      "observation_count": 0,
+      "event_time": {
+        "first_observation": "N/A",
+        "last_observation": "N/A",
+        "duration": "N/A"
+      },
+      "location": {
+        "latitude": 0.0,
+        "longitude": 0.0
+      },
+      "ai_result": {},
+      "evidence_summary": {},
+      "behavior_summary": "Scenario unavailable in real corpus fixture set",
+      "why": {},
+      "why_not": {},
+      "what_changed": {},
+      "uncertainty": {},
+      "verification_state": "UNAVAILABLE",
+      "limitations": [
+        "NO_REAL_DATA_MEETS_FITNESS_CRITERIA"
+      ],
+      "provenance": {},
+      "ground_truth_status": "NOT_ESTABLISHED",
+      "observation_type": "REAL_OBSERVATION"
+    },
+    "SCENARIO_5": {
+      "scenario_id": "SCENARIO_5",
+      "scenario_name": "NOVEL_OOD_LIKE_EVENT",
+      "description": "Novel / OOD-like Event",
+      "available": true,
+      "unavailable_reason": null,
+      "real_event_id": "AGN-E-000003",
+      "observation_ids": [
+        "obs_8764"
+      ],
+      "observation_count": 1,
+      "event_time": {
+        "first_observation": "2026-09-12T06:03:00",
+        "last_observation": "2026-09-12T06:03:00",
+        "duration": "0.00 hours"
+      },
+      "location": {
+        "latitude": 19.91723,
+        "longitude": 99.26624
+      },
+      "ai_result": {
+        "source_class": "WILDFIRE",
+        "decision_state": "INSUFFICIENT_OBSERVATION",
+        "distribution_state": "UNKNOWN",
+        "event_state": "NEW",
+        "abnormality_level": "UNKNOWN",
+        "novelty_level": "UNKNOWN",
+        "confidence_level": "LOW",
+        "risk_level": "LOW",
+        "priority_level": "P3",
+        "urgency": "NORMAL",
+        "operational_action": "INFORMATIONAL"
+      },
+      "evidence_summary": {
+        "supporting_families": [
+          "THERMAL"
+        ],
+        "conflicting_families": [],
+        "missing_families": [
+          "CONTEXT",
+          "GEO_THERMAL",
+          "HISTORICAL",
+          "OOD_NOVELTY",
+          "SENTINEL"
+        ],
+        "evidence_completeness": 0.16666666666666666,
+        "evidence_convergence": "HIGH"
+      },
+      "behavior_summary": "Observed event state: NEW. Low-T status: TRANSIENT_OR_DEVELOPING.",
+      "why": {
+        "headline": "Event is classified as WILDFIRE with LOW decision confidence supported by THERMAL evidence.",
+        "supporting_families": [
+          "THERMAL"
+        ],
+        "supporting_reasons": [
+          "Thermal intensity is elevated above detection baseline",
+          "Model-derived probability score (0.60) favors WILDFIRE"
+        ]
+      },
+      "why_not": {
+        "competing_hypotheses": [],
+        "conflicting_families": [],
+        "limiting_reasons": [
+          "Missing evidence: MISSING: Novelty could not be assessed reliably due to data quality or sparse observations.",
+          "Missing evidence: MISSING: INSAT-3DS GEO thermal evidence is unavailable for period.",
+          "Missing evidence: MISSING: Sentinel optical confirmation.",
+          "Missing evidence: MISSING: Facility/Context operating state.",
+          "Missing evidence: MISSING: Sufficient historical baseline for abnormality detection.",
+          "Low overall evidence completeness (0.17)"
+        ]
+      },
+      "what_changed": {
+        "change_detected": false,
+        "change_reasons": [
+          "Historical baseline is insufficient to establish change or abnormality."
+        ],
+        "historical_comparison": "Historical baseline unavailable or insufficient."
+      },
+      "uncertainty": {
+        "confidence_level": "LOW",
+        "evidence_completeness": 0.16666666666666666,
+        "evidence_convergence": 0.35,
+        "uncertainty_reasons": [
+          "INSUFFICIENT_HISTORICAL_BASELINE",
+          "INSUFFICIENT_TEMPORAL_HISTORY"
+        ],
+        "missing_information": [
+          "MISSING: Novelty could not be assessed reliably due to data quality or sparse observations.",
+          "MISSING: INSAT-3DS GEO thermal evidence is unavailable for period.",
+          "MISSING: Sentinel optical confirmation.",
+          "MISSING: Facility/Context operating state.",
+          "MISSING: Sufficient historical baseline for abnormality detection."
+        ]
+      },
+      "verification_state": "INSUFFICIENT_DATA",
+      "limitations": [
+        "INSAT-3DS",
+        "SENTINEL",
+        "CONTEXT_FACILITY_DATA",
+        "HISTORICAL_BASELINE"
+      ],
+      "provenance": {
+        "observation_ids": [
+          "obs_AGN-E-000003_0"
+        ],
+        "event_id": "AGN-E-000003",
+        "evidence_source_ids": [
+          "1952998c-fede-436d-b81d-ce1446f6e8dd",
+          "364a2c88-3a39-46f3-80a5-985b269e8f4b",
+          "7c8322dd-b8f5-4996-8e77-aa027eb4ffb9",
+          "88389db4-86a1-4a08-be65-07afdfbf19d9",
+          "db55c80b-5461-4fb4-99bc-9fb28c1eddd2",
+          "e7dceb74-4f4a-473b-9c5d-1478123347e6",
+          "e9f24c33-f0b5-4b3b-8ab1-ff3b18a801c0",
+          "f20be04c-c4d9-4f4c-a8b5-7837b8420e95",
+          "fbf93673-ced0-4d33-8810-83bd51c7ed38",
+          "qual_glint_1"
+        ],
+        "evidence_family_ids": [
+          "BEHAVIOR_STATE",
+          "CONTEXT",
+          "DATA_QUALITY",
+          "GEO_THERMAL",
+          "HISTORICAL",
+          "MODEL",
+          "OOD_NOVELTY",
+          "SENTINEL",
+          "THERMAL",
+          "THERMAL_PHYSICS"
+        ],
+        "reason_codes": [
+          "INSUFFICIENT_HISTORICAL_BASELINE",
+          "INSUFFICIENT_TEMPORAL_HISTORY"
+        ]
+      },
+      "ground_truth_status": "NOT_ESTABLISHED",
+      "observation_type": "REAL_OBSERVATION"
+    },
+    "SCENARIO_6": {
+      "scenario_id": "SCENARIO_6",
+      "scenario_name": "HIGH_PRIORITY_EVENT",
+      "description": "High-Priority Event",
+      "available": true,
+      "unavailable_reason": null,
+      "real_event_id": "AGN-E-001105",
+      "observation_ids": [
+        "obs_7803",
+        "obs_3107",
+        "obs_3108",
+        "obs_3109",
+        "obs_3718"
+      ],
+      "observation_count": 5,
+      "event_time": {
+        "first_observation": "2026-09-10T08:20:00",
+        "last_observation": "2026-09-11T08:22:00",
+        "duration": "24.03 hours"
+      },
+      "location": {
+        "latitude": 8.834150000000001,
+        "longitude": 80.991364
+      },
+      "ai_result": {
+        "source_class": "WILDFIRE",
+        "decision_state": "UNKNOWN",
+        "distribution_state": "KNOWN_LIKE",
+        "event_state": "PERSISTING",
+        "abnormality_level": "UNKNOWN",
+        "novelty_level": "KNOWN_LIKE",
+        "confidence_level": "LOW",
+        "risk_level": "MODERATE",
+        "priority_level": "P3",
+        "urgency": "NORMAL",
+        "operational_action": "INFORMATIONAL"
+      },
+      "evidence_summary": {
+        "supporting_families": [
+          "BEHAVIOR_STATE",
+          "TEMPORAL",
+          "THERMAL",
+          "THERMAL_PHYSICS"
+        ],
+        "conflicting_families": [],
+        "missing_families": [
+          "CONTEXT",
+          "GEO_THERMAL",
+          "HISTORICAL",
+          "SENTINEL"
+        ],
+        "evidence_completeness": 0.3333333333333333,
+        "evidence_convergence": "HIGH"
+      },
+      "behavior_summary": "Observed event state: PERSISTING. Low-T status: TRANSIENT_OR_DEVELOPING.",
+      "why": {
+        "headline": "Event is classified as WILDFIRE with MODERATE decision confidence supported by BEHAVIOR_STATE, TEMPORAL, THERMAL, THERMAL_PHYSICS evidence.",
+        "supporting_families": [
+          "BEHAVIOR_STATE",
+          "TEMPORAL",
+          "THERMAL",
+          "THERMAL_PHYSICS"
+        ],
+        "supporting_reasons": [
+          "Thermal intensity is elevated above detection baseline",
+          "Event exhibits repeated detections and temporal persistence",
+          "Thermal physics exhibit moderate high-temperature signal (REDUCED_THERMAL_PHYSICS_MODE, FRP max: 127.29 MW).",
+          "Event state evaluates to PERSISTING (INITIAL -> PERSISTING).",
+          "Model-derived probability score (0.60) favors WILDFIRE"
+        ]
+      },
+      "why_not": {
+        "competing_hypotheses": [],
+        "conflicting_families": [],
+        "limiting_reasons": [
+          "Missing evidence: MISSING: INSAT-3DS GEO thermal evidence is unavailable for period.",
+          "Missing evidence: MISSING: Sentinel optical confirmation.",
+          "Missing evidence: MISSING: Facility/Context operating state.",
+          "Missing evidence: MISSING: Sufficient historical baseline for abnormality detection.",
+          "Low overall evidence completeness (0.33)"
+        ]
+      },
+      "what_changed": {
+        "change_detected": false,
+        "change_reasons": [
+          "Historical baseline is insufficient to establish change or abnormality."
+        ],
+        "historical_comparison": "Historical baseline unavailable or insufficient."
+      },
+      "uncertainty": {
+        "confidence_level": "MODERATE",
+        "evidence_completeness": 0.3333333333333333,
+        "evidence_convergence": 1.0,
+        "uncertainty_reasons": [
+          "CRITICAL_EVIDENCE_MISSING",
+          "INSUFFICIENT_HISTORICAL_BASELINE",
+          "LOW_EVIDENCE_COMPLETENESS"
+        ],
+        "missing_information": [
+          "MISSING: INSAT-3DS GEO thermal evidence is unavailable for period.",
+          "MISSING: Sentinel optical confirmation.",
+          "MISSING: Facility/Context operating state.",
+          "MISSING: Sufficient historical baseline for abnormality detection."
+        ]
+      },
+      "verification_state": "REVIEW_RECOMMENDED",
+      "limitations": [
+        "INSAT-3DS",
+        "SENTINEL",
+        "CONTEXT_FACILITY_DATA",
+        "HISTORICAL_BASELINE"
+      ],
+      "provenance": {
+        "observation_ids": [
+          "obs_AGN-E-001105_0"
+        ],
+        "event_id": "AGN-E-001105",
+        "evidence_source_ids": [
+          "4d72b7a4-a108-4fda-b8d5-e8deae6c01b7",
+          "6cc7e3fe-7848-4d30-8a48-41a0074f8fc8",
+          "751b31be-ef58-46e4-8c02-03557c9eb231",
+          "815a7d19-a707-4c7d-bb32-8c4b069be5ba",
+          "87bd7d2d-5b5f-41ff-8b2f-b3dd9f311a75",
+          "ae5434e7-f38c-4412-aafb-61954978eca6",
+          "d25bbddd-3d83-41a5-b1b4-94fca9882ee1",
+          "d8728a8b-f36b-4670-a802-aaa560feed1c",
+          "db77271b-0b05-4014-8389-4e0822b9f48a",
+          "f949acf1-68fc-4427-bb83-25c5188e4cce",
+          "qual_glint_1"
+        ],
+        "evidence_family_ids": [
+          "BEHAVIOR_STATE",
+          "CONTEXT",
+          "DATA_QUALITY",
+          "GEO_THERMAL",
+          "HISTORICAL",
+          "MODEL",
+          "OOD_NOVELTY",
+          "SENTINEL",
+          "TEMPORAL",
+          "THERMAL",
+          "THERMAL_PHYSICS"
+        ],
+        "reason_codes": [
+          "CRITICAL_EVIDENCE_MISSING",
+          "INSUFFICIENT_HISTORICAL_BASELINE",
+          "LOW_EVIDENCE_COMPLETENESS"
+        ]
+      },
+      "ground_truth_status": "NOT_ESTABLISHED",
+      "observation_type": "REAL_OBSERVATION"
+    }
+  }
+}
