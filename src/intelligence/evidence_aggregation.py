@@ -72,10 +72,36 @@ def aggregate_event_evidence(
     low_t_result: Optional[LowTResult] = None,
     abnormality_result: Optional[AbnormalityResult] = None,
     model_probs: Optional[np.ndarray] = None,
-    source_classes: Optional[List[str]] = None
+    source_classes: Optional[List[str]] = None,
+    insat_corroboration: Optional[Any] = None
 ) -> EventEvidenceLedger:
     
     ledger_items = []
+    
+    # 0. INSAT-3DS High-Cadence GEO Thermal Evidence
+    if insat_corroboration is not None:
+        c_state = getattr(insat_corroboration, 'corroboration_state', 'NOT_AVAILABLE')
+        summary_text = getattr(insat_corroboration, 'summary', 'INSAT-3DS evidence unavailable.')
+        if c_state in ["CORROBORATING", "PARTIALLY_CORROBORATING"]:
+            ledger_items.append(_create_evidence_item(
+                "GEO_THERMAL", "OBSERVED", "SUPPORTING", "MODERATE",
+                summary_text, source="INSAT-3DS"
+            ))
+        elif c_state == "CONFLICTING":
+            ledger_items.append(_create_evidence_item(
+                "GEO_THERMAL", "OBSERVED", "CONFLICTING", "MODERATE",
+                summary_text, source="INSAT-3DS"
+            ))
+        else:
+            ledger_items.append(_create_evidence_item(
+                "GEO_THERMAL", "UNAVAILABLE", "MISSING", "WEAK",
+                "MISSING: INSAT-3DS GEO thermal evidence is unavailable for period.", source="INSAT-3DS"
+            ))
+    else:
+        ledger_items.append(_create_evidence_item(
+            "GEO_THERMAL", "UNAVAILABLE", "MISSING", "WEAK",
+            "MISSING: INSAT-3DS GEO thermal evidence is unavailable for period.", source="INSAT-3DS"
+        ))
     
     # 1. Thermal & Temporal
     if canon.current_mean_frp > 0:

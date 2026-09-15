@@ -32,6 +32,14 @@ from src.intelligence.confidence_decision import (
 )
 from src.intelligence.risk_priority import evaluate_risk_and_priority, RiskPriorityAssessment
 from src.intelligence.explanation_engine import generate_explanation, EventExplanation
+from src.intelligence.observation_quality import (
+    evaluate_event_observation_quality, EventQualitySummary,
+    SATURATION_LIKELY, SATURATION_POSSIBLE, GLINT_HIGH_RISK, GLINT_MODERATE_RISK
+)
+from src.ingestion.insat3ds import (
+    parse_insat3ds_file, assess_sensor_corroboration, SensorCorroborationAssessment,
+    NormalizedObservation
+)
 
 SCHEMA_VERSION = "AGN-EVENT-INTELLIGENCE-1.0"
 PIPELINE_VERSION = "1.0.0"
@@ -125,7 +133,8 @@ def analyze_event(
     model_probs: Optional[np.ndarray] = None,
     source_classes: Optional[List[str]] = None,
     calibrator: Optional[ConfidenceCalibrator] = None,
-    mode: str = "online"
+    mode: str = "online",
+    insat_observations: Optional[Union[List[NormalizedObservation], List[Dict[str, Any]], str, Dict[str, Any]]] = None
 ) -> EventIntelligenceResult:
     """
     Unified entry point for Agni-Netra event analysis.
@@ -200,10 +209,28 @@ def analyze_event(
     else:
         stage_statuses["validation"] = "SUCCESS"
 
-    # --- STAGE 2: CANONICAL FEATURES ---
+    # --- STAGE 2: OBSERVATION QUALITY DEFENSE LAYER ---
+    t0 = time.perf_counter()
+    try:
+        quality_summary = evaluate_event_observation_quality(raw_event)
+        stage_statuses["observation_quality"] = "SUCCESS"
+    except Exception as e:
+        from src.intelligence.observation_quality import EventQualitySummary
+        quality_summary = EventQualitySummary(
+            total_observation_count=1, usable_observation_count=1, degraded_observation_count=0,
+            excluded_observation_count=0, overall_observation_quality=0.8, quality_summary="Quality evaluation fallback",
+            saturation_summary="No thermal saturation detected", glint_summary="No solar glint risk detected",
+            critical_quality_flags=[], observation_assessments=[]
+        )
+        stage_statuses["observation_quality"] = "PARTIAL"
+        limitations_list.append(f"Observation quality evaluation fallback: {str(e)}")
+    stage_durations["observation_quality"] = round((time.perf_counter() - t0) * 1000.0, 3)
+
+    # --- STAGE 3: CANONICAL FEATURES ---
     t0 = time.perf_counter()
     try:
         canon = build_event_features(raw_event, mode=mode)
+        canon.observation_quality = quality_summary.overall_observation_quality
         stage_statuses["canonical_features"] = "SUCCESS"
     except Exception as e:
         canon = build_event_features({'current_max_frp': 0.0, 'observation_count_so_far': 0}, mode=mode)
@@ -274,8 +301,40 @@ def analyze_event(
     predicted_source_class = source_classes[best_idx]
     raw_model_confidence = float(model_probs[best_idx])
 
-    # --- STAGE 6: EVIDENCE AGGREGATION & LEDGER ---
+    # --- STAGE 6: EVIDENCE AGGREGATION & LEDGER (INCL. INSAT-3DS CORROBORATION) ---
     t0 = time.perf_counter()
+    insat_corroboration = None
+    insat_summary = {"availability": "UNAVAILABLE", "corroboration_state": "NOT_AVAILABLE"}
+    if insat_observations is not None:
+        try:
+            if isinstance(insat_observations, list):
+                if insat_observations and isinstance(insat_observations[0], NormalizedObservation):
+                    insat_list = insat_observations
+                else:
+                    from src.ingestion.insat3ds import normalize_insat3ds_observation
+                    insat_list = [normalize_insat3ds_observation(x) if isinstance(x, dict) else x for x in insat_observations]
+            else:
+                insat_list = parse_insat3ds_file(insat_observations)
+            
+            event_lat = float(raw_event.get("lat", raw_event.get("latitude", 0.0)))
+            event_lon = float(raw_event.get("lon", raw_event.get("longitude", 0.0)))
+            firms_obs_count = int(canon.observation_count_so_far)
+            
+            insat_corroboration = assess_sensor_corroboration(
+                event_id=event_id,
+                firms_obs_count=firms_obs_count,
+                insat_obs_list=insat_list,
+                event_lat=event_lat,
+                event_lon=event_lon
+            )
+            insat_summary = insat_corroboration.to_dict()
+            insat_summary["availability"] = insat_corroboration.insat3ds_status.get("availability", "AVAILABLE")
+        except Exception as e:
+            insat_summary = {"availability": "FAILED", "error": str(e)}
+            limitations_list.append(f"INSAT-3DS corroboration processing failed: {str(e)}")
+    else:
+        unavailable_sensors_list.append("INSAT-3DS")
+
     try:
         evidence_ledger = aggregate_event_evidence(
             event_id=event_id,
@@ -283,12 +342,29 @@ def analyze_event(
             low_t_result=low_t_result,
             abnormality_result=abnormality_result,
             model_probs=model_probs,
-            source_classes=source_classes
+            source_classes=source_classes,
+            insat_corroboration=insat_corroboration
         )
         stage_statuses["evidence_aggregation"] = "SUCCESS"
     except Exception as e:
         evidence_ledger = aggregate_event_evidence(event_id=event_id, canon=canon)
         stage_statuses["evidence_aggregation"] = "PARTIAL"
+
+    # Inject observation quality evidence items into ledger
+    from src.intelligence.evidence_aggregation import EvidenceItem
+    if quality_summary.saturation_summary != "No thermal saturation detected":
+        evidence_ledger.evidence_items.append(EvidenceItem(
+            evidence_id="qual_sat_1", evidence_type="system_extracted", evidence_family="DATA_QUALITY",
+            source="ObservationQualityLayer", status="DERIVED", direction="CONFLICTING" if "Likely" in quality_summary.saturation_summary else "NEUTRAL",
+            strength="MODERATE", description=quality_summary.saturation_summary, availability=True
+        ))
+    if quality_summary.glint_summary != "No solar glint risk detected":
+        evidence_ledger.evidence_items.append(EvidenceItem(
+            evidence_id="qual_glint_1", evidence_type="system_extracted", evidence_family="DATA_QUALITY",
+            source="ObservationQualityLayer", status="DERIVED", direction="CONFLICTING" if "High" in quality_summary.glint_summary else "NEUTRAL",
+            strength="MODERATE", description=quality_summary.glint_summary, availability=True
+        ))
+
     stage_durations["evidence_aggregation"] = round((time.perf_counter() - t0) * 1000.0, 3)
 
     # --- STAGE 7: CONFIDENCE & UNKNOWN DECISION ---
@@ -451,10 +527,12 @@ def analyze_event(
             "temporal_sufficiency": float(decision_assessment.confidence.temporal_sufficiency),
             "historical_sufficiency": float(decision_assessment.confidence.historical_sufficiency),
             "sentinel_available": bool(canon.sentinel_available == 1),
+            "insat3ds_summary": insat_summary,
             "missing_indicators": {
                 "missing_history": bool(canon.missing_history_indicator == 1),
                 "missing_context": bool(canon.missing_context_indicator == 1)
-            }
+            },
+            "quality_summary": quality_summary.to_dict()
         },
         source_assessment=source_assessment,
         behavior_assessment=behavior_assessment,

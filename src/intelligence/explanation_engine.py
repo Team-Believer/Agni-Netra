@@ -97,17 +97,23 @@ def _build_why_section(
     if temp_items:
         supporting_reasons.append("Event exhibits repeated detections and temporal persistence")
 
-    # 2. Sentinel Optical / SAR
+    # 2. GEO Thermal (INSAT-3DS High-Cadence)
+    geo_items = [e for e in supporting_items if e.evidence_family == "GEO_THERMAL"]
+    if geo_items:
+        for gi in geo_items:
+            supporting_reasons.append(gi.description)
+
+    # 3. Sentinel Optical / SAR
     sentinel_items = [e for e in supporting_items if e.evidence_family == "SENTINEL"]
     if sentinel_items:
         supporting_reasons.append("Sentinel optical imagery corroboration is present")
 
-    # 3. Facility Context (Controlled phrasing)
+    # 4. Facility Context (Controlled phrasing)
     facility_items = [e for e in supporting_items if e.evidence_family in ["CONTEXT", "FACILITY"]]
     if facility_items:
         supporting_reasons.append("Nearby industrial facility context supports an anthropogenic heat interpretation")
 
-    # 4. Low-T Persistent Heat (Controlled phrasing)
+    # 5. Low-T Persistent Heat (Controlled phrasing)
     if low_t_result is not None and low_t_result.low_t_state == "LOW_T_PERSISTENT":
         supporting_reasons.append("Persistent moderate-intensity thermal behavior supports sustained thermal activity")
 
