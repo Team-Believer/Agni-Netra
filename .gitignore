@@ -11,3 +11,9 @@ data/interim/
 data/processed/
 
 models/
+# Large generated real-world datasets
+data/ground_truth/events_real_expanded/real_events.csv
+data/ground_truth/final/real_ground_truth_events.csv
+data/ground_truth/firms_real_expanded/*.csv
+!data/ground_truth/firms_real_expanded/canonical_observation_manifest.csv
+!data/ground_truth/firms_real_expanded/acquisition_manifest.json

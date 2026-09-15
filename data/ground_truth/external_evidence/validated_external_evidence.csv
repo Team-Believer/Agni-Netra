@@ -1,0 +1,7 @@
+incident_id,date,facility,location,latitude,longitude,description,source_url,tier,provider
+INC-2026-08-21-HAZELO,2026-08-21,Hazelo Lab Private Limited,"Dothigudem, Telangana",17.15,78.85,Reactor explosion at pharmaceutical facility,https://joiff.com/news/hazelo-lab-explosion,TIER_3_NEWS,News Report
+INC-2026-06-30-HALDIA,2026-06-30,Haldia Petrochemicals Limited,"Haldia, West Bengal",22.06,88.1,Naphtha pipeline leak and fire at industrial park,https://chemnet.com/news/haldia-fire,TIER_3_NEWS,ChemNet
+INC-2026-06-23-BCL,2026-06-23,BCL Industries,"Bathinda, Punjab",30.21,74.94,Ethanol storage tank fire,https://joiff.com/news/bcl-bathinda-fire,TIER_3_NEWS,News Report
+INC-2026-05-11-SATARA,2026-05-11,Chemical Factory,"Satara, Maharashtra",17.68,73.99,Massive fire at chemical factory in Satara,https://news/satara-chemical-fire,TIER_3_NEWS,News Report
+INC-2026-04-23-BHARUCH,2026-04-23,Chemical Factory,"Bharuch, Gujarat",21.7,72.99,Chemical factory fire injured 16 workers,https://thehindu.com/news/bharuch-chemical-fire,TIER_3_NEWS,The Hindu
+INC-2026-04-26-GHAZIABAD,2026-04-26,Chemical Factory,"Ghaziabad, Uttar Pradesh",28.66,77.45,Fire at new chemical factory in Ghaziabad,https://indiatimes.com/news/ghaziabad-factory-fire,TIER_3_NEWS,India Times
