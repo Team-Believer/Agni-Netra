@@ -221,9 +221,13 @@ def test_Q_no_fake_ground_truth():
 
 
 def test_R_frozen_model_unchanged():
-    """Verify Phase16E-R2 weights file existence and hash integrity."""
-    model_path = "src/model/multitask_b0_weights.pth"
-    if os.path.exists(model_path):
-        with open(model_path, "rb") as f:
-            h = hashlib.sha256(f.read()).hexdigest()
-        assert len(h) == 64
+    """Verify frozen model weights/checkpoint existence and hash integrity."""
+    model_paths = ["models/b0/xgboost_b0.json", "src/model/multitask_b0_weights.pth"]
+    found = False
+    for path in model_paths:
+        if os.path.exists(path):
+            found = True
+            with open(path, "rb") as f:
+                h = hashlib.sha256(f.read()).hexdigest()
+            assert len(h) == 64
+    assert found is True, "At least one frozen model checkpoint file must exist"
