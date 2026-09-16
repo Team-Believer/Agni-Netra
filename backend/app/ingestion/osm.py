@@ -67,3 +67,10 @@ class OsmFacilityAdapter:
                 best_fac = {**fac, "distance_km": round(dist_km, 2)}
 
         return best_fac
+
+    def get_status(self) -> Dict[str, Any]:
+        return {
+            "source": "OSM_GIDC_OFFLINE",
+            "status": "ONLINE (OFFLINE CACHE)",
+            "coverage": "Key Indian Facilities"
+        }

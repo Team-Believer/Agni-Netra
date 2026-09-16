@@ -18,10 +18,15 @@ def get_sources(db: Session = Depends(get_db)) -> List[Dict[str, Any]]:
             "name": s.name,
             "source_type": s.source_type,
             "status": s.status,
+            "configured": s.configured,
+            "available": s.available,
             "coverage": s.coverage,
             "latency_ms": s.latency_ms,
+            "freshness": s.freshness,
+            "errors": s.errors,
             "record_count": s.record_count,
-            "last_sync": s.last_sync.isoformat() if s.last_sync else None
+            "last_fetch": s.last_fetch.isoformat() if s.last_fetch else None,
+            "last_observation": s.last_observation.isoformat() if s.last_observation else None
         }
         for s in sources
     ]

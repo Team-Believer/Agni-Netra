@@ -65,6 +65,9 @@ class IngestionPipeline:
 
             pred_class = pred_res["classification"]["label"]
             conf = pred_res["classification"]["confidence"]
+            pred_set = pred_res.get("prediction_set", [pred_class])
+            uncertainty = pred_res.get("uncertainty", 1.0)
+            is_ood = pred_res.get("ood_status", False)
 
             # Context & Environmental data
             weather = self.weather_adapter.get_conditions(cent_lat, cent_lon, cluster[-1]["timestamp"])
@@ -156,6 +159,19 @@ class IngestionPipeline:
             for ev in evidence_items:
                 ev_obj = EventEvidence(event_id=event_id, **ev)
                 self.db.add(ev_obj)
+
+            # Save Prediction
+            pred_obj = EventPrediction(
+                event_id=event_id,
+                model_name="AgniNetra_B0_XGBoost",
+                model_version="1.0.0",
+                predicted_class=pred_class,
+                confidence=conf,
+                prediction_set=pred_set,
+                uncertainty=uncertainty,
+                ood_status=is_ood
+            )
+            self.db.add(pred_obj)
 
             # Save Alert if Critical or High
             if priority_level in ["Critical", "High"]:

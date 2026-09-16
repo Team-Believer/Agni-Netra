@@ -38,7 +38,36 @@ class ThermalEventInferenceService:
                 "top_3": []
             }
         try:
-            return self.inference_engine.predict_event(features)
+            raw_pred = self.inference_engine.predict_event(features)
+            
+            # Simulated Conformal Uncertainty & OOD layer (since real model is XGBoost without calibrated conformal wrapper yet)
+            conf = raw_pred.get("classification", {}).get("confidence", 0.0)
+            label = raw_pred.get("classification", {}).get("label", "UNKNOWN")
+            
+            # OOD (Out of Distribution) detection logic (mocked based on feature bounds)
+            is_ood = features.get("max_frp", 0) > 1000 or features.get("max_frp", 0) < 0
+            if is_ood:
+                raw_pred["classification"]["label"] = "OOD"
+                raw_pred["classification"]["confidence"] = 0.0
+                raw_pred["prediction_set"] = []
+                raw_pred["uncertainty"] = 1.0
+                raw_pred["ood_status"] = True
+                return raw_pred
+
+            # Conformal Prediction Set (if confidence is low, output multiple potential classes)
+            if conf < 0.65:
+                raw_pred["prediction_set"] = [label, "Unknown Anomaly", "Routine Flare"]
+                raw_pred["uncertainty"] = round(1.0 - conf, 2)
+                # Refuse forced classification if very low confidence
+                if conf < 0.40:
+                    raw_pred["classification"]["label"] = "UNKNOWN / NEEDS VERIFICATION"
+            else:
+                raw_pred["prediction_set"] = [label]
+                raw_pred["uncertainty"] = round(1.0 - conf, 2)
+            
+            raw_pred["ood_status"] = False
+            return raw_pred
+
         except Exception as e:
             logger.error(f"Prediction failed for event {features.get('event_id')}: {e}")
             return {
@@ -48,6 +77,9 @@ class ThermalEventInferenceService:
                     "confidence": 0.0
                 },
                 "model_status": f"ERROR: {str(e)}",
+                "prediction_set": [],
+                "uncertainty": 1.0,
+                "ood_status": False,
                 "top_3": []
             }
 

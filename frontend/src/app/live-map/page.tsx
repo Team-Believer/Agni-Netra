@@ -87,6 +87,7 @@ export default function LiveMapPage() {
             <span class="font-semibold" style="color: ${color}">${event.priority} Priority</span>
           </div>
           <div class="text-[10px] text-slate-500 mb-2">
+            Multi-Sensor Observations: ${event.observations_count}<br/>
             Lat: ${event.latitude.toFixed(2)}, Lon: ${event.longitude.toFixed(2)}<br/>
             Last observed: ${new Date(event.last_seen || Date.now()).toLocaleString()}
           </div>

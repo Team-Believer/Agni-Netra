@@ -30,22 +30,24 @@ def fuse_event_evidence(
             "relevance": 1.0,
             "direction": direction,
             "value": f"Max FRP {max_frp:.1f} MW",
-            "explanation": f"Observed peak radiative intensity of {max_frp:.1f} MW across {len(observations)} satellite overpasses."
+            "explanation": f"Observed peak radiative intensity of {max_frp:.1f} MW across {len(observations)} satellite overpasses.",
+            "sensor": "VIIRS"
         })
         present_categories.add("Thermal")
 
-    # 2. Geostationary Temporal Corroboration
+    # 2. Geostationary Temporal Corroboration (INSAT-3DS placeholder since adapter returns None)
+    # We explicitly flag it as MISSING instead of faking data.
     evidence_items.append({
         "source": "INSAT_3DS",
         "evidence_type": "Temporal",
-        "timestamp": datetime.datetime.utcnow(),
-        "quality": 0.88,
+        "timestamp": None,
+        "quality": 0.0,
         "relevance": 0.90,
-        "direction": "SUPPORTING",
-        "value": "15-min MIR cadence hot pixel",
-        "explanation": "Continuous high-cadence thermal emission confirmed across 4 consecutive INSAT-3DS sweeps."
+        "direction": "MISSING",
+        "value": "Unavailable",
+        "explanation": "INSAT-3DS High-cadence MIR corroboration is not configured or unavailable.",
+        "sensor": "IMAGER"
     })
-    present_categories.add("Temporal")
 
     # 3. High-Resolution Optical/SWIR Corroboration
     if sentinel_info and sentinel_info.get("swir_anomaly_detected"):
@@ -58,9 +60,22 @@ def fuse_event_evidence(
             "relevance": 0.95,
             "direction": direction,
             "value": f"20m SWIR reflectance + Plume bearing {sentinel_info.get('plume_bearing_deg', 65)}°",
-            "explanation": "High-resolution SWIR B12 anomaly accompanied by identifiable smoke aerosol plume."
+            "explanation": "High-resolution SWIR anomaly accompanied by identifiable smoke aerosol plume.",
+            "sensor": "MSI"
         })
         present_categories.add("Optical")
+    else:
+        evidence_items.append({
+            "source": "SENTINEL_2",
+            "evidence_type": "Optical",
+            "timestamp": None,
+            "quality": 0.0,
+            "relevance": 0.95,
+            "direction": "MISSING",
+            "value": "Unavailable",
+            "explanation": "High-resolution optical/SWIR data currently unavailable (cloud cover, latency, or API not configured).",
+            "sensor": "MSI"
+        })
 
     # 4. Atmospheric / Weather Plume Dispersion
     if weather_info:
@@ -74,9 +89,22 @@ def fuse_event_evidence(
             "relevance": 0.80,
             "direction": "SUPPORTING",
             "value": f"Wind {wind_spd} km/h @ {wind_dir}°",
-            "explanation": f"Surface wind conditions ({wind_spd} km/h from {wind_dir}°) corroborate observed optical plume orientation."
+            "explanation": f"Surface wind conditions ({wind_spd} km/h from {wind_dir}°) provide context for plume dispersion.",
+            "sensor": "WEATHER_STATION"
         })
         present_categories.add("Weather")
+    else:
+        evidence_items.append({
+            "source": "IMD_WEATHER",
+            "evidence_type": "Weather",
+            "timestamp": None,
+            "quality": 0.0,
+            "relevance": 0.80,
+            "direction": "MISSING",
+            "value": "Unavailable",
+            "explanation": "Atmospheric/Weather data not configured.",
+            "sensor": "WEATHER_STATION"
+        })
 
     # 5. Facility Infrastructure Context
     if facility_info:
@@ -90,22 +118,35 @@ def fuse_event_evidence(
             "relevance": 1.0,
             "direction": direction,
             "value": f"{facility_info.get('name')} ({dist_km} km)",
-            "explanation": f"Thermal centroid located {dist_km} km from {facility_info.get('name')} ({facility_info.get('type')})."
+            "explanation": f"Thermal centroid located {dist_km} km from {facility_info.get('name')} ({facility_info.get('type')}).",
+            "sensor": "GIS"
         })
         present_categories.add("Facility")
+    else:
+        evidence_items.append({
+            "source": "OSM_INDUSTRIAL_GIS",
+            "evidence_type": "Facility",
+            "timestamp": None,
+            "quality": 0.0,
+            "relevance": 1.0,
+            "direction": "MISSING",
+            "value": "No nearby known facility",
+            "explanation": "No configured GIDC or known industrial facility within proximity radius.",
+            "sensor": "GIS"
+        })
 
-    # 6. Historical Baseline Comparison
+    # 6. Historical Baseline Comparison (Placeholder logic - since we have no real historical db yet, flag missing)
     evidence_items.append({
         "source": "HISTORICAL_FINGERPRINT",
         "evidence_type": "Historical",
-        "timestamp": datetime.datetime.utcnow(),
-        "quality": 0.90,
+        "timestamp": None,
+        "quality": 0.0,
         "relevance": 0.95,
-        "direction": "SUPPORTING",
-        "value": "240% above 30-day facility baseline",
-        "explanation": "Thermal footprint and intensity significantly exceed regular 90-day operating envelope for this quadrant."
+        "direction": "MISSING",
+        "value": "Insufficient baseline",
+        "explanation": "No historical operating baseline available for this location to determine abnormality.",
+        "sensor": "DB"
     })
-    present_categories.add("Historical")
 
     completeness_score = round(len(present_categories) / total_categories, 2)
     return evidence_items, completeness_score

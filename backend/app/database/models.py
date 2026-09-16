@@ -26,6 +26,10 @@ class Observation(Base):
     glint_flag = Column(Boolean, default=False)
     saturation_flag = Column(Boolean, default=False)
     raw_payload = Column(JSON, nullable=True)
+    ingestion_time = Column(DateTime, default=datetime.datetime.utcnow, index=True)
+    latency_seconds = Column(Float, nullable=True)
+    thermal_features = Column(JSON, nullable=True)
+    spectral_features = Column(JSON, nullable=True)
     created_at = Column(DateTime, default=datetime.datetime.utcnow)
 
     # Relationships
@@ -112,7 +116,9 @@ class EventEvidence(Base):
     id = Column(Integer, primary_key=True, autoincrement=True)
     event_id = Column(String(50), ForeignKey("events.event_id", ondelete="CASCADE"), index=True, nullable=False)
     source = Column(String(50), nullable=False) # e.g. FIRMS_VIIRS, INSAT-3DS, SENTINEL-2, OSM, IMD_WEATHER, HISTORICAL
+    sensor = Column(String(50), nullable=True)
     evidence_type = Column(String(50), nullable=False) # Thermal, Spatial, Temporal, Optical, SAR, Weather, Facility, Historical, Atmospheric, Human
+    availability = Column(Boolean, default=True)
     timestamp = Column(DateTime, nullable=True)
     quality = Column(Float, default=1.0) # 0.0 - 1.0
     relevance = Column(Float, default=1.0)
@@ -132,6 +138,9 @@ class EventPrediction(Base):
     model_version = Column(String(50), nullable=False)
     predicted_class = Column(String(100), nullable=False)
     confidence = Column(Float, nullable=False)
+    prediction_set = Column(JSON, nullable=True)
+    uncertainty = Column(Float, nullable=True)
+    ood_status = Column(Boolean, default=False)
     probabilities_json = Column(JSON, nullable=True)
     inference_timestamp = Column(DateTime, default=datetime.datetime.utcnow)
 
@@ -200,9 +209,14 @@ class DataSource(Base):
     name = Column(String(100), unique=True, nullable=False) # NASA FIRMS (VIIRS), INSAT-3DS, Sentinel-2, IMD Weather, OSM
     source_type = Column(String(50), nullable=False) # SATELLITE_LEO, SATELLITE_GEO, ANCILLARY_GIS, WEATHER
     status = Column(String(50), default="ONLINE") # ONLINE, DEGRADED, OFFLINE
-    last_sync = Column(DateTime, default=datetime.datetime.utcnow)
+    configured = Column(Boolean, default=False)
+    available = Column(Boolean, default=False)
+    last_fetch = Column(DateTime, nullable=True)
+    last_observation = Column(DateTime, nullable=True)
+    latency_ms = Column(Float, default=0.0)
+    freshness = Column(String(50), nullable=True)
+    errors = Column(Integer, default=0)
     record_count = Column(Integer, default=0)
-    latency_ms = Column(Integer, default=120)
     coverage = Column(String(100), default="India Regional")
 
 

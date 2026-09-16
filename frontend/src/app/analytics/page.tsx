@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { Header } from '../../components/Header';
 import { Sidebar } from '../../components/Sidebar';
-import { fetchAnalyticsEventsOverTime, fetchAnalyticsClassifications, fetchAnalyticsPriorities, fetchAnalyticsStatus } from '../../lib/api';
+import { fetchAnalyticsEventsOverTime, fetchAnalyticsClassifications, fetchAnalyticsPriorities, fetchAnalyticsStatus, fetchAnalyticsEvidenceSources } from '../../lib/api';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, LineChart, Line, Legend } from 'recharts';
 
 export default function AnalyticsPage() {
@@ -14,22 +14,25 @@ export default function AnalyticsPage() {
   const [classifications, setClassifications] = useState<any[]>([]);
   const [priorities, setPriorities] = useState<any[]>([]);
   const [statusCounts, setStatusCounts] = useState<any[]>([]);
+  const [evidenceSources, setEvidenceSources] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const loadData = async () => {
       try {
-        const [timeRes, classRes, prioRes, statusRes] = await Promise.all([
+        const [timeRes, classRes, prioRes, statusRes, evidenceRes] = await Promise.all([
           fetchAnalyticsEventsOverTime(),
           fetchAnalyticsClassifications(),
           fetchAnalyticsPriorities(),
           fetchAnalyticsStatus(),
+          fetchAnalyticsEvidenceSources(),
         ]);
         
         setEventsOverTime(timeRes);
         setClassifications(classRes);
         setPriorities(prioRes);
         setStatusCounts(statusRes);
+        setEvidenceSources(evidenceRes);
       } catch (err) {
         console.error('Error loading analytics:', err);
       } finally {
@@ -164,6 +167,28 @@ export default function AnalyticsPage() {
                 )}
               </div>
 
+            </div>
+            
+            <div className="grid grid-cols-1 mt-6">
+              {/* Evidence Sources Chart */}
+              <div className="bg-white border border-slate-200 rounded-xl p-5 shadow-xs">
+                <h3 className="text-sm font-bold text-slate-800 mb-4">Multi-Sensor Evidence Contribution</h3>
+                {evidenceSources.length > 0 ? (
+                  <div className="h-64">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <BarChart data={evidenceSources} margin={{ left: 40 }}>
+                        <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E2E8F0" />
+                        <XAxis dataKey="source" tick={{fontSize: 12, fill: '#64748b'}} tickLine={false} axisLine={false} />
+                        <YAxis type="number" tick={{fontSize: 12, fill: '#64748b'}} tickLine={false} axisLine={{stroke: '#cbd5e1'}} />
+                        <Tooltip cursor={{fill: '#f1f5f9'}} contentStyle={{ borderRadius: '8px', border: '1px solid #e2e8f0', fontSize: '12px' }} />
+                        <Bar dataKey="count" fill="#10b981" radius={[4, 4, 0, 0]} />
+                      </BarChart>
+                    </ResponsiveContainer>
+                  </div>
+                ) : (
+                  <div className="h-64 flex items-center justify-center text-slate-400 text-sm">No evidence sources data available</div>
+                )}
+              </div>
             </div>
           )}
         </main>

@@ -9,13 +9,13 @@ class SentinelAdapter:
     def __init__(self):
         self.source_name = "SENTINEL_2"
 
-    def get_corroboration(self, lat: float, lon: float, timestamp: datetime.datetime) -> Dict[str, Any]:
+    def get_corroboration(self, lat: float, lon: float, timestamp: datetime.datetime) -> Optional[Dict[str, Any]]:
+        # No actual Sentinel-2 API configured, returning None to avoid fake data
+        return None
+
+    def get_status(self) -> Dict[str, Any]:
         return {
             "source": self.source_name,
-            "swir_anomaly_detected": True,
-            "smoke_plume_detected": True,
-            "plume_bearing_deg": 65.0,
-            "cloud_cover_pct": 8.0,
-            "resolution_m": 20.0,
-            "quality_score": 0.94
+            "status": "NOT CONFIGURED",
+            "coverage": "Global"
         }

@@ -68,6 +68,8 @@ def get_event_detail(event_id: str, db: Session = Depends(get_db)) -> Dict[str, 
         {
             "id": ev.id,
             "source": ev.source,
+            "sensor": ev.sensor,
+            "availability": ev.availability,
             "evidence_type": ev.evidence_type,
             "direction": ev.direction,
             "quality": ev.quality,
@@ -122,7 +124,18 @@ def get_event_detail(event_id: str, db: Session = Depends(get_db)) -> Dict[str, 
             "what_changed": event.what_changed_explanation or []
         },
         "evidence": evidence_items,
-        "verifications": verifications
+        "verifications": verifications,
+        "predictions": [
+            {
+                "model_name": p.model_name,
+                "predicted_class": p.predicted_class,
+                "confidence": p.confidence,
+                "prediction_set": p.prediction_set,
+                "uncertainty": p.uncertainty,
+                "ood_status": p.ood_status
+            }
+            for p in event.predictions
+        ] if hasattr(event, 'predictions') else []
     }
 
 @router.get("/events/{event_id}/timeline")
@@ -140,6 +153,8 @@ def get_event_evidence(event_id: str, db: Session = Depends(get_db)) -> List[Dic
         {
             "id": ev.id,
             "source": ev.source,
+            "sensor": ev.sensor,
+            "availability": ev.availability,
             "evidence_type": ev.evidence_type,
             "direction": ev.direction,
             "quality": ev.quality,
