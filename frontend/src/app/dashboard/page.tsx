@@ -15,7 +15,7 @@ export default function DashboardPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [summary, setSummary] = useState<DashboardSummary | null>(null);
   const [events, setEvents] = useState<EventItem[]>([]);
-  const [selectedEventId, setSelectedEventId] = useState<string>('EVENT-042');
+  const [selectedEventId, setSelectedEventId] = useState<string>('');
   const [selectedEventDetail, setSelectedEventDetail] = useState<EventDetail | null>(null);
   const [timeline, setTimeline] = useState<TimelinePoint[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -31,14 +31,20 @@ export default function DashboardPage() {
       setEvents(evsData);
 
       // If selectedEventId exists, load its detail
-      const targetId = selectedEventId || (evsData.length > 0 ? evsData[0].event_id : 'EVENT-042');
+      const targetId = selectedEventId || (evsData.length > 0 ? evsData[0].event_id : '');
       if (targetId) {
+        if (!selectedEventId) {
+          setSelectedEventId(targetId);
+        }
         const [det, tl] = await Promise.all([
           fetchEventDetail(targetId),
           fetchEventTimeline(targetId),
         ]);
         setSelectedEventDetail(det);
         setTimeline(tl);
+      } else {
+        setSelectedEventDetail(null);
+        setTimeline([]);
       }
     } catch (err) {
       console.error('Error loading dashboard data:', err);

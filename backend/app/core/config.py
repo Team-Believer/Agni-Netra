@@ -25,8 +25,15 @@ class Settings(BaseSettings):
     DEFAULT_CONFIDENCE_THRESHOLD: float = 0.65
     HIGH_RISK_THRESHOLD: float = 70.0
     
+    # Auth / Security
+    SECRET_KEY: str = os.getenv("SECRET_KEY", "AGNI_NETRA_LOCAL_INSECURE_SECRET_KEY")
+    ALGORITHM: str = "HS256"
+    ACCESS_TOKEN_EXPIRE_MINUTES: int = 60 * 24 * 7 # 7 days
+    AUTH_DEV_USERNAME: str = os.getenv("AUTH_DEV_USERNAME", "Dax")
+    AUTH_DEV_PASSWORD: str = os.getenv("AUTH_DEV_PASSWORD", "Dax@1707")
+    
     class Config:
         case_sensitive = True
-        env_file = ".env"
+        env_file = str(BASE_DIR / "backend" / ".env")
 
 settings = Settings()

@@ -14,8 +14,13 @@ from backend.app.database.models import (
 )
 from backend.app.ml.explainability import format_event_explanations
 
-def seed_demo_database():
-    print("Initializing database...")
+def seed_test_database():
+    """
+    WARNING: TEST FIXTURE ONLY.
+    DO NOT USE IN PRODUCTION.
+    This script generates synthetic mock events to validate UI components during automated tests.
+    """
+    print("Initializing TEST fixture database...")
     init_db()
     db = SessionLocal()
 
@@ -524,8 +529,8 @@ def seed_demo_database():
         db.add(res_ev)
     db.commit()
 
-    print(f"Successfully seeded database with 12 active events, 8 resolved events, matching reference UI KPIs!")
+    print(f"Successfully seeded TEST database with 12 active events, 8 resolved events.")
     db.close()
 
 if __name__ == "__main__":
-    seed_demo_database()
+    seed_test_database()

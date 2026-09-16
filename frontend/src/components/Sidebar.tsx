@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
 import {
   LayoutDashboard,
   MapPin,
@@ -17,21 +17,22 @@ import {
 } from 'lucide-react';
 
 interface SidebarProps {
-  currentTab: string;
+  currentTab?: string;
   onTabChange?: (tab: string) => void;
 }
 
-export const Sidebar: React.FC<SidebarProps> = ({ currentTab, onTabChange }) => {
+export const Sidebar: React.FC<SidebarProps> = ({ onTabChange }) => {
   const router = useRouter();
+  const pathname = usePathname();
 
   const navItems = [
     { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard, route: '/dashboard' },
-    { id: 'alerts', label: 'Alerts', icon: Bell, route: '/alerts' },
+    { id: 'live-map', label: 'Live Map', icon: MapPin, route: '/live-map' },
+    { id: 'events', label: 'Events', icon: Flame, route: '/events' },
+    { id: 'analytics', label: 'Analytics', icon: BarChart3, route: '/analytics' },
+    { id: 'facilities', label: 'Facilities', icon: Factory, route: '/facilities' },
+    { id: 'historical', label: 'Historical Search', icon: History, route: '/historical' },
     { id: 'reports', label: 'Reports', icon: FileText, route: '/reports' },
-    // { id: 'events', label: 'Events', icon: Flame, route: '/events' },
-    // { id: 'analytics', label: 'Analytics', icon: BarChart3, route: '/analytics' },
-    // { id: 'facilities', label: 'Facilities', icon: Factory, route: '/facilities' },
-    // { id: 'history', label: 'Historical Search', icon: History, route: '/history' },
   ];
 
   const handleNavigation = (id: string, route: string) => {
@@ -41,23 +42,28 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentTab, onTabChange }) => 
     router.push(route);
   };
 
+  const isActive = (route: string) => {
+    if (!pathname) return false;
+    return pathname.startsWith(route);
+  };
+
   return (
     <aside className="w-56 bg-white border-r border-slate-200 flex flex-col justify-between py-4 px-3 select-none flex-shrink-0">
       <div className="space-y-1">
         {navItems.map((item) => {
           const Icon = item.icon;
-          const isActive = currentTab === item.id;
+          const active = isActive(item.route);
           return (
             <button
               key={item.id}
               onClick={() => handleNavigation(item.id, item.route)}
               className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-xs font-medium transition-all ${
-                isActive
+                active
                   ? 'bg-blue-50/80 text-blue-700 font-semibold border border-blue-100/60 shadow-xs'
                   : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'
               }`}
             >
-              <Icon className={`w-4 h-4 ${isActive ? 'text-blue-600' : 'text-slate-400'}`} />
+              <Icon className={`w-4 h-4 ${active ? 'text-blue-600' : 'text-slate-400'}`} />
               <span>{item.label}</span>
             </button>
           );
@@ -69,19 +75,23 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentTab, onTabChange }) => 
           <button
             onClick={() => handleNavigation('settings', '/settings')}
             className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-xs font-medium transition-all ${
-              currentTab === 'settings'
+              isActive('/settings')
                 ? 'bg-blue-50/80 text-blue-700 font-semibold border border-blue-100/60 shadow-xs'
                 : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'
             }`}
           >
-            <Settings className={`w-4 h-4 ${currentTab === 'settings' ? 'text-blue-600' : 'text-slate-400'}`} />
+            <Settings className={`w-4 h-4 ${isActive('/settings') ? 'text-blue-600' : 'text-slate-400'}`} />
             <span>Settings</span>
           </button>
           <button
-            onClick={() => {}}
-            className="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-xs font-medium text-slate-600 hover:bg-slate-50 transition-colors"
+            onClick={() => handleNavigation('help', '/help')}
+            className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-xs font-medium transition-colors ${
+              isActive('/help')
+                ? 'bg-blue-50/80 text-blue-700 font-semibold border border-blue-100/60 shadow-xs'
+                : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'
+            }`}
           >
-            <HelpCircle className="w-4 h-4 text-slate-400" />
+            <HelpCircle className={`w-4 h-4 ${isActive('/help') ? 'text-blue-600' : 'text-slate-400'}`} />
             <span>Help & Support</span>
           </button>
         </div>

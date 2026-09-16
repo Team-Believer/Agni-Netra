@@ -1,12 +1,12 @@
 from contextlib import asynccontextmanager
-from fastapi import FastAPI
+from fastapi import FastAPI, Depends
 from fastapi.middleware.cors import CORSMiddleware
 
 from backend.app.core.config import settings
 from backend.app.core.logging import logger
 from backend.app.database.database import init_db
 from backend.app.api.routes import (
-    health, dashboard, events, observations, sources, reports, alerts, models
+    health, dashboard, events, observations, sources, reports, alerts, models, analytics, facilities, auth
 )
 
 @asynccontextmanager
@@ -33,15 +33,20 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+from backend.app.api.dependencies import get_current_user
+
 # Register routes
+app.include_router(auth.router, prefix="/api/auth", tags=["Auth"])
 app.include_router(health.router, prefix="/api", tags=["Health"])
-app.include_router(dashboard.router, prefix="/api", tags=["Dashboard"])
-app.include_router(events.router, prefix="/api", tags=["Events"])
-app.include_router(observations.router, prefix="/api", tags=["Observations"])
-app.include_router(sources.router, prefix="/api", tags=["Sources"])
-app.include_router(reports.router, prefix="/api", tags=["Reports"])
-app.include_router(alerts.router, prefix="/api", tags=["Alerts"])
-app.include_router(models.router, prefix="/api", tags=["Models"])
+app.include_router(dashboard.router, prefix="/api", tags=["Dashboard"], dependencies=[Depends(get_current_user)])
+app.include_router(events.router, prefix="/api", tags=["Events"], dependencies=[Depends(get_current_user)])
+app.include_router(observations.router, prefix="/api", tags=["Observations"], dependencies=[Depends(get_current_user)])
+app.include_router(sources.router, prefix="/api", tags=["Sources"], dependencies=[Depends(get_current_user)])
+app.include_router(reports.router, prefix="/api", tags=["Reports"], dependencies=[Depends(get_current_user)])
+app.include_router(alerts.router, prefix="/api", tags=["Alerts"], dependencies=[Depends(get_current_user)])
+app.include_router(models.router, prefix="/api", tags=["Models"], dependencies=[Depends(get_current_user)])
+app.include_router(analytics.router, prefix="/api", tags=["Analytics"], dependencies=[Depends(get_current_user)])
+app.include_router(facilities.router, prefix="/api", tags=["Facilities"], dependencies=[Depends(get_current_user)])
 
 @app.get("/")
 def root():

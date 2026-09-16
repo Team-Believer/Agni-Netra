@@ -77,11 +77,11 @@ export const RecentEventsTable: React.FC<RecentEventsTableProps> = ({
                 day: '2-digit',
                 month: 'short',
                 year: 'numeric'
-              }) : '26 Nov 2024';
+              }) : 'Unknown';
               const timeStr = ev.last_seen ? new Date(ev.last_seen).toLocaleTimeString('en-GB', {
                 hour: '2-digit',
                 minute: '2-digit'
-              }) : '14:20';
+              }) : '--:--';
 
               return (
                 <tr

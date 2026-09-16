@@ -158,7 +158,7 @@ export const EventDetailPanel: React.FC<EventDetailPanelProps> = ({
                 <span>First Seen</span>
               </div>
               <div className="font-semibold text-slate-800 text-right">
-                {event.first_seen ? new Date(event.first_seen).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) : '26 Nov 2024'}, 08:12
+                {event.first_seen ? new Date(event.first_seen).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) : 'Unknown'}, {event.first_seen ? new Date(event.first_seen).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' }) : '--:--'}
               </div>
 
               <div className="flex items-center gap-2 text-slate-500">
@@ -166,7 +166,7 @@ export const EventDetailPanel: React.FC<EventDetailPanelProps> = ({
                 <span>Last Seen</span>
               </div>
               <div className="font-semibold text-slate-800 text-right">
-                {event.last_seen ? new Date(event.last_seen).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) : '26 Nov 2024'}, 14:20
+                {event.last_seen ? new Date(event.last_seen).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) : 'Unknown'}, {event.last_seen ? new Date(event.last_seen).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' }) : '--:--'}
               </div>
 
               <div className="flex items-center gap-2 text-slate-500">
@@ -243,7 +243,7 @@ export const EventDetailPanel: React.FC<EventDetailPanelProps> = ({
                 <div className="bg-white border border-slate-200 rounded-lg p-2 shadow-2xs">
                   <div className="text-[10px] text-slate-400 font-medium">FRP</div>
                   <div className="text-xs font-bold text-red-600 flex items-center gap-0.5 mt-0.5">
-                    ↑ {event.frp_change_pct ? event.frp_change_pct.toFixed(0) : '240'}%
+                    ↑ {event.frp_change_pct !== undefined && event.frp_change_pct !== null ? event.frp_change_pct.toFixed(0) : '0'}%
                   </div>
                   <div className="text-[9px] text-slate-400">vs. historical avg.</div>
                 </div>
@@ -251,7 +251,7 @@ export const EventDetailPanel: React.FC<EventDetailPanelProps> = ({
                 <div className="bg-white border border-slate-200 rounded-lg p-2 shadow-2xs">
                   <div className="text-[10px] text-slate-400 font-medium">Footprint</div>
                   <div className="text-xs font-bold text-red-600 flex items-center gap-0.5 mt-0.5">
-                    ↑ {event.footprint_expansion_factor ? event.footprint_expansion_factor.toFixed(1) : '3.1'}×
+                    ↑ {event.footprint_expansion_factor !== undefined && event.footprint_expansion_factor !== null ? event.footprint_expansion_factor.toFixed(1) : '1.0'}×
                   </div>
                   <div className="text-[9px] text-slate-400">expanding</div>
                 </div>

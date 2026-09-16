@@ -79,10 +79,10 @@ class EventRepository:
             "under_verification": under_verification,
             "resolved_24h": resolved_24h,
             "total_events": total_events,
-            "active_change_vs_yesterday": 3,
-            "high_priority_change": 2,
-            "under_verification_change": -1,
-            "resolved_change": 4,
+            "active_change_vs_yesterday": 0,
+            "high_priority_change": 0,
+            "under_verification_change": 0,
+            "resolved_change": 0,
             "system_status": "System Operational",
             "last_synced": datetime.datetime.utcnow().isoformat()
         }
