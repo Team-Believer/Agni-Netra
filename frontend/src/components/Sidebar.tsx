@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import { useRouter } from 'next/navigation';
 import {
   LayoutDashboard,
   MapPin,
@@ -11,24 +12,34 @@ import {
   FileText,
   Settings,
   HelpCircle,
-  ShieldCheck
+  ShieldCheck,
+  Bell
 } from 'lucide-react';
 
 interface SidebarProps {
   currentTab: string;
-  onTabChange: (tab: string) => void;
+  onTabChange?: (tab: string) => void;
 }
 
 export const Sidebar: React.FC<SidebarProps> = ({ currentTab, onTabChange }) => {
+  const router = useRouter();
+
   const navItems = [
-    { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
-    { id: 'map', label: 'Live Map', icon: MapPin },
-    { id: 'events', label: 'Events', icon: Flame },
-    { id: 'analytics', label: 'Analytics', icon: BarChart3 },
-    { id: 'facilities', label: 'Facilities', icon: Factory },
-    { id: 'history', label: 'Historical Search', icon: History },
-    { id: 'reports', label: 'Reports', icon: FileText },
+    { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard, route: '/dashboard' },
+    { id: 'alerts', label: 'Alerts', icon: Bell, route: '/alerts' },
+    { id: 'reports', label: 'Reports', icon: FileText, route: '/reports' },
+    // { id: 'events', label: 'Events', icon: Flame, route: '/events' },
+    // { id: 'analytics', label: 'Analytics', icon: BarChart3, route: '/analytics' },
+    // { id: 'facilities', label: 'Facilities', icon: Factory, route: '/facilities' },
+    // { id: 'history', label: 'Historical Search', icon: History, route: '/history' },
   ];
+
+  const handleNavigation = (id: string, route: string) => {
+    if (onTabChange) {
+      onTabChange(id);
+    }
+    router.push(route);
+  };
 
   return (
     <aside className="w-56 bg-white border-r border-slate-200 flex flex-col justify-between py-4 px-3 select-none flex-shrink-0">
@@ -39,7 +50,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentTab, onTabChange }) => 
           return (
             <button
               key={item.id}
-              onClick={() => onTabChange(item.id)}
+              onClick={() => handleNavigation(item.id, item.route)}
               className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-xs font-medium transition-all ${
                 isActive
                   ? 'bg-blue-50/80 text-blue-700 font-semibold border border-blue-100/60 shadow-xs'
@@ -56,14 +67,18 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentTab, onTabChange }) => 
       <div className="space-y-4 pt-4 border-t border-slate-100">
         <div className="space-y-1">
           <button
-            onClick={() => onTabChange('settings')}
-            className="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-xs font-medium text-slate-600 hover:bg-slate-50 transition-colors"
+            onClick={() => handleNavigation('settings', '/settings')}
+            className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-xs font-medium transition-all ${
+              currentTab === 'settings'
+                ? 'bg-blue-50/80 text-blue-700 font-semibold border border-blue-100/60 shadow-xs'
+                : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'
+            }`}
           >
-            <Settings className="w-4 h-4 text-slate-400" />
+            <Settings className={`w-4 h-4 ${currentTab === 'settings' ? 'text-blue-600' : 'text-slate-400'}`} />
             <span>Settings</span>
           </button>
           <button
-            onClick={() => onTabChange('help')}
+            onClick={() => {}}
             className="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-xs font-medium text-slate-600 hover:bg-slate-50 transition-colors"
           >
             <HelpCircle className="w-4 h-4 text-slate-400" />
