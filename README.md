@@ -1,99 +1,187 @@
-# Agni-Netra: AI/ML Thermal Event Intelligence Stack
+# Agni-Netra: Spaceborne Thermal Event Intelligence
 
-**Agni-Netra** is a production AI/ML intelligence engine for satellite-based thermal event detection, source classification, behavioral state tracking, out-of-distribution (OOD) novelty detection, evidence aggregation, risk prioritization, and evidence-grounded explanations.
+> **SIH Problem Statement:** PS162  
+> **Tagline:** *"The satellite sees heat. Agni-Netra understands the event."*
 
----
-
-## Key Features & Capabilities
-
-- **Single Entry Point (`analyze_event()`)**: Unified 13-stage orchestration pipeline.
-- **Frozen Output Contract (`AGN-EVENT-INTELLIGENCE-1.0`)**: 16-section versioned output contract with built-in schema validator (`validate_event_intelligence_result`).
-- **Observation Quality & Glint/Saturation Defense**: Detects daytime solar glint and thermal saturation / pixel-folding risk (Phase 20A).
-- **Multi-Lane Thermal Intelligence**: Low-T persistent heat lane (Phase 17B) & High-T thermal physics lane (Phase 20C).
-- **Event Behavioral State Machine**: Tracks physical process evolution across 10 deterministic states (Phase 20D).
-- **Novel / OOD Event Intelligence**: Detects unrepresented thermal phenomena, preventing forced classification and handling model-confidence paradoxes (Phase 20E).
-- **Evidence Aggregation Ledger**: Aggregates multi-source evidence items with sensor provenance, completeness, and convergence tracking (Phase 17D).
-- **Calibrated Confidence & Safe Abstention**: Gated decision states (`KNOWN`, `UNKNOWN`, `NEEDS_VERIFICATION`, `INSUFFICIENT_OBSERVATION`) with temperature-scaled calibration (Phase 17E).
-- **Risk & Operational Priority Engine**: Evaluates physical hazard, contextual facility impact, base risk, operational urgency, and priority levels `P0` to `P4` (Phase 17F).
-- **Structured Explanation Engine**: Evidence-grounded `summary`, `why`, `why_not`, `what_changed`, `uncertainty`, and `next_action` explanations (Phase 17G).
-- **Real-Data Replay & Demonstration Suite**: Replays real FIRMS/VIIRS events deterministically (`src/intelligence/real_event_replay.py`, `src/intelligence/demo_scenarios.py`).
+Agni-Netra is a production-style geospatial artificial intelligence platform that ingests raw multi-satellite thermal detections across India and transforms them into actionable, evidence-fused operational intelligence.
 
 ---
 
-## Frozen AI/ML Architecture Pipeline
+## Visual Interface & Information Architecture
+
+Agni-Netra adheres to a clean, sober, high-density engineering dashboard designed for mission-critical industrial monitoring, defense, and disaster response analysts:
+
+- **Unified System Overview**: Real-time KPI metrics tracking active thermal events, high-priority escalations, events under human verification, and 24-hour resolutions.
+- **Interactive Geospatial Map (MapLibre GL JS)**: Interactive vector/satellite visualization of events across India with priority-coded indicators, cluster handling, and quick inspection cards.
+- **Explainable AI Drilldown**: Full evidence ledger and natural language explanations answering **WHY**, **WHY NOT**, and **WHAT CHANGED**.
+- **Human-in-the-Loop Verification**: Analyst confirmation, dispute, and audit trail preserving distinct AI hypotheses and human decisions.
+
+---
+
+## Logical Pipeline
 
 ```mermaid
 graph TD
-    A["Observation Ingestion (FIRMS / VIIRS & INSAT-3DS)"] --> B["Stage 1: Input Validation"]
-    B --> C["Stage 2: Observation Quality, Saturation & Sun-Glint Defense"]
-    C --> D["Stage 3: Canonical Event Feature Extraction"]
-    D --> E["Stage 4: Low-T Persistent Heat Intelligence"]
-    D --> F["Stage 5: High-T Thermal Physics"]
-    E & F --> G["Stage 6: Event State Machine & Behavioral State"]
-    G --> H["Stage 7: Historical Abnormality & Change Engine"]
-    H --> I["Stage 8: Multitask Model Inference (Phase 16E-R2)"]
-    I --> J["Stage 9: Novel / OOD Event Intelligence"]
-    J --> K["Stage 10: Event Evidence Ledger & Fusion"]
-    K --> L["Stage 11: Confidence Calibration & UNKNOWN Decision Engine"]
-    L --> M["Stage 12: Risk & Operational Priority Intelligence Engine"]
-    M --> N["Stage 13: WHY / WHY NOT / WHAT CHANGED Explanation Engine"]
-    N --> O["Unified Output Contract: EventIntelligenceResult (AGN-EVENT-INTELLIGENCE-1.0)"]
+    A["Raw Multi-Sensor Ingestion (FIRMS, INSAT-3DS, Sentinel, Weather, OSM)"] --> B["Observation Normalization & Quality Screening"]
+    B --> C["Spatiotemporal Event Reconstruction & Persistent ID (e.g. EVENT-042)"]
+    C --> D["24-Feature Canonical Extraction"]
+    D --> E["Pre-trained XGBoost Model Inference"]
+    E --> F["Behavior Classification (Escalating, Persistent, Transient)"]
+    F --> G["Historical Fingerprint & Abnormality Detection"]
+    G --> H["Multi-Sensor Evidence Fusion (Thermal, Optical, SAR, Weather, GIS)"]
+    H --> I["Agni-Netra Risk Index Calculation (0-100)"]
+    I --> J["Operational Priority Engine (Critical, High, Medium, Low/Monitor)"]
+    J --> K["Evidence-Grounded Explanations (WHY / WHY NOT / WHAT CHANGED)"]
+    K --> L["Interactive Next.js Dashboard"]
+    L --> M["Analyst Verification & Audit Logging"]
 ```
 
 ---
 
-## Quick Start & Usage
+## Core Semantic Distinctions
 
-### 1. Run Event Analysis
-```python
-from src.intelligence.analyze_event import analyze_event
+Agni-Netra strictly maintains semantic separation across analytical entities:
 
-raw_event = {
-    "event_id": "AGN-E-000421",
-    "lat": 26.5714,
-    "lon": 101.6703,
-    "observation_count_so_far": 5,
-    "current_max_frp": 30.66,
-    "current_duration": 48.0,
-    "proxy_industrial_context": 1.2
-}
+| Concept | Meaning | Example |
+| :--- | :--- | :--- |
+| **Observation** | Single raw satellite pixel detection | VIIRS pass at 14:20 IST, FRP 286.4 MW |
+| **Event** | Clustered physical phenomenon tracked over time | `EVENT-042` |
+| **Source Class** | Underlying physical heat generator | `Industrial Fire`, `Routine Flare`, `Agricultural Burn` |
+| **Behavior** | Dynamic pattern of thermal evolution | `Escalating rapid increase`, `Persistent + Stable` |
+| **Abnormality** | Statistical divergence from historical facility envelope | `Highly Abnormal`, `Normal` |
+| **Risk Index** | Decision-support score based on hazard, footprint & assets | `82 / 100` |
+| **Priority** | Queue urgency for operational analyst inspection | `Critical`, `High`, `Medium`, `Low` |
+| **Verification** | Separate human analyst evaluation state | `Needs Verification`, `Confirmed`, `Rejected` |
 
-# Execute 13-stage intelligence pipeline
-result = analyze_event(raw_event)
-print("Predicted Class:", result.source_assessment["predicted_source_class"])
-print("Decision State:", result.source_assessment["decision_state"])
-print("Priority Level:", result.priority_assessment["priority_level"])
-```
+---
 
-### 2. Output Contract Validation
-```python
-from src.intelligence.output_contract import validate_event_intelligence_result, build_canonical_contract
+## Technology Stack
 
-contract = build_canonical_contract(result.to_dict())
-errors = validate_event_intelligence_result(contract)
-assert len(errors) == 0, "Schema validation failed"
-```
+- **Backend**: Python 3.10+, FastAPI, SQLAlchemy, Pydantic v2
+- **Database**: SQLite (Production-ready abstraction with zero external daemon requirements)
+- **Frontend**: Next.js 14, React 18, TypeScript, Tailwind CSS
+- **Maps**: MapLibre GL JS
+- **Icons**: Lucide React
+- **Geospatial & ML**: XGBoost (pre-trained artifacts in `models/b0`), scikit-learn, Shapely, NumPy, Pandas
 
-### 3. Run Test Suite
+*Strictly no Docker, no Redis, and no PostgreSQL required for local execution.*
+
+---
+
+## Quick Start & Local Setup
+
+### 1. Prerequisites
+Ensure you have **Python 3.10+** and **Node.js 18+** installed.
+
+### 2. Backend Setup
 ```bash
-python -m pytest tests/
+# Clone the repository
+git clone https://github.com/Team-Believer/Agni-Netra.git
+cd Agni-Netra
+
+# (Optional) Create and activate virtual environment
+python -m venv .venv
+# On Windows:
+.venv\Scripts\activate
+# On Linux/macOS:
+# source .venv/bin/activate
+
+# Install dependencies
+pip install -r requirements.txt
+
+# Seed realistic demonstration database
+python scripts/seed_demo_data.py
+
+# Start FastAPI backend
+uvicorn backend.app.main:app --reload --port 8000
+```
+*Backend will be live at `http://localhost:8000` (Interactive API docs at `http://localhost:8000/docs`).*
+
+### 3. Frontend Setup
+In a new terminal window:
+```bash
+cd frontend
+
+# Install dependencies
+npm install
+
+# Start Next.js development server
+npm run dev
+```
+*Open `http://localhost:3000` in your browser to view the Agni-Netra dashboard.*
+
+---
+
+## Demonstration Scenarios
+
+Agni-Netra includes seeded deterministic real-world operational scenarios:
+
+### Scenario 1: EVENT-042 — Abnormal Industrial Fire Escalation
+- **Location**: Reliance Refinery, Jamnagar, Gujarat (23.17° N, 72.63° E)
+- **Observed Behavior**: FRP surged +240% above the 90-day flare baseline; footprint expanded 3.1x outward.
+- **AI Classification**: `Industrial Fire (Hypothesis)` with 91% confidence.
+- **Risk Index**: `82 / 100` (Critical Priority).
+- **Explanation**: Footprint growth discounts normal flare stack emission; weather plume aligns with smoke aerosol detected by Sentinel-2 SWIR band.
+
+### Scenario 2: EVENT-038 — Routine Facility Flare
+- **Location**: IOCL Mathura Refinery, UP
+- **Observed Behavior**: Stationary point source within ±15% historical envelope.
+- **AI Classification**: `Routine Flare` (Low Priority, Monitoring).
+
+### Scenario 3: EVENT-039 — Low-Confidence / Sparse Observation
+- **Location**: Paradip, Odisha
+- **Observed Behavior**: Single-pass thermal detection obscured by cloud cover.
+- **AI Classification**: `Unknown` (Needs More Evidence / Safe Abstention).
+
+---
+
+## Running the Data Pipeline Manually
+
+To ingest live observations or run a new reconstruction and inference cycle:
+```bash
+python scripts/run_pipeline.py
 ```
 
 ---
 
-## Documentation Index
+## Running Automated Tests
 
-- [Project File & Path Map](docs/project_path_map.md)
-- [AI/ML Final Architecture Master Document](docs/ai_ml_final_architecture.md)
-- [AI Output Schema Contract Specification](docs/ai_output_contract.md)
-- [Real-Data AI Readiness Report](docs/real_data_ai_readiness.md)
-- [AI Behavioral Demonstration Scenarios](docs/ai_behavior_demo_scenarios.md)
-- [Sample Handoff Output Payload (JSON)](docs/examples/event_intelligence_example.json)
+```bash
+# Run backend API and verification suite
+python -m pytest tests/test_backend_api.py -v
+
+# Run AI model unit verification
+python -m pytest src/model/test_b0.py -v
+```
 
 ---
 
-## Operational Disclaimer
+## REST API Overview
 
-> [!IMPORTANT]
-> - `REAL OBSERVATION != REAL GROUND TRUTH`: Spaceborne satellite thermal detections represent real observations (`REAL_OBSERVATION`). A multi-facility ground truth gold standard (`REAL_GOLD`) is not established.
-> - `UNKNOWN IS A VALID OUTCOME`: Safe abstention (`UNKNOWN` / `NEEDS_VERIFICATION` / `INSUFFICIENT_OBSERVATION`) is triggered when data is sparse, saturated, or contradictory.
+| Endpoint | Method | Description |
+| :--- | :--- | :--- |
+| `/api/health` | GET | Health check and system operational state |
+| `/api/dashboard/summary` | GET | KPI metrics (active, high priority, under verification, resolved) |
+| `/api/dashboard/hotspots` | GET | GeoJSON feature collection for MapLibre layer |
+| `/api/dashboard/alerts` | GET | Active priority alerts |
+| `/api/events` | GET | List events with filtering (status, priority, search) |
+| `/api/events/{id}` | GET | Complete event detail, explanations, and evidence ledger |
+| `/api/events/{id}/timeline` | GET | Chronological sensor observation timeline |
+| `/api/events/{id}/verify` | POST | Submit analyst human verification decision |
+| `/api/sources` | GET | Ingestion sensor adapters status and latency |
+| `/api/reports/{id}` | GET | Export structured event report |
+| `/api/reports/export/csv` | GET | Bulk export events as CSV |
+| `/api/models/status` | GET | Status of pre-trained XGBoost model |
+
+---
+
+## Future Roadmap
+
+- **PostGIS & TimescaleDB Migration**: The repository layer is cleanly decoupled so SQLite can be swapped for PostgreSQL + PostGIS in cloud production.
+- **Direct INSAT-3DS NetCDF Stream**: Direct real-time ingestion from ISRO IMDPS push streams.
+- **Automated Tasking Request**: Automatic tasking request dispatch to high-resolution optical satellites upon P0 priority escalation.
+
+---
+
+## License & Team
+Developed by **Team Believer** for Smart India Hackathon (SIH) Problem Statement PS162.
