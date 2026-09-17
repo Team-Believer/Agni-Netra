@@ -241,7 +241,7 @@ export const LiveEventMap: React.FC<LiveEventMapProps> = ({
               </span>
             </div>
             <div className="mt-2 text-[10px] text-slate-500 border-t border-slate-100 pt-1.5 flex items-center justify-between">
-              <span>Lat: {selectedEvent.latitude.toFixed(2)} | Lon: {selectedEvent.longitude.toFixed(2)}</span>
+              <span>Lat: {selectedEvent.latitude != null ? selectedEvent.latitude.toFixed(2) : '--'} | Lon: {selectedEvent.longitude != null ? selectedEvent.longitude.toFixed(2) : '--'}</span>
             </div>
             <div className="text-[10px] text-slate-500 mt-0.5 font-medium">
               {selectedEvent.observations_count} observations (last 6h)

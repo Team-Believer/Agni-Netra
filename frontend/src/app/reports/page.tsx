@@ -29,13 +29,32 @@ export default function ReportsPage() {
     loadEvents();
   }, []);
 
-  const handleDownloadCsv = () => {
-    window.open('http://localhost:8000/api/reports/export/csv', '_blank');
+  const handleDownloadCsv = async () => {
+    try {
+      const token = localStorage.getItem('access_token');
+      const res = await fetch('http://localhost:8000/api/reports/export/csv', {
+        headers: token ? { 'Authorization': `Bearer ${token}` } : {}
+      });
+      if (!res.ok) throw new Error('Export failed');
+      const blob = await res.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'agni_netra_events_export.csv';
+      a.click();
+      window.URL.revokeObjectURL(url);
+    } catch (err) {
+      console.error('CSV export failed', err);
+      alert('CSV export failed. Please try again.');
+    }
   };
 
   const handleGenerateReport = async (eventId: string) => {
     try {
-      const response = await fetch(`http://localhost:8000/api/reports/${eventId}`);
+      const token = localStorage.getItem('access_token');
+      const response = await fetch(`http://localhost:8000/api/reports/${eventId}`, {
+        headers: token ? { 'Authorization': `Bearer ${token}` } : {}
+      });
       if (response.ok) {
         const data = await response.json();
         setReportData(data);

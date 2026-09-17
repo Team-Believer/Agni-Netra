@@ -150,7 +150,7 @@ export const EventDetailPanel: React.FC<EventDetailPanelProps> = ({
                 <span>Latitude / Longitude</span>
               </div>
               <div className="font-semibold text-slate-800 text-right">
-                {event.latitude.toFixed(2)}° N, {event.longitude.toFixed(2)}° E
+                {event.latitude != null ? event.latitude.toFixed(2) : '--'}° N, {event.longitude != null ? event.longitude.toFixed(2) : '--'}° E
               </div>
 
               <div className="flex items-center gap-2 text-slate-500">
@@ -199,21 +199,21 @@ export const EventDetailPanel: React.FC<EventDetailPanelProps> = ({
               <div className="bg-slate-50/80 border border-slate-200/90 rounded-lg p-2.5 text-center">
                 <div className="text-[10px] text-slate-500 font-medium leading-tight">Classification Confidence</div>
                 <div className="text-base font-bold text-emerald-600 mt-1">
-                  {(event.confidence * 100).toFixed(0)}%
+                  {event.confidence != null ? (event.confidence * 100).toFixed(0) : '--'}%
                 </div>
               </div>
 
               <div className="bg-slate-50/80 border border-slate-200/90 rounded-lg p-2.5 text-center">
                 <div className="text-[10px] text-slate-500 font-medium leading-tight">Evidence Completeness</div>
                 <div className="text-base font-bold text-amber-600 mt-1">
-                  {(event.evidence_completeness * 100).toFixed(0)}%
+                  {event.evidence_completeness != null ? (event.evidence_completeness * 100).toFixed(0) : '--'}%
                 </div>
               </div>
 
               <div className="bg-red-50/50 border border-red-200/80 rounded-lg p-2.5 text-center">
                 <div className="text-[10px] text-red-600 font-medium leading-tight">Risk Index</div>
                 <div className="text-base font-bold text-red-600 mt-1">
-                  {event.risk_index.toFixed(0)} <span className="text-[10px] font-normal text-slate-400">/ 100</span>
+                  {event.risk_index != null ? event.risk_index.toFixed(0) : '--'} <span className="text-[10px] font-normal text-slate-400">/ 100</span>
                 </div>
               </div>
 
@@ -278,7 +278,7 @@ export const EventDetailPanel: React.FC<EventDetailPanelProps> = ({
             <div className="space-y-2 border-t border-slate-100 pt-3">
               <div className="bg-slate-50 border border-slate-200 rounded-lg p-2.5">
                 <div className="text-[10px] font-bold text-slate-800 uppercase tracking-wide">
-                  WHY {event.classification.toUpperCase()}?
+                  WHY {(event.classification || 'UNKNOWN').toUpperCase()}?
                 </div>
                 <ul className="list-disc list-inside text-[11px] text-slate-600 space-y-1 mt-1">
                   {event.explanations?.why?.map((w, i) => (
@@ -353,8 +353,8 @@ export const EventDetailPanel: React.FC<EventDetailPanelProps> = ({
                 <div className="text-[11px] font-semibold text-slate-700">{item.value}</div>
                 <div className="text-[11px] text-slate-600">{item.explanation}</div>
                 <div className="text-[10px] text-slate-400 pt-1 flex items-center gap-3">
-                  <span>Quality: {(item.quality * 100).toFixed(0)}%</span>
-                  <span>Relevance: {(item.relevance * 100).toFixed(0)}%</span>
+                  <span>Quality: {item.quality != null ? (item.quality * 100).toFixed(0) : '--'}%</span>
+                  <span>Relevance: {item.relevance != null ? (item.relevance * 100).toFixed(0) : '--'}%</span>
                 </div>
               </div>
             ))}

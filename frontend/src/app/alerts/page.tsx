@@ -92,7 +92,7 @@ export default function AlertsPage() {
                           alert.severity.toLowerCase() === 'high' ? 'bg-orange-50 text-orange-700' :
                           'bg-blue-50 text-blue-700'
                         }`}>
-                          {alert.severity.toUpperCase()}
+                          {(alert.severity || 'UNKNOWN').toUpperCase()}
                         </span>
                         <span className="text-slate-500 font-medium">Event: {alert.event_id}</span>
                         <span className="text-slate-400 capitalize">Status: {alert.status}</span>

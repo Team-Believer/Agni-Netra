@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { Header } from '../../components/Header';
 import { Sidebar } from '../../components/Sidebar';
-import { api } from '../../lib/api';
+import { fetchSources } from '../../lib/api';
 import type { DataSourceItem } from '../../lib/types';
 import { Activity, Server, AlertCircle, CheckCircle, Clock } from 'lucide-react';
 
@@ -14,10 +14,9 @@ export default function SourcesPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchSources = async () => {
+    const loadSources = async () => {
       try {
-        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/api/v1/sources`);
-        const data = await response.json();
+        const data = await fetchSources();
         setSources(data);
       } catch (err) {
         console.error("Failed to load sources", err);
@@ -25,7 +24,7 @@ export default function SourcesPage() {
         setLoading(false);
       }
     };
-    fetchSources();
+    loadSources();
   }, []);
 
   return (

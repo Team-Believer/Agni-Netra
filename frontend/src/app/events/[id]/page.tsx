@@ -5,7 +5,7 @@ import { Header } from '../../../components/Header';
 import { Sidebar } from '../../../components/Sidebar';
 import { ArrowLeft, Flame, AlertTriangle, CheckCircle, XCircle, Info, ShieldAlert } from 'lucide-react';
 import Link from 'next/link';
-import { api } from '../../../lib/api';
+import { fetchEventDetail } from '../../../lib/api';
 import type { EventDetail, EvidenceItem } from '../../../lib/types';
 
 export default function EventDetailPage({ params }: { params: { id: string } }) {
@@ -18,7 +18,7 @@ export default function EventDetailPage({ params }: { params: { id: string } }) 
   useEffect(() => {
     const fetchEvent = async () => {
       try {
-        const data = await api.getEventDetail(params.id);
+        const data = await fetchEventDetail(params.id);
         setEvent(data);
       } catch (err) {
         setError("Failed to load event details or event not found.");
@@ -54,8 +54,8 @@ export default function EventDetailPage({ params }: { params: { id: string } }) 
                   <p className="text-xs text-slate-500">{item.explanation}</p>
                 </div>
                 <div className="text-right text-xs text-slate-400">
-                  <p>Quality: {(item.quality * 100).toFixed(0)}%</p>
-                  <p>Relevance: {(item.relevance * 100).toFixed(0)}%</p>
+                  <p>Quality: {item.quality != null ? (item.quality * 100).toFixed(0) : '--'}%</p>
+                  <p>Relevance: {item.relevance != null ? (item.relevance * 100).toFixed(0) : '--'}%</p>
                 </div>
               </div>
             ))}
@@ -120,28 +120,28 @@ export default function EventDetailPage({ params }: { params: { id: string } }) 
                 <div className="bg-white border border-slate-200 rounded-xl p-6 shadow-xs">
                   <h3 className="text-sm font-bold text-slate-800 mb-3 flex items-center gap-2"><CheckCircle className="w-4 h-4 text-green-600"/> WHY</h3>
                   <ul className="space-y-2">
-                    {event.explanations.why.map((reason, i) => (
+                    {(event.explanations?.why || []).map((reason, i) => (
                       <li key={i} className="text-sm text-slate-600">• {reason}</li>
                     ))}
-                    {event.explanations.why.length === 0 && <li className="text-sm text-slate-400 italic">No supporting reasons available</li>}
+                    {(!event.explanations?.why || event.explanations.why.length === 0) && <li className="text-sm text-slate-400 italic">No supporting reasons available</li>}
                   </ul>
                 </div>
                 <div className="bg-white border border-slate-200 rounded-xl p-6 shadow-xs">
                   <h3 className="text-sm font-bold text-slate-800 mb-3 flex items-center gap-2"><XCircle className="w-4 h-4 text-red-600"/> WHY NOT</h3>
                   <ul className="space-y-2">
-                    {event.explanations.why_not.map((reason, i) => (
+                    {(event.explanations?.why_not || []).map((reason, i) => (
                       <li key={i} className="text-sm text-slate-600">• {reason}</li>
                     ))}
-                    {event.explanations.why_not.length === 0 && <li className="text-sm text-slate-400 italic">No contradicting reasons available</li>}
+                    {(!event.explanations?.why_not || event.explanations.why_not.length === 0) && <li className="text-sm text-slate-400 italic">No contradicting reasons available</li>}
                   </ul>
                 </div>
                 <div className="bg-white border border-slate-200 rounded-xl p-6 shadow-xs">
                   <h3 className="text-sm font-bold text-slate-800 mb-3 flex items-center gap-2"><Info className="w-4 h-4 text-blue-600"/> WHAT CHANGED</h3>
                   <ul className="space-y-2">
-                    {event.explanations.what_changed.map((change, i) => (
+                    {(event.explanations?.what_changed || []).map((change, i) => (
                       <li key={i} className="text-sm text-slate-600">• {change}</li>
                     ))}
-                    {event.explanations.what_changed.length === 0 && <li className="text-sm text-slate-400 italic">No dynamic changes detected</li>}
+                    {(!event.explanations?.what_changed || event.explanations.what_changed.length === 0) && <li className="text-sm text-slate-400 italic">No dynamic changes detected</li>}
                   </ul>
                 </div>
               </div>
@@ -160,12 +160,12 @@ export default function EventDetailPage({ params }: { params: { id: string } }) 
                     </div>
                     <div>
                       <p className="text-xs text-slate-500 mb-1">Confidence</p>
-                      <p className="font-semibold text-slate-900">{(event.predictions[0].confidence * 100).toFixed(1)}%</p>
+                      <p className="font-semibold text-slate-900">{event.predictions[0].confidence != null ? (event.predictions[0].confidence * 100).toFixed(1) : '--'}%</p>
                     </div>
                     <div>
                       <p className="text-xs text-slate-500 mb-1">Prediction Set (Conformal)</p>
                       <div className="flex flex-wrap gap-1">
-                        {event.predictions[0].prediction_set.map((cls, i) => (
+                        {(event.predictions[0].prediction_set || []).map((cls, i) => (
                           <span key={i} className="px-2 py-0.5 bg-white border border-slate-200 rounded text-xs text-slate-700">{cls}</span>
                         ))}
                       </div>
