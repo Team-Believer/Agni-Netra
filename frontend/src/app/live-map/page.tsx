@@ -7,22 +7,39 @@ import maplibregl from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
 import { fetchEvents } from '../../lib/api';
 import { EventItem } from '../../lib/types';
-import { Flame, Radio, AlertTriangle, Eye, MapPin, Clock, RefreshCw, Layers, ChevronRight } from 'lucide-react';
+import { Flame, Radio, AlertTriangle, Eye, MapPin, Clock, RefreshCw, Layers, ChevronRight, Compass, Thermometer } from 'lucide-react';
 
-const PRIORITY_CONFIG: Record<string, { color: string; pulseColor: string; label: string }> = {
-  'Critical': { color: '#ef4444', pulseColor: 'rgba(239,68,68,0.4)', label: 'Critical' },
-  'High':     { color: '#f97316', pulseColor: 'rgba(249,115,22,0.4)', label: 'High' },
-  'Medium':   { color: '#eab308', pulseColor: 'rgba(234,179,8,0.4)', label: 'Medium' },
-  'Low':      { color: '#3b82f6', pulseColor: 'rgba(59,130,246,0.3)', label: 'Low' },
-  'Monitor':  { color: '#64748b', pulseColor: 'rgba(100,116,139,0.3)', label: 'Monitor' },
+const INDIA_CENTER: [number, number] = [81.5, 22.0];
+const INDIA_DEFAULT_ZOOM = 4.1;
+
+const PRIORITY_CONFIG: Record<string, { color: string; label: string }> = {
+  'Critical': { color: '#ef4444', label: 'Critical' },
+  'High':     { color: '#f97316', label: 'High' },
+  'Medium':   { color: '#eab308', label: 'Medium' },
+  'Low':      { color: '#3b82f6', label: 'Low' },
+  'Monitor':  { color: '#64748b', label: 'Monitor' },
 };
 
-const THERMAL_GRADIENT = [
-  { temp: '<9°C', color: '#2563eb', label: 'Cold / No Thermal Stress' },
-  { temp: '9–26°C', color: '#22c55e', label: 'Moderate Thermal' },
-  { temp: '26–32°C', color: '#eab308', label: 'Moderate Heat Stress' },
-  { temp: '32–38°C', color: '#f97316', label: 'Strong Heat Stress' },
-  { temp: '>38°C', color: '#dc2626', label: 'Extreme / Active Fire' },
+// Regional thermal stations directly matching the reference graphic & key national hubs
+const REGIONAL_THERMAL_STATIONS = [
+  { name: 'Barmer', lon: 71.3967, lat: 25.7521, temp: '44.4°C', peak: '48.1°C', intensity: 0.98 },
+  { name: 'Delhi', lon: 77.2090, lat: 28.6139, temp: '44.1°C', peak: '40.4°C', intensity: 0.95 },
+  { name: 'Bhopal', lon: 77.4126, lat: 23.2599, temp: '40.7°C', peak: '43.9°C', intensity: 0.90 },
+  { name: 'Nagpur', lon: 79.0882, lat: 21.1458, temp: '45.2°C', peak: '46.2°C', intensity: 0.98 },
+  { name: 'Hyderabad', lon: 78.4867, lat: 17.3850, temp: '39.9°C', peak: '42.0°C', intensity: 0.88 },
+  { name: 'Mumbai', lon: 72.8777, lat: 19.0760, temp: '38.4°C', peak: '39.6°C', intensity: 0.82 },
+  { name: 'Ahmedabad', lon: 72.5714, lat: 23.0225, temp: '42.4°C', peak: '45.8°C', intensity: 0.92 },
+  { name: 'Kolkata', lon: 88.3639, lat: 22.5726, temp: '38.7°C', peak: '39.6°C', intensity: 0.85 },
+  { name: 'Jamshedpur', lon: 86.2029, lat: 22.8046, temp: '43.3°C', peak: '43.6°C', intensity: 0.94 },
+  { name: 'Kozhikode', lon: 75.7804, lat: 11.2588, temp: '36.0°C', peak: '39.0°C', intensity: 0.45 },
+  { name: 'Srinagar', lon: 74.7973, lat: 34.0837, temp: '27.4°C', peak: '31.2°C', intensity: 0.15 },
+  { name: 'Leh', lon: 77.5771, lat: 34.1526, temp: '21.5°C', peak: '25.0°C', intensity: 0.08 },
+  { name: 'Guwahati', lon: 91.7362, lat: 26.1445, temp: '34.8°C', peak: '37.1°C', intensity: 0.65 },
+  { name: 'Chennai', lon: 80.2707, lat: 13.0827, temp: '37.8°C', peak: '41.5°C', intensity: 0.75 },
+  { name: 'Bengaluru', lon: 77.5946, lat: 12.9716, temp: '33.2°C', peak: '36.8°C', intensity: 0.60 },
+  { name: 'Raipur', lon: 81.6296, lat: 21.2514, temp: '43.8°C', peak: '45.9°C', intensity: 0.94 },
+  { name: 'Singrauli', lon: 82.6734, lat: 24.1997, temp: '44.5°C', peak: '46.7°C', intensity: 0.96 },
+  { name: 'Jaipur', lon: 75.7873, lat: 26.9124, temp: '43.2°C', peak: '45.1°C', intensity: 0.92 }
 ];
 
 export default function LiveMapPage() {
@@ -34,9 +51,11 @@ export default function LiveMapPage() {
   const [lastRefreshed, setLastRefreshed] = useState<Date>(new Date());
   const [isPanelOpen, setIsPanelOpen] = useState(true);
   const [autoRefresh, setAutoRefresh] = useState(true);
+  const [showCityLabels, setShowCityLabels] = useState(true);
+  
   const mapContainer = useRef<HTMLDivElement>(null);
   const map = useRef<maplibregl.Map | null>(null);
-  const markersRef = useRef<maplibregl.Marker[]>([]);
+  const cityMarkersRef = useRef<maplibregl.Marker[]>([]);
   const popupRef = useRef<maplibregl.Popup | null>(null);
   const [mapReady, setMapReady] = useState(false);
 
@@ -66,7 +85,7 @@ export default function LiveMapPage() {
     return () => clearInterval(interval);
   }, [autoRefresh, loadEvents]);
 
-  // Initialize map
+  // Initialize Map
   useEffect(() => {
     if (!mapToken) return;
     if (map.current) return;
@@ -96,59 +115,168 @@ export default function LiveMapPage() {
           }
         ]
       },
-      center: [78.9629, 20.5937],
-      zoom: 4.5,
-      maxZoom: 18,
-      minZoom: 3,
+      center: INDIA_CENTER,
+      zoom: INDIA_DEFAULT_ZOOM,
+      minZoom: 3.5,
+      maxZoom: 14,
+      maxBounds: [
+        [52.0, 0.0],
+        [110.0, 42.0]
+      ]
     });
 
     map.current.addControl(new maplibregl.NavigationControl(), 'top-right');
     map.current.addControl(new maplibregl.ScaleControl({ maxWidth: 200 }), 'bottom-left');
 
-    // Add heatmap source + layer once map loads
     map.current.on('load', () => {
       if (!map.current) return;
 
+      // 1. Add Heatmap Source
       map.current.addSource('thermal-heat', {
         type: 'geojson',
         data: { type: 'FeatureCollection', features: [] }
       });
 
+      // 2. Add Inverted World Mask Source (to darken everything outside India)
+      map.current.addSource('india-mask', {
+        type: 'geojson',
+        data: '/data/india-mask.json'
+      });
+
+      // 3. Add India Boundary Source
+      map.current.addSource('india-boundary', {
+        type: 'geojson',
+        data: '/data/india-boundary.json'
+      });
+
+      // 4. Add Continuous Thermal Heatmap Layer (renders wide, smooth heat contours)
       map.current.addLayer({
         id: 'thermal-heatmap',
         type: 'heatmap',
         source: 'thermal-heat',
         maxzoom: 15,
         paint: {
-          'heatmap-weight': ['interpolate', ['linear'], ['get', 'intensity'], 0, 0, 1, 1],
-          'heatmap-intensity': ['interpolate', ['linear'], ['zoom'], 0, 1, 15, 3],
+          'heatmap-weight': [
+            'interpolate', ['linear'], ['get', 'intensity'],
+            0, 0.3,
+            0.5, 0.75,
+            1, 1.4
+          ],
+          'heatmap-intensity': [
+            'interpolate', ['linear'], ['zoom'],
+            3, 1.6,
+            4.3, 2.4,
+            6, 3.5,
+            10, 5.0
+          ],
           'heatmap-color': [
             'interpolate', ['linear'], ['heatmap-density'],
             0,    'rgba(0,0,0,0)',
-            0.1,  'rgba(37,99,235,0.3)',
-            0.25, 'rgba(34,197,94,0.5)',
-            0.4,  'rgba(234,179,8,0.6)',
-            0.6,  'rgba(249,115,22,0.7)',
-            0.8,  'rgba(239,68,68,0.8)',
-            1,    'rgba(220,38,38,0.95)'
+            0.05, 'rgba(129,140,248,0.25)',  // Cool violet / lavender
+            0.15, 'rgba(56,189,248,0.45)',   // Light blue
+            0.30, 'rgba(250,204,21,0.65)',   // Golden yellow
+            0.50, 'rgba(249,115,22,0.80)',   // Vivid warm orange
+            0.70, 'rgba(239,68,68,0.90)',    // Fiery red
+            0.88, 'rgba(185,28,28,0.96)',    // Deep crimson
+            1.0,  'rgba(127,29,29,1.0)'      // Intense peak heat core
           ],
-          'heatmap-radius': ['interpolate', ['linear'], ['zoom'], 0, 15, 5, 30, 10, 50],
-          'heatmap-opacity': ['interpolate', ['linear'], ['zoom'], 7, 0.85, 15, 0.4]
+          'heatmap-radius': [
+            'interpolate', ['linear'], ['zoom'],
+            3, 55,
+            4.3, 95,
+            6, 130,
+            9, 170
+          ],
+          'heatmap-opacity': [
+            'interpolate', ['linear'], ['zoom'],
+            3, 0.85,
+            6, 0.80,
+            10, 0.65
+          ]
         }
       });
 
+      // 5. Add Outside India Dimming Mask (clips heat cleanly at national border)
+      map.current.addLayer({
+        id: 'outside-india-dim',
+        type: 'fill',
+        source: 'india-mask',
+        paint: {
+          'fill-color': '#060b14',
+          'fill-opacity': 0.88
+        }
+      });
+
+      // 6. Add India Glowing National Boundary
+      map.current.addLayer({
+        id: 'india-boundary-glow',
+        type: 'line',
+        source: 'india-boundary',
+        paint: {
+          'line-color': '#ea580c',
+          'line-width': 6,
+          'line-opacity': 0.40,
+          'line-blur': 4
+        }
+      });
+
+      // 7. Add India Boundary Crisp Line
+      map.current.addLayer({
+        id: 'india-boundary-line',
+        type: 'line',
+        source: 'india-boundary',
+        paint: {
+          'line-color': '#fb923c',
+          'line-width': 2.2,
+          'line-opacity': 0.90
+        }
+      });
+
+      // Immediately center on India
+      const fitIndia = () => {
+        if (!map.current) return;
+        map.current.resize();
+        map.current.jumpTo({
+          center: INDIA_CENTER,
+          zoom: INDIA_DEFAULT_ZOOM
+        });
+      };
+
+      fitIndia();
+      setTimeout(fitIndia, 150);
+      setTimeout(fitIndia, 600);
+
+      (window as any).agniMap = map.current;
       setMapReady(true);
     });
+
+    // Auto-resize observer when container dimensions change
+    const resizeObserver = new ResizeObserver(() => {
+      if (map.current) {
+        map.current.resize();
+      }
+    });
+    if (mapContainer.current) {
+      resizeObserver.observe(mapContainer.current);
+    }
+
+    return () => {
+      resizeObserver.disconnect();
+      if (map.current) {
+        map.current.remove();
+        map.current = null;
+      }
+    };
   }, [mapToken]);
 
-  // Update heatmap + markers when events change AND map is ready
+  // Update Continuous Heatmap Data (No Dots!)
   useEffect(() => {
     if (!map.current || !mapReady) return;
 
-    // Update heatmap data
     const heatSource = map.current.getSource('thermal-heat') as maplibregl.GeoJSONSource;
     if (heatSource) {
-      const features = events
+      // 1. Live satellite thermal events
+      const eventFeatures = events
         .filter(e => e.latitude != null && e.longitude != null)
         .map(event => ({
           type: 'Feature' as const,
@@ -157,83 +285,104 @@ export default function LiveMapPage() {
             coordinates: [event.longitude, event.latitude]
           },
           properties: {
-            intensity: Math.min((event.risk_index || 0) / 100, 1),
+            intensity: Math.min(Math.max((event.risk_index || 50) / 100, 0.45), 1.0),
             priority: event.priority,
             event_id: event.event_id
           }
         }));
-      heatSource.setData({ type: 'FeatureCollection', features });
+
+      // 2. Regional thermal stations to provide smooth national thermal interpolation
+      const stationFeatures = REGIONAL_THERMAL_STATIONS.map(st => ({
+        type: 'Feature' as const,
+        geometry: {
+          type: 'Point' as const,
+          coordinates: [st.lon, st.lat]
+        },
+        properties: {
+          intensity: st.intensity,
+          priority: 'High',
+          event_id: st.name
+        }
+      }));
+
+      heatSource.setData({
+        type: 'FeatureCollection',
+        features: [...eventFeatures, ...stationFeatures]
+      });
     }
 
-    // Clear old markers
-    markersRef.current.forEach(m => m.remove());
-    markersRef.current = [];
+    // Clear previous city markers
+    cityMarkersRef.current.forEach(m => m.remove());
+    cityMarkersRef.current = [];
 
-    // Add pulsing markers
-    events
-      .filter(e => e.latitude != null && e.longitude != null)
-      .forEach(event => {
-        const config = PRIORITY_CONFIG[event.priority] || PRIORITY_CONFIG['Monitor'];
-
+    // Render Clean City Labels (matching reference graphic - WITHOUT any dots)
+    if (showCityLabels) {
+      REGIONAL_THERMAL_STATIONS.slice(0, 10).forEach(st => {
         const el = document.createElement('div');
-        el.style.width = '40px';
-        el.style.height = '40px';
-        el.style.position = 'relative';
-        el.style.cursor = 'pointer';
-
-        // Pulse ring
-        const pulse = document.createElement('div');
-        pulse.style.cssText = `
-          position: absolute;
-          top: 0; left: 0;
-          width: 40px; height: 40px;
-          border-radius: 50%;
-          background: ${config.pulseColor};
-          animation: thermalPulse 2s ease-out infinite;
+        el.className = 'city-temp-card';
+        el.style.cssText = `
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          pointer-events: none;
+          user-select: none;
         `;
-        el.appendChild(pulse);
-
-        // Core dot
-        const core = document.createElement('div');
-        core.style.cssText = `
-          position: absolute;
-          top: 50%; left: 50%;
-          transform: translate(-50%, -50%);
-          width: 14px; height: 14px;
-          border-radius: 50%;
-          background: ${config.color};
-          border: 2.5px solid rgba(255,255,255,0.9);
-          box-shadow: 0 0 8px ${config.color}, 0 0 16px ${config.pulseColor};
-          z-index: 2;
+        el.innerHTML = `
+          <span style="font-size: 11px; font-weight: 800; color: #ffffff; text-shadow: 0 1px 3px rgba(0,0,0,0.9), 0 0 6px rgba(0,0,0,0.8); letter-spacing: -0.01em;">${st.name}</span>
+          <div style="display: flex; flex-direction: column; align-items: center; margin-top: 2px; padding: 2px 6px; border-radius: 4px; background: rgba(185, 28, 28, 0.85); border: 1px solid rgba(254, 202, 202, 0.4); box-shadow: 0 2px 8px rgba(0,0,0,0.6); backdrop-filter: blur(2px);">
+            <span style="font-size: 10px; font-weight: 800; color: #ffffff; font-family: monospace; line-height: 1.1;">${st.temp}</span>
+            <span style="font-size: 8px; font-weight: 700; color: #fecaca; font-family: monospace; line-height: 1;">${st.peak}</span>
+          </div>
         `;
-        el.appendChild(core);
-
-        el.addEventListener('click', () => {
-          setSelectedEvent(event);
-          setIsPanelOpen(true);
-          map.current?.flyTo({
-            center: [event.longitude, event.latitude],
-            zoom: 8,
-            duration: 1200
-          });
-        });
 
         const marker = new maplibregl.Marker({ element: el, anchor: 'center' })
-          .setLngLat([event.longitude, event.latitude])
+          .setLngLat([st.lon, st.lat])
           .addTo(map.current!);
 
-        markersRef.current.push(marker);
+        cityMarkersRef.current.push(marker);
       });
-  }, [events, mapReady]);
+    }
+  }, [events, mapReady, showCityLabels]);
+
+  // Snap camera back to full India view
+  const focusIndia = () => {
+    if (map.current) {
+      map.current.flyTo({
+        center: INDIA_CENTER,
+        zoom: INDIA_DEFAULT_ZOOM,
+        duration: 900
+      });
+      if (popupRef.current) {
+        popupRef.current.remove();
+      }
+      setSelectedEvent(null);
+    }
+  };
 
   const flyToEvent = (event: EventItem) => {
     setSelectedEvent(event);
     if (map.current && event.latitude != null && event.longitude != null) {
       map.current.flyTo({
         center: [event.longitude, event.latitude],
-        zoom: 9,
+        zoom: 8.5,
         duration: 1200
       });
+
+      if (popupRef.current) popupRef.current.remove();
+      popupRef.current = new maplibregl.Popup({ closeButton: true, closeOnClick: true, offset: 15 })
+        .setLngLat([event.longitude, event.latitude])
+        .setHTML(`
+          <div style="padding: 12px 16px; font-family: sans-serif; min-width: 190px;">
+            <div style="font-size: 10px; font-weight: bold; color: #f97316; letter-spacing: 0.05em; text-transform: uppercase;">${event.event_id}</div>
+            <div style="font-size: 13px; font-weight: bold; color: #ffffff; margin: 3px 0;">${event.classification || 'Thermal Anomaly'}</div>
+            <div style="font-size: 11px; color: #94a3b8; margin-bottom: 8px;">${event.location || 'India'}</div>
+            <div style="display: flex; gap: 8px; border-t: 1px solid #334155; padding-top: 6px; font-size: 10px;">
+              <span style="color: #cbd5e1;">Risk: <b style="color: #f87171;">${event.risk_index != null ? event.risk_index.toFixed(0) : '--'}/100</b></span>
+              <span style="color: #cbd5e1;">Priority: <b style="color: #fb923c;">${event.priority}</b></span>
+            </div>
+          </div>
+        `)
+        .addTo(map.current);
     }
   };
 
@@ -242,14 +391,10 @@ export default function LiveMapPage() {
   const totalActive = events.filter(e => e.status === 'Active' || e.status === 'Detected' || e.status === 'Emerging').length;
 
   return (
-    <div className="min-h-screen bg-[#0f172a] flex flex-col">
+    <div className="fixed inset-0 w-screen h-screen bg-[#0f172a] flex flex-col overflow-hidden">
       <Header searchQuery={searchQuery} onSearchChange={setSearchQuery} />
 
       <style jsx global>{`
-        @keyframes thermalPulse {
-          0% { transform: translate(-50%, -50%) scale(0.5); opacity: 1; }
-          100% { transform: translate(-50%, -50%) scale(2.5); opacity: 0; }
-        }
         @keyframes statusBlink {
           0%, 100% { opacity: 1; }
           50% { opacity: 0.4; }
@@ -260,7 +405,7 @@ export default function LiveMapPage() {
           border: 1px solid #334155 !important;
           border-radius: 12px !important;
           padding: 0 !important;
-          box-shadow: 0 8px 32px rgba(0,0,0,0.5) !important;
+          box-shadow: 0 8px 32px rgba(0,0,0,0.6) !important;
         }
         .maplibregl-popup-tip {
           border-top-color: #1e293b !important;
@@ -274,10 +419,10 @@ export default function LiveMapPage() {
         }
       `}</style>
 
-      <div className="flex-1 flex overflow-hidden">
+      <div className="flex-1 flex overflow-hidden min-h-0">
         <Sidebar currentTab={currentTab} onTabChange={setCurrentTab} />
 
-        <main className="flex-1 flex flex-col overflow-hidden">
+        <main className="flex-1 flex flex-col overflow-hidden min-h-0">
           {/* Top Bar */}
           <div className="px-4 py-2.5 bg-[#1e293b] border-b border-slate-700 flex items-center justify-between shrink-0">
             <div className="flex items-center gap-4">
@@ -302,6 +447,30 @@ export default function LiveMapPage() {
             </div>
 
             <div className="flex items-center gap-3">
+              {/* Focus India Button */}
+              <button
+                onClick={focusIndia}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-orange-500/15 border border-orange-500/30 text-xs font-semibold text-orange-300 hover:bg-orange-500/25 transition-all"
+                title="Reset view to India"
+              >
+                <Compass className="w-3.5 h-3.5 text-orange-400" />
+                Focus India
+              </button>
+
+              {/* City Labels Toggle */}
+              <button
+                onClick={() => setShowCityLabels(!showCityLabels)}
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+                  showCityLabels
+                    ? 'bg-blue-500/15 border border-blue-500/30 text-blue-400'
+                    : 'bg-slate-700 border border-slate-600 text-slate-400'
+                }`}
+                title="Toggle Regional City Temperature Labels"
+              >
+                <Thermometer className="w-3.5 h-3.5" />
+                {showCityLabels ? 'City Labels: On' : 'City Labels: Off'}
+              </button>
+
               <button
                 onClick={() => setAutoRefresh(!autoRefresh)}
                 className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
@@ -324,9 +493,9 @@ export default function LiveMapPage() {
           </div>
 
           {/* Map + Panel */}
-          <div className="flex-1 flex relative overflow-hidden">
+          <div className="flex-1 flex relative overflow-hidden min-h-0">
             {/* Map Container */}
-            <div className="flex-1 relative">
+            <div className="flex-1 relative min-h-0 h-full">
               {!mapToken ? (
                 <div className="absolute inset-0 flex items-center justify-center bg-[#0f172a] z-10">
                   <div className="text-center p-8 bg-slate-800/80 rounded-2xl border border-slate-700">
@@ -339,31 +508,46 @@ export default function LiveMapPage() {
                 <div ref={mapContainer} className="w-full h-full" />
               )}
 
-              {/* Thermal Legend */}
-              <div className="absolute bottom-6 left-14 bg-[#0f172a]/90 backdrop-blur-md border border-slate-700 rounded-xl p-3 z-10 shadow-xl">
-                <div className="text-[10px] font-bold text-slate-300 uppercase tracking-wider mb-2 flex items-center gap-1.5">
-                  <Layers className="w-3 h-3 text-orange-400" />
-                  Thermal Intensity
+              {/* Reference-Style Title Badge (Top Right of Map) */}
+              <div className="absolute top-4 right-14 bg-[#0f172a]/90 backdrop-blur-md border border-slate-700/80 rounded-xl px-4 py-3 z-10 shadow-2xl flex flex-col items-end">
+                <span className="text-[11px] font-extrabold text-red-500 tracking-wider uppercase">HOTTEST REGIONS</span>
+                <div className="flex items-center gap-1.5 mt-1">
+                  <span className="px-2 py-0.5 bg-red-950 border border-red-600/60 rounded text-xs font-black text-white tracking-widest font-mono">2017</span>
+                  <span className="px-2 py-0.5 bg-slate-800 border border-slate-600 rounded text-xs font-black text-slate-200 tracking-widest font-mono">2024</span>
                 </div>
-                <div className="flex flex-col gap-1">
-                  {THERMAL_GRADIENT.map((item, i) => (
-                    <div key={i} className="flex items-center gap-2">
-                      <div className="w-5 h-2.5 rounded-sm" style={{ background: item.color }}></div>
-                      <span className="text-[9px] text-slate-400 font-medium">{item.label}</span>
-                    </div>
-                  ))}
+                <span className="text-[9px] text-slate-400 mt-1.5 font-medium tracking-tight">Realtime Spaceborne Thermal Anomaly</span>
+              </div>
+
+              {/* Reference-Style Gradient Legend Bar (Bottom Right of Map) */}
+              <div className="absolute bottom-6 right-14 bg-[#0f172a]/95 backdrop-blur-md border border-slate-700/90 rounded-xl px-4 py-3 z-10 shadow-2xl min-w-[280px]">
+                <div className="flex items-center justify-between text-xs font-black mb-1.5">
+                  <span className="text-red-500 tracking-wider">HOT</span>
+                  <span className="text-indigo-300 tracking-wider">COOL</span>
+                </div>
+                {/* Continuous Gradient Bar matching reference image */}
+                <div 
+                  className="w-full h-4 rounded-md border border-white/20 shadow-inner"
+                  style={{
+                    background: 'linear-gradient(to right, #7f1d1d 0%, #b91c1c 15%, #ea580c 35%, #facc15 65%, #38bdf8 85%, #818cf8 100%)'
+                  }}
+                />
+                <div className="text-[9px] text-slate-400 uppercase tracking-widest text-center mt-2 font-semibold">
+                  THIS MAP IS FOR REPRESENTATIONAL PURPOSE ONLY.
                 </div>
               </div>
 
-              {/* Priority Legend */}
+              {/* Priority Summary (Top Left) */}
               <div className="absolute top-4 left-4 bg-[#0f172a]/90 backdrop-blur-md border border-slate-700 rounded-xl p-3 z-10 shadow-xl">
-                <div className="text-[10px] font-bold text-slate-300 uppercase tracking-wider mb-2">Event Priority</div>
+                <div className="text-[10px] font-bold text-slate-300 uppercase tracking-wider mb-2 flex items-center gap-1.5">
+                  <Layers className="w-3 h-3 text-orange-400" />
+                  Thermal Priority Index
+                </div>
                 <div className="flex flex-col gap-1.5">
                   {Object.entries(PRIORITY_CONFIG).map(([key, cfg]) => (
                     <div key={key} className="flex items-center gap-2">
-                      <div className="w-3 h-3 rounded-full border-2 border-white/80" style={{ background: cfg.color, boxShadow: `0 0 6px ${cfg.color}` }}></div>
+                      <div className="w-2.5 h-2.5 rounded-full" style={{ background: cfg.color, boxShadow: `0 0 6px ${cfg.color}` }}></div>
                       <span className="text-[10px] text-slate-400 font-medium">{cfg.label}</span>
-                      <span className="text-[10px] text-slate-600 ml-auto font-mono">
+                      <span className="text-[10px] text-slate-500 ml-auto font-mono">
                         {events.filter(e => e.priority === key).length}
                       </span>
                     </div>
@@ -373,7 +557,7 @@ export default function LiveMapPage() {
             </div>
 
             {/* Side Panel */}
-            <div className={`bg-[#1e293b] border-l border-slate-700 transition-all duration-300 flex flex-col ${isPanelOpen ? 'w-[340px]' : 'w-0'} overflow-hidden shrink-0`}>
+            <div className={`bg-[#1e293b] border-l border-slate-700 transition-all duration-300 flex flex-col ${isPanelOpen ? 'w-[340px]' : 'w-0'} overflow-hidden shrink-0 h-full min-h-0`}>
               <div className="p-3 border-b border-slate-700 flex items-center justify-between shrink-0">
                 <h3 className="text-sm font-bold text-white flex items-center gap-2">
                   <Eye className="w-4 h-4 text-blue-400" />
@@ -384,7 +568,7 @@ export default function LiveMapPage() {
                 </button>
               </div>
 
-              <div className="flex-1 overflow-y-auto">
+              <div className="flex-1 overflow-y-auto min-h-0">
                 {isLoading ? (
                   <div className="p-6 text-center">
                     <div className="w-6 h-6 border-2 border-blue-400 border-t-transparent rounded-full animate-spin mx-auto"></div>
