@@ -56,9 +56,6 @@ export default function LoginPage() {
               <ShieldCheck className="w-8 h-8 text-indigo-400" />
             </div>
           </div>
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-500/20 border border-indigo-400/30 text-[11px] font-bold text-indigo-300 mb-2">
-            SIH PS162 Operational Portal
-          </div>
           <h1 className="text-2xl font-extrabold tracking-tight mb-1 text-white">Agni-Netra</h1>
           <p className="text-xs text-slate-300 font-medium max-w-xs mx-auto">
             From Spaceborne Thermal Detections to Actionable Decision Support
