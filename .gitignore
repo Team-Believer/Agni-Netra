@@ -55,3 +55,4 @@ frontend/build/
 Thumbs.db
 .vscode/
 .idea/
+node_modules/
