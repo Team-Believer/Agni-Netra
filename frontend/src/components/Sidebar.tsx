@@ -63,7 +63,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ onTabChange }) => {
               className={`w-full flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-semibold transition-all duration-200 ${
                 active
                   ? 'bg-indigo-50 text-indigo-700 border border-indigo-100 shadow-sm translate-x-0.5'
-                  : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900 hover:translate-x-0.5'
+                    : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900 hover:translate-x-0.5'
               }`}
             >
               <Icon className={`w-4 h-4 transition-colors ${active ? 'text-indigo-600' : 'text-slate-400'}`} />
@@ -83,7 +83,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ onTabChange }) => {
             className={`w-full flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-semibold transition-all duration-200 ${
               isActive('/settings')
                 ? 'bg-indigo-50 text-indigo-700 border border-indigo-100 shadow-sm translate-x-0.5'
-                : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900 hover:translate-x-0.5'
+                  : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900 hover:translate-x-0.5'
             }`}
           >
             <Settings className={`w-4 h-4 transition-colors ${isActive('/settings') ? 'text-indigo-600' : 'text-slate-400'}`} />
@@ -94,7 +94,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ onTabChange }) => {
             className={`w-full flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-semibold transition-all duration-200 ${
               isActive('/help')
                 ? 'bg-indigo-50 text-indigo-700 border border-indigo-100 shadow-sm translate-x-0.5'
-                : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900 hover:translate-x-0.5'
+                  : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900 hover:translate-x-0.5'
             }`}
           >
             <HelpCircle className={`w-4 h-4 transition-colors ${isActive('/help') ? 'text-indigo-600' : 'text-slate-400'}`} />
