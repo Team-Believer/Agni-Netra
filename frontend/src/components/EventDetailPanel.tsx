@@ -70,46 +70,46 @@ export const EventDetailPanel: React.FC<EventDetailPanelProps> = ({
   };
 
   return (
-    <div className="bg-white border border-slate-200 rounded-xl shadow-xs overflow-hidden flex flex-col h-[740px]">
+    <div className="bg-white border border-slate-200/90 rounded-xl shadow-sm overflow-hidden flex flex-col h-[740px]">
       {/* 1. Header Bar with Persistent ID & Badges */}
-      <div className="px-5 py-3 border-b border-slate-100 flex items-center justify-between bg-white">
+      <div className="px-5 py-3 border-b border-slate-100 flex items-center justify-between bg-white/80">
         <div className="flex items-center gap-2">
-          <span className="text-sm font-bold text-slate-900">{event.event_id}</span>
-          <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-red-50 text-red-600 border border-red-100 flex items-center gap-1">
-            <span className="w-1.5 h-1.5 rounded-full bg-red-600"></span>
+          <span className="text-sm font-extrabold text-slate-900">{event.event_id}</span>
+          <span className="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-red-50 text-red-700 border border-red-200/80 flex items-center gap-1.5 shadow-sm">
+            <span className="w-1.5 h-1.5 rounded-full bg-red-600 animate-pulse"></span>
             High Priority
           </span>
-          <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-amber-50 text-amber-700 border border-amber-200/80 flex items-center gap-1">
+          <span className="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-amber-50 text-amber-800 border border-amber-200/80 flex items-center gap-1.5 shadow-sm">
             <span className="w-1.5 h-1.5 rounded-full bg-amber-500"></span>
             {event.status}
           </span>
         </div>
-        <button className="text-slate-400 hover:text-slate-600 p-1">
+        <button className="text-slate-400 hover:text-slate-600 p-1.5 rounded-lg hover:bg-slate-100 transition-colors">
           <MoreVertical className="w-4 h-4" />
         </button>
       </div>
 
       {/* 2. Title & Facility Info */}
-      <div className="px-5 py-3 border-b border-slate-100 bg-white">
-        <div className="flex items-center gap-2 text-red-600">
-          <Factory className="w-4 h-4" />
-          <h2 className="text-sm font-bold text-slate-900">{event.title}</h2>
+      <div className="px-5 py-3 border-b border-slate-100 bg-slate-50/40">
+        <div className="flex items-center gap-2 text-orange-600">
+          <Factory className="w-4 h-4 shrink-0" />
+          <h2 className="text-xs font-extrabold text-slate-900 leading-tight">{event.title}</h2>
         </div>
-        <div className="flex items-center gap-1.5 text-xs text-slate-500 mt-0.5">
-          <MapPin className="w-3.5 h-3.5 text-slate-400" />
+        <div className="flex items-center gap-1.5 text-xs text-slate-500 mt-1 font-medium">
+          <MapPin className="w-3.5 h-3.5 text-slate-400 shrink-0" />
           <span>{event.location}</span>
         </div>
       </div>
 
       {/* 3. Sub-navigation Tabs */}
-      <div className="px-5 border-b border-slate-200 bg-slate-50/50 flex items-center gap-6 text-xs font-semibold">
+      <div className="px-5 border-b border-slate-200/80 bg-slate-50/70 flex items-center gap-6 text-xs font-semibold">
         {(['Overview', 'Evidence', 'Timeline', 'Media', 'Actions'] as const).map((tab) => (
           <button
             key={tab}
             onClick={() => setActiveTab(tab)}
-            className={`py-2.5 relative transition-colors ${
+            className={`py-2.5 relative transition-all duration-150 ${
               activeTab === tab
-                ? 'text-blue-600 font-bold border-b-2 border-blue-600'
+                ? 'text-indigo-600 font-extrabold border-b-2 border-indigo-600'
                 : 'text-slate-500 hover:text-slate-800'
             }`}
           >
@@ -240,7 +240,7 @@ export const EventDetailPanel: React.FC<EventDetailPanelProps> = ({
             <div>
               <h4 className="text-xs font-bold text-slate-900 mb-2">What Happened?</h4>
               <div className="grid grid-cols-4 gap-2">
-                <div className="bg-white border border-slate-200 rounded-lg p-2 shadow-2xs">
+                <div className="bg-white border border-slate-200 rounded-lg p-2 shadow-sm">
                   <div className="text-[10px] text-slate-400 font-medium">FRP</div>
                   <div className="text-xs font-bold text-red-600 flex items-center gap-0.5 mt-0.5">
                     ↑ {event.frp_change_pct !== undefined && event.frp_change_pct !== null ? event.frp_change_pct.toFixed(0) : '0'}%
@@ -248,7 +248,7 @@ export const EventDetailPanel: React.FC<EventDetailPanelProps> = ({
                   <div className="text-[9px] text-slate-400">vs. historical avg.</div>
                 </div>
 
-                <div className="bg-white border border-slate-200 rounded-lg p-2 shadow-2xs">
+                <div className="bg-white border border-slate-200 rounded-lg p-2 shadow-sm">
                   <div className="text-[10px] text-slate-400 font-medium">Footprint</div>
                   <div className="text-xs font-bold text-red-600 flex items-center gap-0.5 mt-0.5">
                     ↑ {event.footprint_expansion_factor !== undefined && event.footprint_expansion_factor !== null ? event.footprint_expansion_factor.toFixed(1) : '1.0'}×
@@ -256,7 +256,7 @@ export const EventDetailPanel: React.FC<EventDetailPanelProps> = ({
                   <div className="text-[9px] text-slate-400">expanding</div>
                 </div>
 
-                <div className="bg-white border border-slate-200 rounded-lg p-2 shadow-2xs">
+                <div className="bg-white border border-slate-200 rounded-lg p-2 shadow-sm">
                   <div className="text-[10px] text-slate-400 font-medium">Observations</div>
                   <div className="text-xs font-bold text-red-600 flex items-center gap-0.5 mt-0.5">
                     ↑ {event.observations_count}
@@ -264,7 +264,7 @@ export const EventDetailPanel: React.FC<EventDetailPanelProps> = ({
                   <div className="text-[9px] text-slate-400">in last 6 hours</div>
                 </div>
 
-                <div className="bg-white border border-slate-200 rounded-lg p-2 shadow-2xs">
+                <div className="bg-white border border-slate-200 rounded-lg p-2 shadow-sm">
                   <div className="text-[10px] text-slate-400 font-medium">Behavior</div>
                   <div className="text-xs font-bold text-red-600 mt-0.5 truncate">
                     Escalating

@@ -208,8 +208,8 @@ export const LiveEventMap: React.FC<LiveEventMapProps> = ({
           </div>
 
           {/* Layers button */}
-          <button className="flex items-center gap-1.5 px-2.5 py-1 bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-md text-[11px] font-medium text-slate-700 transition-colors">
-            <Layers className="w-3 h-3 text-slate-500" />
+          <button className="flex items-center gap-1.5 px-2.5 py-1 bg-slate-50/80 hover:bg-slate-100 border border-slate-200 rounded-lg text-[11px] font-semibold text-slate-700 transition-all shadow-sm">
+            <Layers className="w-3 h-3 text-indigo-600" />
             <span>Layers</span>
           </button>
         </div>
@@ -219,58 +219,59 @@ export const LiveEventMap: React.FC<LiveEventMapProps> = ({
       <div className="flex-1 w-full relative bg-slate-100">
         <div ref={mapContainer} className="w-full h-full" />
 
-        {/* Selected Event Popup Card Overlay (Mirrors Reference UI) */}
+        {/* Selected Event Popup Card Overlay */}
         {selectedEvent && (
           <div
-            className="absolute top-4 left-1/2 transform -translate-x-1/2 z-20 bg-white border border-slate-200 rounded-lg p-3 shadow-md w-64 cursor-pointer hover:border-slate-300 transition-all"
+            className="absolute top-4 left-1/2 transform -translate-x-1/2 z-20 bg-white/95 backdrop-blur-md border border-slate-200/90 rounded-xl p-3.5 shadow-glass w-72 cursor-pointer hover:border-indigo-300 hover:shadow-card-hover transition-all"
             onClick={() => onSelectEvent(selectedEvent.event_id)}
           >
-            <div className="flex items-start justify-between">
+            <div className="flex items-start justify-between gap-2">
               <div>
-                <div className="text-xs font-bold text-slate-900">{selectedEvent.event_id}</div>
-                <div className="text-[11px] text-slate-600 font-medium leading-tight mt-0.5">
+                <div className="text-xs font-bold text-slate-900 flex items-center gap-1.5">
+                  <span className="text-indigo-600">{selectedEvent.event_id}</span>
+                </div>
+                <div className="text-[11px] text-slate-700 font-semibold leading-tight mt-0.5 line-clamp-1">
                   {selectedEvent.title}
                 </div>
               </div>
-              <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full ${
+              <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full shrink-0 ${
                 selectedEvent.priority === 'High' || selectedEvent.priority === 'Critical'
-                  ? 'bg-red-50 text-red-600 border border-red-100'
-                  : 'bg-amber-50 text-amber-700 border border-amber-100'
+                  ? 'bg-red-50 text-red-600 border border-red-200/80'
+                  : 'bg-amber-50 text-amber-700 border border-amber-200/80'
               }`}>
                 {selectedEvent.priority} Priority
               </span>
             </div>
-            <div className="mt-2 text-[10px] text-slate-500 border-t border-slate-100 pt-1.5 flex items-center justify-between">
-              <span>Lat: {selectedEvent.latitude != null ? selectedEvent.latitude.toFixed(2) : '--'} | Lon: {selectedEvent.longitude != null ? selectedEvent.longitude.toFixed(2) : '--'}</span>
-            </div>
-            <div className="text-[10px] text-slate-500 mt-0.5 font-medium">
-              {selectedEvent.observations_count} observations (last 6h)
+            <div className="mt-2 text-[10px] text-slate-500 border-t border-slate-100 pt-2 flex items-center justify-between font-mono">
+              <span>LAT {selectedEvent.latitude != null ? selectedEvent.latitude.toFixed(2) : '--'}°</span>
+              <span>LON {selectedEvent.longitude != null ? selectedEvent.longitude.toFixed(2) : '--'}°</span>
+              <span className="text-indigo-600 font-sans font-semibold">{selectedEvent.observations_count} obs</span>
             </div>
           </div>
         )}
 
         {/* Map Legend (Bottom Left) */}
-        <div className="absolute bottom-3 left-3 bg-white/95 backdrop-blur-xs border border-slate-200 rounded-lg p-2.5 shadow-sm text-[10px] space-y-1.5 z-10">
+        <div className="absolute bottom-3 left-3 bg-white/95 backdrop-blur-md border border-slate-200/90 rounded-xl p-2.5 shadow-sm text-[10px] space-y-1.5 z-10">
           <div className="flex items-center gap-2">
-            <span className="w-2.5 h-2.5 rounded-full bg-red-600"></span>
-            <span className="font-medium text-slate-700">High Priority</span>
+            <span className="w-2.5 h-2.5 rounded-full bg-red-600 ring-2 ring-red-100"></span>
+            <span className="font-semibold text-slate-700">High Priority</span>
           </div>
           <div className="flex items-center gap-2">
-            <span className="w-2.5 h-2.5 rounded-full bg-orange-500"></span>
-            <span className="font-medium text-slate-700">Medium Priority</span>
+            <span className="w-2.5 h-2.5 rounded-full bg-orange-500 ring-2 ring-orange-100"></span>
+            <span className="font-semibold text-slate-700">Medium Priority</span>
           </div>
           <div className="flex items-center gap-2">
-            <span className="w-2.5 h-2.5 rounded-full bg-green-600"></span>
-            <span className="font-medium text-slate-700">Low Priority</span>
+            <span className="w-2.5 h-2.5 rounded-full bg-emerald-600 ring-2 ring-emerald-100"></span>
+            <span className="font-semibold text-slate-700">Low Priority</span>
           </div>
           <div className="flex items-center gap-2">
-            <span className="w-2.5 h-2.5 rounded-full bg-blue-600"></span>
-            <span className="font-medium text-slate-700">Under Verification</span>
+            <span className="w-2.5 h-2.5 rounded-full bg-indigo-600 ring-2 ring-indigo-100"></span>
+            <span className="font-semibold text-slate-700">Under Verification</span>
           </div>
         </div>
 
         {/* Map Scale Bar (Bottom Right) */}
-        <div className="absolute bottom-3 right-12 bg-white/90 backdrop-blur-xs border border-slate-200 rounded px-2 py-0.5 shadow-xs text-[9px] font-semibold text-slate-600 z-10">
+        <div className="absolute bottom-3 right-12 bg-white/90 backdrop-blur-md border border-slate-200 rounded-md px-2 py-0.5 shadow-sm text-[9px] font-bold text-slate-600 z-10">
           500 km
         </div>
 
@@ -278,21 +279,21 @@ export const LiveEventMap: React.FC<LiveEventMapProps> = ({
         <div className="absolute bottom-3 right-3 flex flex-col gap-1 z-10">
           <button
             onClick={() => mapInstance.current?.zoomIn()}
-            className="w-7 h-7 bg-white hover:bg-slate-50 border border-slate-200 rounded flex items-center justify-center text-slate-700 shadow-xs"
+            className="w-7 h-7 bg-white hover:bg-slate-50 border border-slate-200/90 rounded-lg flex items-center justify-center text-slate-700 shadow-sm transition-colors"
             title="Zoom In"
           >
             <Plus className="w-3.5 h-3.5" />
           </button>
           <button
             onClick={() => mapInstance.current?.zoomOut()}
-            className="w-7 h-7 bg-white hover:bg-slate-50 border border-slate-200 rounded flex items-center justify-center text-slate-700 shadow-xs"
+            className="w-7 h-7 bg-white hover:bg-slate-50 border border-slate-200/90 rounded-lg flex items-center justify-center text-slate-700 shadow-sm transition-colors"
             title="Zoom Out"
           >
             <Minus className="w-3.5 h-3.5" />
           </button>
           <button
             onClick={() => mapInstance.current?.flyTo({ center: [78.9629, 21.5937], zoom: 4.4 })}
-            className="w-7 h-7 bg-white hover:bg-slate-50 border border-slate-200 rounded flex items-center justify-center text-slate-700 shadow-xs"
+            className="w-7 h-7 bg-white hover:bg-slate-50 border border-slate-200/90 rounded-lg flex items-center justify-center text-slate-700 shadow-sm transition-colors"
             title="Reset View"
           >
             <Crosshair className="w-3.5 h-3.5" />

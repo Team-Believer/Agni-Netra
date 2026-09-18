@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { Flame, Search, Bell, LogOut } from 'lucide-react';
+import { Flame, Search, LogOut } from 'lucide-react';
 import { useAuth } from '../lib/AuthContext';
 
 interface HeaderProps {
@@ -47,16 +47,6 @@ export const Header: React.FC<HeaderProps> = ({ searchQuery, onSearchChange }) =
 
       {/* Right User & Actions */}
       <div className="flex items-center gap-4">
-        <button
-          className="relative p-2 rounded-full hover:bg-slate-100 text-slate-600 transition-colors"
-          title="Notifications"
-        >
-          <Bell className="w-4 h-4" />
-          <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full ring-2 ring-white"></span>
-        </button>
-
-        <div className="h-5 w-[1px] bg-slate-200" />
-
         <div className="flex items-center gap-2.5 cursor-pointer hover:opacity-90 transition-opacity">
           <div className="w-8 h-8 rounded-full bg-slate-900 text-white flex items-center justify-center text-xs font-semibold">
             {initial}
