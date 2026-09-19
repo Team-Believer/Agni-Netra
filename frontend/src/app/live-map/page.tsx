@@ -230,7 +230,7 @@ export default function LiveMapPage() {
         ]
       });
 
-      map.current.addControl(new maplibregl.NavigationControl(), 'top-right');
+      map.current.addControl(new maplibregl.NavigationControl({ showCompass: false }), 'bottom-left');
       map.current.addControl(new maplibregl.ScaleControl({ maxWidth: 200 }), 'bottom-left');
 
       map.current.on('error', (e) => {
@@ -518,12 +518,21 @@ export default function LiveMapPage() {
         .maplibregl-popup-tip {
           border-top-color: #1e293b !important;
         }
+        .maplibregl-ctrl-bottom-left {
+          z-index: 30 !important;
+        }
         .maplibregl-ctrl-group {
-          background: #1e293b !important;
+          background: #0f172a !important;
           border: 1px solid #334155 !important;
+          border-radius: 8px !important;
+          overflow: hidden !important;
+          box-shadow: 0 4px 16px rgba(0,0,0,0.5) !important;
         }
         .maplibregl-ctrl-group button {
-          filter: invert(1);
+          background: #0f172a !important;
+        }
+        .maplibregl-ctrl-group button span {
+          filter: invert(1) brightness(2) !important;
         }
       `}</style>
 
@@ -532,16 +541,63 @@ export default function LiveMapPage() {
 
         <main className="flex-1 flex flex-col overflow-hidden min-h-0">
           {/* Top Header Bar */}
-          <div className="px-4 py-2.5 bg-[#0f172a] border-b border-slate-800 flex items-center justify-between shrink-0">
-            <div className="flex items-center gap-3">
-              <Flame className="w-5 h-5 text-orange-400" />
-              <h1 className="text-base font-bold text-white tracking-tight">Thermal Event Monitoring</h1>
+          <div className="px-4 py-2.5 bg-[#0f172a] border-b border-slate-800 flex items-center justify-between shrink-0 gap-4">
+            <div className="flex items-center gap-3 min-w-0 shrink">
+              <Flame className="w-5 h-5 text-orange-400 shrink-0" />
+              <h1 className="text-base font-bold text-white tracking-tight truncate">Thermal Event Monitoring</h1>
               {priorityFilter !== 'All' && (
-                <span className="ml-2 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-indigo-500/20 text-indigo-300 border border-indigo-500/40 flex items-center gap-1.5">
+                <span className="ml-2 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-indigo-500/20 text-indigo-300 border border-indigo-500/40 flex items-center gap-1.5 shrink-0">
                   Filtered: {priorityFilter}
                   <button onClick={() => setPriorityFilter('All')} className="hover:text-white font-bold ml-1">✕</button>
                 </span>
               )}
+            </div>
+
+            {/* Toolbar Group (Live, Updated, Focus India, City Labels) */}
+            <div className="flex items-center gap-2.5 ml-auto shrink-0 flex-nowrap whitespace-nowrap">
+              {/* Live / Pause status button with pulsing dot */}
+              <button
+                onClick={() => setAutoRefresh(!autoRefresh)}
+                className="flex items-center gap-2 px-2.5 py-1 rounded-lg bg-slate-800/90 border border-slate-700 text-xs font-semibold text-slate-200 hover:bg-slate-700 transition-all shrink-0"
+                title={autoRefresh ? 'Click to Pause auto-refresh' : 'Click to Resume live refresh'}
+              >
+                <span className={`w-2.5 h-2.5 rounded-full ${autoRefresh ? 'bg-emerald-500' : 'bg-amber-400'}`} style={autoRefresh ? { animation: 'statusBlink 1.5s infinite' } : {}}></span>
+                <span>{autoRefresh ? 'Live' : 'Paused'}</span>
+              </button>
+
+              {/* Merged Refresh + Last Updated Button */}
+              <button
+                onClick={loadEvents}
+                className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-slate-800/90 border border-slate-700 text-xs font-semibold text-slate-200 hover:bg-slate-700 transition-all shrink-0"
+                title="Click to Refresh immediately"
+              >
+                <RefreshCw className={`w-3 h-3 text-slate-400 ${isLoading ? 'animate-spin' : ''}`} />
+                <span>{timeAgoText}</span>
+              </button>
+
+              {/* Focus India Button */}
+              <button
+                onClick={focusIndia}
+                className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-orange-500/20 border border-orange-500/40 text-xs font-semibold text-orange-300 hover:bg-orange-500/30 transition-all shrink-0"
+                title="Reset view to India"
+              >
+                <Compass className="w-3.5 h-3.5 text-orange-400" />
+                <span>Focus India</span>
+              </button>
+
+              {/* City Labels Toggle Button */}
+              <button
+                onClick={() => setShowCityLabels(!showCityLabels)}
+                className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold transition-all border shrink-0 ${
+                  showCityLabels
+                    ? 'bg-blue-500/20 border-blue-500/40 text-blue-300'
+                    : 'bg-slate-800/90 border-slate-700 text-slate-400'
+                }`}
+                title="Toggle City Temperature Labels"
+              >
+                <Thermometer className="w-3.5 h-3.5" />
+                <span>{showCityLabels ? 'City Labels' : 'No Labels'}</span>
+              </button>
             </div>
           </div>
 
@@ -570,57 +626,8 @@ export default function LiveMapPage() {
                 <div ref={mapContainer} className="w-full h-full" />
               )}
 
-              {/* Top-Right Map Controls Bar */}
-              <div className="absolute top-4 right-4 z-10 flex items-center gap-2">
-                <div className="bg-[#0f172a]/90 backdrop-blur-md border border-slate-700/80 rounded-xl px-3 py-2 shadow-2xl flex items-center gap-2.5">
-                  {/* Live / Pause status button with pulsing dot */}
-                  <button
-                    onClick={() => setAutoRefresh(!autoRefresh)}
-                    className="flex items-center gap-2 px-2.5 py-1 rounded-lg bg-slate-800/90 border border-slate-700 text-xs font-semibold text-slate-200 hover:bg-slate-700 transition-all"
-                    title={autoRefresh ? 'Click to Pause auto-refresh' : 'Click to Resume live refresh'}
-                  >
-                    <span className={`w-2.5 h-2.5 rounded-full ${autoRefresh ? 'bg-emerald-500' : 'bg-amber-400'}`} style={autoRefresh ? { animation: 'statusBlink 1.5s infinite' } : {}}></span>
-                    <span>{autoRefresh ? 'Live' : 'Paused'}</span>
-                  </button>
-
-                  {/* Merged Refresh + Last Updated Button */}
-                  <button
-                    onClick={loadEvents}
-                    className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-slate-800/90 border border-slate-700 text-xs font-semibold text-slate-200 hover:bg-slate-700 transition-all"
-                    title="Click to Refresh immediately"
-                  >
-                    <RefreshCw className={`w-3 h-3 text-slate-400 ${isLoading ? 'animate-spin' : ''}`} />
-                    <span>{timeAgoText}</span>
-                  </button>
-
-                  {/* Focus India Button */}
-                  <button
-                    onClick={focusIndia}
-                    className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-orange-500/20 border border-orange-500/40 text-xs font-semibold text-orange-300 hover:bg-orange-500/30 transition-all"
-                    title="Reset view to India"
-                  >
-                    <Compass className="w-3.5 h-3.5 text-orange-400" />
-                    <span>Focus India</span>
-                  </button>
-
-                  {/* City Labels Toggle Button */}
-                  <button
-                    onClick={() => setShowCityLabels(!showCityLabels)}
-                    className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold transition-all border ${
-                      showCityLabels
-                        ? 'bg-blue-500/20 border-blue-500/40 text-blue-300'
-                        : 'bg-slate-800/90 border-slate-700 text-slate-400'
-                    }`}
-                    title="Toggle City Temperature Labels"
-                  >
-                    <Thermometer className="w-3.5 h-3.5" />
-                    <span>{showCityLabels ? 'City Labels' : 'No Labels'}</span>
-                  </button>
-                </div>
-              </div>
-
-              {/* Hottest Regions Panel (Top Right, under control bar) */}
-              <div className="absolute top-16 right-4 z-10 w-64 bg-[#0f172a]/90 backdrop-blur-md border border-slate-700/80 rounded-xl px-4 py-3 shadow-2xl flex flex-col">
+              {/* Hottest Regions Panel (Top Right, 16px offset) */}
+              <div className="absolute top-4 right-4 z-10 w-64 bg-[#0f172a]/90 backdrop-blur-md border border-slate-700/80 rounded-xl px-4 py-3 shadow-2xl flex flex-col">
                 <div className="flex items-center justify-between pb-2 border-b border-slate-800">
                   <span className="text-[11px] font-extrabold text-red-500 tracking-wider uppercase flex items-center gap-1.5">
                     <Flame className="w-3.5 h-3.5" />
