@@ -93,7 +93,7 @@ def seed_database():
         abnormality="Normal", risk_level="Low", risk_index=15.0, priority_level="Low", confidence=0.96,
         evidence_completeness=0.88, verification_status="Monitoring", frp_change_pct=-4.0, footprint_expansion_factor=1.0,
         current_assessment="Normal continuous flaring at facility.",
-        satellite_image_url="/demo-flare.png",
+        satellite_image_url="/agri_fire_1.jpg",
         why_explanation=["Matches known flare location.", "Stable FRP."],
         why_not_explanation=["No spatial expansion."],
         what_changed_explanation=["No significant changes."],
@@ -110,7 +110,7 @@ def seed_database():
         abnormality="Highly Abnormal", risk_level="Critical", risk_index=88.0, priority_level="High", confidence=0.89,
         evidence_completeness=0.74, verification_status="Needs Verification", frp_change_pct=140.0, footprint_expansion_factor=2.1,
         current_assessment="Severe heat burst adjacent to plant structures.",
-        satellite_image_url="/demo-fire.png",
+        satellite_image_url="/ind_fire_korba.jpg",
         why_explanation=["Expanding thermal footprint.", "FRP surge +140%."],
         why_not_explanation=["Not a Routine Flare: Expanding beyond stack bounds."],
         what_changed_explanation=["FRP surged rapidly in last 4 hours."],
@@ -127,7 +127,7 @@ def seed_database():
         abnormality="Normal", risk_level="Medium", risk_index=55.0, priority_level="Medium", confidence=0.92,
         evidence_completeness=0.80, verification_status="Needs Verification", frp_change_pct=40.0, footprint_expansion_factor=1.5,
         current_assessment="Vegetation fire spreading north.",
-        satellite_image_url="/demo-placeholder.jpg",
+        satellite_image_url="/forest_fire_1.jpg",
         data_mode="SEED"
     )
     db.add(ev_c)
@@ -141,7 +141,7 @@ def seed_database():
         abnormality="Normal", risk_level="Low", risk_index=10.0, priority_level="Monitor", confidence=0.85,
         evidence_completeness=0.60, verification_status="Monitoring", frp_change_pct=0.0, footprint_expansion_factor=1.0,
         current_assessment="Short duration post-harvest burning.",
-        satellite_image_url="/demo-placeholder.jpg",
+        satellite_image_url="/agri_fire_2.jpg",
         data_mode="SEED"
     )
     db.add(ev_d)
@@ -172,7 +172,7 @@ def seed_database():
         abnormality="Highly Abnormal", risk_level="High", risk_index=72.0, priority_level="High", confidence=0.45,
         evidence_completeness=0.50, verification_status="Needs Verification", frp_change_pct=110.0, footprint_expansion_factor=1.2,
         current_assessment="Unidentified heat source near industrial boundary. Low confidence due to cloud cover.",
-        satellite_image_url="/demo-placeholder.jpg",
+        satellite_image_url="/ind_anomaly.jpg",
         why_explanation=["Anomalous heat detection outside normal operational zones."],
         why_not_explanation=["Insufficient multi-sensor data to confirm industrial fire."],
         what_changed_explanation=["New detection in last hour."],
@@ -189,7 +189,7 @@ def seed_database():
         abnormality="Normal", risk_level="Low", risk_index=5.0, priority_level="Monitor", confidence=0.91,
         evidence_completeness=0.85, verification_status="Verified Active", frp_change_pct=0.0, footprint_expansion_factor=1.0,
         current_assessment="Post-harvest stubble burning verified and concluded.",
-        satellite_image_url="/demo-placeholder.jpg",
+        satellite_image_url="/agri_fire_3.jpg",
         data_mode="SEED"
     )
     db.add(ev_g)
@@ -203,7 +203,7 @@ def seed_database():
         abnormality="Normal", risk_level="Low", risk_index=12.0, priority_level="Low", confidence=0.97,
         evidence_completeness=0.90, verification_status="Monitoring", frp_change_pct=-2.0, footprint_expansion_factor=1.0,
         current_assessment="Historic continuous flare, operating within normal parameters.",
-        satellite_image_url="/demo-placeholder.jpg",
+        satellite_image_url="/routine_flare.jpg",
         data_mode="SEED"
     )
     db.add(ev_h)
@@ -217,7 +217,7 @@ def seed_database():
         abnormality="Highly Abnormal", risk_level="High", risk_index=85.0, priority_level="High", confidence=0.94,
         evidence_completeness=0.88, verification_status="Needs Verification", frp_change_pct=210.0, footprint_expansion_factor=5.5,
         current_assessment="Large scale forest fire spreading across multiple sectors of the reserve.",
-        satellite_image_url="/demo-placeholder.jpg",
+        satellite_image_url="/forest_fire_2.jpg",
         data_mode="SEED"
     )
     db.add(ev_i)
@@ -231,7 +231,7 @@ def seed_database():
         abnormality="Abnormal", risk_level="Medium", risk_index=60.0, priority_level="Medium", confidence=0.82,
         evidence_completeness=0.75, verification_status="Under Verification", frp_change_pct=15.0, footprint_expansion_factor=1.1,
         current_assessment="Low intensity but persistent heat anomaly at port storage area.",
-        satellite_image_url="/demo-placeholder.jpg",
+        satellite_image_url="/port_smoldering.jpg",
         data_mode="SEED"
     )
     db.add(ev_j)
@@ -245,7 +245,7 @@ def seed_database():
         abnormality="Normal", risk_level="Medium", risk_index=45.0, priority_level="Low", confidence=0.99,
         evidence_completeness=0.92, verification_status="Monitoring", frp_change_pct=1.0, footprint_expansion_factor=1.0,
         current_assessment="Known long-term underground coal seam fire. No sudden changes.",
-        satellite_image_url="/demo-placeholder.jpg",
+        satellite_image_url="/coal_fire.jpg",
         data_mode="SEED"
     )
     db.add(ev_k)
@@ -259,7 +259,7 @@ def seed_database():
         abnormality="Abnormal", risk_level="Medium", risk_index=65.0, priority_level="Medium", confidence=0.88,
         evidence_completeness=0.78, verification_status="Needs Verification", frp_change_pct=50.0, footprint_expansion_factor=1.4,
         current_assessment="Significant surface burning at landfill site.",
-        satellite_image_url="/demo-placeholder.jpg",
+        satellite_image_url="/landfill_fire.jpg",
         data_mode="SEED"
     )
     db.add(ev_l)

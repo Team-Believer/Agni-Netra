@@ -135,7 +135,7 @@ export const EventDetailPanel: React.FC<EventDetailPanelProps> = ({
                 VIIRS / SENTINEL-2 SWIR
               </div>
               <div className="absolute bottom-2 right-2 bg-black/60 backdrop-blur-xs text-white text-[10px] px-2 py-0.5 rounded font-mono">
-                Jamnagar Petrochemical Quadrant
+                {event.location || 'Unknown Location'}
               </div>
               {/* Thermal Hotspot Pulsing Indicator */}
               <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 flex items-center justify-center">
