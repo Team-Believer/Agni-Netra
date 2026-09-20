@@ -14,9 +14,12 @@ class EventService:
         limit: int = 100,
         status: Optional[str] = None,
         priority: Optional[str] = None,
-        search: Optional[str] = None
+        search: Optional[str] = None,
+        start_date: Optional[str] = None,
+        end_date: Optional[str] = None,
+        data_mode: Optional[str] = None
     ) -> List[Event]:
-        return self.repo.get_all(skip=skip, limit=limit, status=status, priority=priority, search=search)
+        return self.repo.get_all(skip=skip, limit=limit, status=status, priority=priority, search=search, start_date=start_date, end_date=end_date, data_mode=data_mode)
 
     def get_event_by_id(self, event_id: str) -> Optional[Event]:
         return self.repo.get_by_event_id(event_id)

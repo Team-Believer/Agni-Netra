@@ -18,7 +18,8 @@ export default function FacilityDetailPage({ params }: { params: { id: string } 
   useEffect(() => {
     const loadFacility = async () => {
       try {
-        const data = await fetchFacilityDetails(params.id);
+        const decodedId = decodeURIComponent(params.id);
+        const data = await fetchFacilityDetails(decodedId);
         if (!data) {
           router.push('/facilities');
           return;

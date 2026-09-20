@@ -24,6 +24,7 @@ export interface EventItem {
   footprint_expansion_factor: number;
   current_assessment: string;
   satellite_image_url?: string;
+  data_mode?: string;
 }
 
 export interface EvidenceItem {

@@ -33,6 +33,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ onTabChange }) => {
     { id: 'facilities', label: 'Facilities', icon: Factory, route: '/facilities' },
     { id: 'historical', label: 'Historical Search', icon: History, route: '/historical' },
     { id: 'reports', label: 'Reports', icon: FileText, route: '/reports' },
+    { id: 'about', label: 'About / Mission', icon: HelpCircle, route: '/about' },
   ];
 
   const handleNavigation = (id: string, route: string) => {

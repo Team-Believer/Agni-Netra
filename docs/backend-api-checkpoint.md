@@ -28,8 +28,14 @@ Currently, the backend runs at `http://localhost:8000`.
 - `GET /api/sources`: Returns the status and latency of ingestion sensor adapters (FIRMS, INSAT-3DS).
 
 ### Reports & Alerts
-- `GET /api/reports/{id}`: Exports structured event reports.
+- `GET /api/reports/{id}`: Exports structured event reports (JSON).
+- `GET /api/reports/export/csv`: Exports all events as a CSV file.
+- `GET /api/reports/export/{id}/pdf`: Exports a comprehensive, beautifully formatted PDF report for a single event.
 - `GET /api/alerts`: Returns active priority alerts.
+
+### Facilities & Infrastructure
+- `GET /api/facilities`: Returns unique industrial facilities inferred from events.
+- `GET /api/facilities/{facility_id}`: Returns details and historical events for a specific facility.
 
 ### Models
 - `GET /api/models/status`: Returns status and configuration of the pre-trained XGBoost model.

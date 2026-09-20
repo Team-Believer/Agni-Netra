@@ -18,9 +18,14 @@ class EventRepository:
         limit: int = 100,
         status: Optional[str] = None,
         priority: Optional[str] = None,
-        search: Optional[str] = None
+        search: Optional[str] = None,
+        start_date: Optional[str] = None,
+        end_date: Optional[str] = None,
+        data_mode: Optional[str] = None
     ) -> List[Event]:
         query = self.db.query(Event)
+        if data_mode and data_mode != "All":
+            query = query.filter(Event.data_mode == data_mode)
         if status and status != "All":
             query = query.filter(Event.verification_status == status)
         if priority and priority != "All":
@@ -34,6 +39,22 @@ class EventRepository:
                 (Event.district.ilike(search_fmt)) |
                 (Event.nearby_facility.ilike(search_fmt))
             )
+        if start_date:
+            try:
+                dt_start = datetime.datetime.fromisoformat(start_date)
+                query = query.filter(Event.first_detected >= dt_start)
+            except ValueError:
+                pass
+        if end_date:
+            try:
+                dt_end = datetime.datetime.fromisoformat(end_date)
+                # If only date is provided, include the whole day
+                if len(end_date) <= 10:
+                    dt_end = dt_end.replace(hour=23, minute=59, second=59)
+                query = query.filter(Event.first_detected <= dt_end)
+            except ValueError:
+                pass
+                
         return query.order_by(desc(Event.last_observed)).offset(skip).limit(limit).all()
 
     def get_by_event_id(self, event_id: str) -> Optional[Event]:

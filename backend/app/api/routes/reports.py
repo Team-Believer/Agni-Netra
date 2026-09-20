@@ -24,3 +24,16 @@ def export_reports_csv(db: Session = Depends(get_db)):
         media_type="text/csv",
         headers={"Content-Disposition": "attachment; filename=agni_netra_events_export.csv"}
     )
+
+@router.get("/reports/export/{event_id}/pdf")
+def export_report_pdf(event_id: str, db: Session = Depends(get_db)):
+    service = ReportService(db)
+    pdf_bytes = service.generate_event_pdf(event_id)
+    if not pdf_bytes:
+        raise HTTPException(status_code=404, detail="Event not found or PDF generation failed")
+    
+    return Response(
+        content=pdf_bytes,
+        media_type="application/pdf",
+        headers={"Content-Disposition": f"attachment; filename=report_{event_id}.pdf"}
+    )

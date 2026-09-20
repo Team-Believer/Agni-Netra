@@ -31,6 +31,7 @@ class Observation(Base):
     thermal_features = Column(JSON, nullable=True)
     spectral_features = Column(JSON, nullable=True)
     created_at = Column(DateTime, default=datetime.datetime.utcnow)
+    data_mode = Column(String(10), default="LIVE", index=True)
 
     # Relationships
     event_associations = relationship("EventObservation", back_populates="observation", cascade="all, delete-orphan")
@@ -79,6 +80,7 @@ class Event(Base):
 
     created_at = Column(DateTime, default=datetime.datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.datetime.utcnow, onupdate=datetime.datetime.utcnow)
+    data_mode = Column(String(10), default="LIVE", index=True)
 
     # Relationships
     observations = relationship("EventObservation", back_populates="event", cascade="all, delete-orphan")
@@ -125,6 +127,7 @@ class EventEvidence(Base):
     direction = Column(String(50), default="SUPPORTING") # SUPPORTING, CONFLICTING, NEUTRAL, MISSING
     value = Column(String(255), nullable=True)
     explanation = Column(Text, nullable=False)
+    data_mode = Column(String(10), default="LIVE", index=True)
 
     event = relationship("Event", back_populates="evidence_items")
 
@@ -183,6 +186,7 @@ class VerificationRecord(Base):
     previous_status = Column(String(50), nullable=True)
     new_status = Column(String(50), nullable=False)
     timestamp = Column(DateTime, default=datetime.datetime.utcnow)
+    data_mode = Column(String(10), default="LIVE", index=True)
 
     event = relationship("Event", back_populates="verifications")
 
@@ -198,6 +202,7 @@ class Alert(Base):
     message = Column(Text, nullable=False)
     status = Column(String(50), default="Active") # Active, Acknowledged, Dismissed
     created_at = Column(DateTime, default=datetime.datetime.utcnow)
+    data_mode = Column(String(10), default="LIVE", index=True)
 
     event = relationship("Event", back_populates="alerts")
 
@@ -232,3 +237,28 @@ class AuditLog(Base):
     previous_state = Column(Text, nullable=True)
     new_state = Column(Text, nullable=True)
     details = Column(JSON, nullable=True)
+    data_mode = Column(String(10), default="LIVE", index=True)
+
+
+class Facility(Base):
+    __tablename__ = "facilities"
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    facility_id = Column(String(50), unique=True, index=True, nullable=False)
+    facility_name = Column(String(200), nullable=False)
+    category = Column(String(100), nullable=True)
+    state = Column(String(100), nullable=True, index=True)
+    district = Column(String(100), nullable=True)
+    latitude = Column(Float, nullable=False)
+    longitude = Column(Float, nullable=False)
+    industrial_area = Column(String(200), nullable=True)
+    description = Column(Text, nullable=True)
+    
+    # Contact Info
+    contact_name = Column(String(100), nullable=True)
+    contact_role = Column(String(100), nullable=True)
+    contact_number = Column(String(50), nullable=True)
+    contact_source = Column(String(100), nullable=True)
+    
+    data_mode = Column(String(10), default="LIVE", index=True)
+    created_at = Column(DateTime, default=datetime.datetime.utcnow)

@@ -6,6 +6,7 @@ import { Sidebar } from '../../components/Sidebar';
 import { KpiCards } from '../../components/KpiCards';
 import { LiveEventMap } from '../../components/LiveEventMap';
 import { RecentEventsTable } from '../../components/RecentEventsTable';
+import { UnderVerificationQueue } from '../../components/UnderVerificationQueue';
 import { EventDetailPanel } from '../../components/EventDetailPanel';
 import { EventItem, EventDetail, DashboardSummary, TimelinePoint } from '../../lib/types';
 import { fetchDashboardSummary, fetchEvents, fetchEventDetail, fetchEventTimeline } from '../../lib/api';
@@ -19,19 +20,50 @@ export default function DashboardPage() {
   const [selectedEventDetail, setSelectedEventDetail] = useState<EventDetail | null>(null);
   const [timeline, setTimeline] = useState<TimelinePoint[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [filterType, setFilterType] = useState('All Events');
+  const [timeRange, setTimeRange] = useState('Last 7 Days');
+  const [dataMode, setDataMode] = useState('SEED');
+
+  const filteredEvents = React.useMemo(() => {
+    let filtered = events;
+    
+    // Status / Priority filter
+    if (filterType === 'High Priority Only') {
+      filtered = filtered.filter(e => e.priority === 'High' || e.priority === 'Critical');
+    } else if (filterType === 'Under Verification') {
+      filtered = filtered.filter(e => e.status === 'Needs Verification' || e.status === 'Under Verification');
+    } else if (filterType === 'Industrial Hypotheses') {
+      filtered = filtered.filter(e => e.classification?.includes('Industrial') || e.classification?.includes('Factory'));
+    }
+
+    // Time filter
+    const now = new Date();
+    if (timeRange === 'Last 24 Hours') {
+      filtered = filtered.filter(e => e.last_seen && (now.getTime() - new Date(e.last_seen).getTime() < 24 * 60 * 60 * 1000));
+    } else if (timeRange === 'Last 7 Days') {
+      filtered = filtered.filter(e => e.last_seen && (now.getTime() - new Date(e.last_seen).getTime() < 7 * 24 * 60 * 60 * 1000));
+    }
+    
+    return filtered;
+  }, [events, filterType, timeRange]);
 
   // Load summary and events on mount
   const loadData = async () => {
     try {
       const [sumData, evsData] = await Promise.all([
         fetchDashboardSummary(),
-        fetchEvents({ search: searchQuery }),
+        fetchEvents({ search: searchQuery, data_mode: dataMode !== 'All' ? dataMode : undefined }),
       ]);
       setSummary(sumData);
       setEvents(evsData);
 
       // If selectedEventId exists, load its detail
-      const targetId = selectedEventId || (evsData.length > 0 ? evsData[0].event_id : '');
+      let targetId = selectedEventId;
+      if (!targetId && evsData.length > 0) {
+        const jamnagarEvent = evsData.find(e => e.event_id === 'EVENT-SEED-005');
+        targetId = jamnagarEvent ? jamnagarEvent.event_id : evsData[0].event_id;
+      }
+
       if (targetId) {
         if (!selectedEventId) {
           setSelectedEventId(targetId);
@@ -55,7 +87,7 @@ export default function DashboardPage() {
 
   useEffect(() => {
     loadData();
-  }, [searchQuery]);
+  }, [searchQuery, dataMode]);
 
   // When selected event changes
   const handleSelectEvent = async (eventId: string) => {
@@ -88,12 +120,24 @@ export default function DashboardPage() {
             {/* Left Main (7 of 12 columns) */}
             <div className="col-span-12 lg:col-span-7 flex flex-col">
               <LiveEventMap
-                events={events}
+                events={filteredEvents}
                 selectedEventId={selectedEventId}
                 onSelectEvent={handleSelectEvent}
+                filterType={filterType}
+                onFilterChange={setFilterType}
+                timeRange={timeRange}
+                onTimeRangeChange={setTimeRange}
+                dataMode={dataMode}
+                onDataModeChange={setDataMode}
               />
+              <div className="mt-4">
+                <UnderVerificationQueue
+                  events={filteredEvents}
+                  onSelectEvent={handleSelectEvent}
+                />
+              </div>
               <RecentEventsTable
-                events={events}
+                events={filteredEvents}
                 selectedEventId={selectedEventId}
                 onSelectEvent={handleSelectEvent}
               />

@@ -37,6 +37,7 @@ export const EventDetailPanel: React.FC<EventDetailPanelProps> = ({
   const [verifyDecision, setVerifyDecision] = useState<'confirmed' | 'rejected' | 'needs_more_evidence'>('confirmed');
   const [verifyComment, setVerifyComment] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [imageModalOpen, setImageModalOpen] = useState(false);
 
   if (!event) {
     return (
@@ -123,7 +124,7 @@ export const EventDetailPanel: React.FC<EventDetailPanelProps> = ({
         {activeTab === 'Overview' && (
           <>
             {/* Satellite Context Preview Canvas */}
-            <div className="w-full h-40 rounded-lg overflow-hidden relative border border-slate-200 bg-slate-900 group">
+            <div className="w-full h-40 rounded-lg overflow-hidden relative border border-slate-200 bg-slate-900 group cursor-pointer" onClick={() => setImageModalOpen(true)}>
               <img
                 src={event.satellite_image_url || "https://images.unsplash.com/photo-1578328819058-b69f3a3b0f6b?auto=format&fit=crop&w=600&q=80"}
                 alt="Satellite Optical & Thermal"
@@ -329,35 +330,87 @@ export const EventDetailPanel: React.FC<EventDetailPanelProps> = ({
         )}
 
         {activeTab === 'Evidence' && (
-          <div className="space-y-2.5">
-            <div className="flex items-center justify-between pb-2 border-b border-slate-100">
-              <span className="font-semibold text-slate-700">Multi-Sensor Evidence Ledger</span>
-              <span className="text-[10px] bg-slate-100 text-slate-600 px-2 py-0.5 rounded-full font-medium">
-                {event.evidence?.length || 0} Sources Corroborated
-              </span>
-            </div>
-            {event.evidence?.map((item) => (
-              <div key={item.id} className="bg-slate-50 border border-slate-200/90 rounded-lg p-3 space-y-1">
-                <div className="flex items-center justify-between">
-                  <span className="font-bold text-slate-900">{item.source} ({item.evidence_type})</span>
-                  <span className={`text-[10px] font-bold px-2 py-0.5 rounded ${
-                    item.direction === 'SUPPORTING'
-                      ? 'bg-emerald-100 text-emerald-800'
-                      : item.direction === 'CONFLICTING'
-                      ? 'bg-red-100 text-red-800'
-                      : 'bg-slate-200 text-slate-700'
-                  }`}>
-                    {item.direction}
-                  </span>
-                </div>
-                <div className="text-[11px] font-semibold text-slate-700">{item.value}</div>
-                <div className="text-[11px] text-slate-600">{item.explanation}</div>
-                <div className="text-[10px] text-slate-400 pt-1 flex items-center gap-3">
-                  <span>Quality: {item.quality != null ? (item.quality * 100).toFixed(0) : '--'}%</span>
-                  <span>Relevance: {item.relevance != null ? (item.relevance * 100).toFixed(0) : '--'}%</span>
-                </div>
+          <div className="space-y-4">
+            {/* Multi-sensor Visual Summary */}
+            <div className="bg-white border border-slate-200 rounded-xl p-4 shadow-sm">
+              <h4 className="text-xs font-bold text-slate-800 mb-3">Multi-Sensor Contribution Summary</h4>
+              <div className="space-y-3">
+                {['SUPPORTING', 'CONFLICTING', 'NEUTRAL'].map(direction => {
+                  const sources = event.evidence?.filter(e => e.direction === direction) || [];
+                  const count = sources.length;
+                  const total = event.evidence?.length || 1;
+                  const pct = Math.round((count / total) * 100);
+                  
+                  if (count === 0 && direction !== 'SUPPORTING') return null;
+                  
+                  let barColor = 'bg-slate-300';
+                  let textColor = 'text-slate-700';
+                  if (direction === 'SUPPORTING') { barColor = 'bg-emerald-500'; textColor = 'text-emerald-700'; }
+                  if (direction === 'CONFLICTING') { barColor = 'bg-red-500'; textColor = 'text-red-700'; }
+
+                  return (
+                    <div key={direction} className="space-y-1">
+                      <div className="flex justify-between text-[10px] font-semibold">
+                        <span className={textColor}>{direction} SOURCES ({count})</span>
+                        <span>{pct}%</span>
+                      </div>
+                      <div className="w-full bg-slate-100 rounded-full h-2 overflow-hidden">
+                        <div className={`h-full ${barColor} rounded-full`} style={{ width: `${pct}%` }}></div>
+                      </div>
+                    </div>
+                  );
+                })}
               </div>
-            ))}
+            </div>
+
+            <div className="space-y-2.5">
+              <div className="flex items-center justify-between pb-2 border-b border-slate-100">
+                <span className="font-semibold text-slate-700">Detailed Evidence Ledger</span>
+                <span className="text-[10px] bg-slate-100 text-slate-600 px-2 py-0.5 rounded-full font-medium">
+                  {event.evidence?.length || 0} Sources
+                </span>
+              </div>
+              {event.evidence?.map((item) => (
+                <div key={item.id} className="bg-slate-50 border border-slate-200/90 rounded-lg p-3 space-y-2">
+                  <div className="flex items-center justify-between">
+                    <span className="font-bold text-slate-900">{item.source} ({item.evidence_type})</span>
+                    <span className={`text-[10px] font-bold px-2 py-0.5 rounded ${
+                      item.direction === 'SUPPORTING'
+                        ? 'bg-emerald-100 text-emerald-800'
+                        : item.direction === 'CONFLICTING'
+                        ? 'bg-red-100 text-red-800'
+                        : 'bg-slate-200 text-slate-700'
+                    }`}>
+                      {item.direction}
+                    </span>
+                  </div>
+                  <div className="text-[11px] font-semibold text-slate-700">{item.value}</div>
+                  <div className="text-[11px] text-slate-600">{item.explanation}</div>
+                  
+                  {/* Quality & Relevance Mini-bars */}
+                  <div className="grid grid-cols-2 gap-3 pt-1">
+                    <div>
+                      <div className="flex justify-between text-[9px] text-slate-500 mb-0.5">
+                        <span>Quality</span>
+                        <span>{item.quality != null ? (item.quality * 100).toFixed(0) : '--'}%</span>
+                      </div>
+                      <div className="w-full bg-slate-200 rounded-full h-1">
+                        <div className="bg-blue-500 h-1 rounded-full" style={{ width: `${item.quality != null ? item.quality * 100 : 0}%` }}></div>
+                      </div>
+                    </div>
+                    <div>
+                      <div className="flex justify-between text-[9px] text-slate-500 mb-0.5">
+                        <span>Relevance</span>
+                        <span>{item.relevance != null ? (item.relevance * 100).toFixed(0) : '--'}%</span>
+                      </div>
+                      <div className="w-full bg-slate-200 rounded-full h-1">
+                        <div className="bg-indigo-500 h-1 rounded-full" style={{ width: `${item.relevance != null ? item.relevance * 100 : 0}%` }}></div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
         )}
 
@@ -389,7 +442,7 @@ export const EventDetailPanel: React.FC<EventDetailPanelProps> = ({
 
         {activeTab === 'Media' && (
           <div className="space-y-3 text-center py-6">
-            <div className="w-full h-48 border border-slate-200 rounded-lg overflow-hidden relative">
+            <div className="w-full h-48 border border-slate-200 rounded-lg overflow-hidden relative cursor-pointer" onClick={() => setImageModalOpen(true)}>
               <img
                 src={event.satellite_image_url || "https://images.unsplash.com/photo-1578328819058-b69f3a3b0f6b?auto=format&fit=crop&w=600&q=80"}
                 alt="High Resolution Corroboration"
@@ -515,6 +568,22 @@ export const EventDetailPanel: React.FC<EventDetailPanelProps> = ({
                 Submit Verification
               </button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* Full Screen Image Modal */}
+      {imageModalOpen && (
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-[60] p-4" onClick={() => setImageModalOpen(false)}>
+          <div className="relative max-w-5xl w-full">
+            <button className="absolute -top-10 right-0 text-white hover:text-slate-300 text-3xl" onClick={() => setImageModalOpen(false)}>×</button>
+            <img
+              src={event.satellite_image_url || "https://images.unsplash.com/photo-1578328819058-b69f3a3b0f6b?auto=format&fit=crop&w=600&q=80"}
+              alt="Full Resolution Satellite"
+              className="w-full h-auto max-h-[85vh] object-contain rounded-lg shadow-2xl border border-white/20"
+              onClick={(e) => e.stopPropagation()}
+            />
+
           </div>
         </div>
       )}

@@ -2,7 +2,6 @@
 
 import React from 'react';
 import { Flame, Search, LogOut } from 'lucide-react';
-import { useAuth } from '../lib/AuthContext';
 
 interface HeaderProps {
   searchQuery: string;
@@ -10,8 +9,7 @@ interface HeaderProps {
 }
 
 export const Header: React.FC<HeaderProps> = ({ searchQuery, onSearchChange }) => {
-  const { user, logout } = useAuth();
-  const username = user?.username || 'Analyst';
+  const username = 'Analyst';
   const initial = username.charAt(0).toUpperCase();
 
   return (
@@ -56,7 +54,6 @@ export const Header: React.FC<HeaderProps> = ({ searchQuery, onSearchChange }) =
             <div className="text-[10px] text-slate-500 leading-none">Team Member</div>
           </div>
           <button 
-            onClick={logout}
             className="ml-2 p-1.5 rounded-full hover:bg-red-50 text-slate-400 hover:text-red-500 transition-colors"
             title="Logout"
           >

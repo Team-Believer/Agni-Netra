@@ -1,0 +1,1868 @@
+<USER_REQUEST>
+You are the lead full-stack engineer responsible for building the production-style MVP/application for:
+
+PROJECT NAME: Agni-Netra
+SIH PROBLEM STATEMENT: PS162
+
+TAGLINE:
+"The satellite sees heat. Agni-Netra understands the event."
+
+==================================================
+1. PRIMARY OBJECTIVE
+==================================================
+
+Build the complete working Agni-Netra application including:
+
+1. Backend
+2. Frontend
+3. Data ingestion pipeline
+4. AI/ML model inference pipeline
+5. Event reconstruction and tracking
+6. Database persistence
+7. REST APIs
+8. Dashboard
+9. Reports
+10. Alerts/prioritization
+11. Human verification workflow
+12. GitHub/development-ready project structure
+
+IMPORTANT:
+
+THE AI/ML MODELS ARE ALREADY TRAINED AND READY.
+
+DO NOT:
+- train new AI models
+- create a new ML training pipeline
+- spend time improving model accuracy
+- generate synthetic training datasets
+- replace the existing trained models
+- redesign the ML algorithms unless required for integration
+
+Instead:
+
+INTEGRATE THE EXISTING MODELS INTO THE APPLICATION.
+
+The main responsibility is now:
+DATA → PIPELINE → MODEL INFERENCE → EVENT INTELLIGENCE → DATABASE → API → FRONTEND → HUMAN VERIFICATION.
+
+==================================================
+2. IMPORTANT DEVELOPMENT RESTRICTIONS
+==================================================
+
+CURRENT DEVELOPMENT ENVIRONMENT:
+
+DO NOT USE:
+- Docker
+- Redis
+- PostgreSQL
+- PostGIS
+
+USE:
+
+Database:
+- SQLite
+
+Backend:
+- Python
+- FastAPI
+- SQLAlchemy
+- Pydantic
+
+Frontend:
+- Next.js
+- React
+- TypeScript
+- Tailwind CSS
+
+Maps:
+- MapLibre GL JS
+
+Charts:
+- Recharts or Plotly
+
+Geospatial processing:
+- GeoPandas
+- Shapely
+- PyProj where required
+
+AI integration:
+- Existing trained model artifacts
+- scikit-learn
+- XGBoost if existing model requires it
+- joblib/pickle/safetensors/torch depending on existing model format
+
+DO NOT add unnecessary infrastructure.
+
+The application must run locally without Docker.
+
+==================================================
+3. FIRST TASK — INSPECT THE EXISTING PROJECT
+==================================================
+
+Before writing major code:
+
+1. Inspect the complete repository.
+2. Identify existing frontend.
+3. Identify existing backend.
+4. Identify existing AI/ML model files.
+5. Identify model formats.
+6. Identify existing datasets/sample data.
+7. Identify existing API code.
+8. Identify existing database code.
+9. Identify configuration/environment files.
+10. Identify existing documentation.
+
+DO NOT blindly rewrite the repository.
+
+Reuse existing working code wherever possible.
+
+Create a short internal implementation plan after inspection.
+
+Then implement the system incrementally.
+
+==================================================
+4. REFERENCE UI / DESIGN
+==================================================
+
+IMPORTANT:
+
+The uploaded/reference image represents the desired visual language and flowchart style for Agni-Netra.
+
+Use the uploaded image as the primary visual reference for the application's information architecture.
+
+The UI should be:
+
+- clean
+- professional
+- sober
+- minimal
+- white/light background
+- thin borders
+- restrained pastel accents
+- clear typography
+- compact cards
+- strong hierarchy
+- limited use of icons
+- no excessive gradients
+- no excessive animations
+- no flashy futuristic UI
+- no excessive glassmorphism
+- no unnecessary decorative elements
+
+The reference image uses a structured engineering/dashboard style.
+
+DO NOT copy the image literally.
+
+Use its design principles and information hierarchy.
+
+The frontend should look like a serious geospatial intelligence / industrial monitoring platform.
+
+==================================================
+5. HIGH-LEVEL SYSTEM FLOW
+==================================================
+
+Implement this logical pipeline:
+
+DATA SOURCES
+    ↓
+DATA INGESTION
+    ↓
+DATA CLEANING / VALIDATION
+    ↓
+OBSERVATION CREATION
+    ↓
+FEATURE EXTRACTION
+    ↓
+EVENT RECONSTRUCTION
+    ↓
+PERSISTENT EVENT ID
+    ↓
+AI MODEL INFERENCE
+    ↓
+SOURCE ATTRIBUTION
+    ↓
+BEHAVIOR DETECTION
+    ↓
+ABNORMALITY DETECTION
+    ↓
+EVIDENCE FUSION
+    ↓
+RISK / EXPOSURE
+    ↓
+PRIORITY
+    ↓
+EXPLAINABILITY
+    ↓
+DASHBOARD
+    ↓
+HUMAN VERIFICATION
+    ↓
+FEEDBACK / AUDIT
+
+The system must preserve the distinction between:
+
+Observation
+Event
+Source
+Behavior
+Abnormality
+Risk
+Priority
+Verification
+
+Do NOT collapse all of these into one database object.
+
+==================================================
+6. DATA SOURCES
+==================================================
+
+Design the ingestion layer using modular adapters.
+
+Potential sources include:
+
+- NASA FIRMS
+- VIIRS
+- MODIS
+- INSAT-3DS
+- Sentinel-2
+- Sentinel-1
+- NISAR
+- Weather / IMD data
+- OSM
+- GIDC/facility information
+- TROPOMI
+- CAAQMS
+
+IMPORTANT:
+
+Do not make every external API mandatory for the application to run.
+
+Each source must be an independent adapter.
+
+Example:
+
+backend/
+    ingestion/
+        firms.py
+        insat.py
+        sentinel.py
+        weather.py
+        osm.py
+        tropomi.py
+        caaqms.py
+
+If a live API is unavailable:
+
+- application must not crash
+- show source as unavailable/stale
+- allow sample/demo data
+- maintain pipeline functionality
+
+==================================================
+7. OBSERVATION MODEL
+==================================================
+
+Create a normalized Observation entity.
+
+Example fields:
+
+Observation:
+- id
+- source
+- source_observation_id
+- latitude
+- longitude
+- timestamp
+- frp
+- brightness_temperature
+- confidence
+- satellite/sensor
+- geometry
+- spatial_resolution
+- observation_quality
+- cloud_flag
+- smoke_flag
+- glint_flag
+- saturation_flag
+- raw_payload
+- created_at
+
+Do not force fields that are unavailable from a specific sensor.
+
+Use nullable fields where appropriate.
+
+==================================================
+8. EVENT RECONSTRUCTION
+==================================================
+
+Multiple satellite observations may represent the same physical event.
+
+Implement event reconstruction.
+
+Example:
+
+Observation A
+Observation B
+Observation C
+Observation D
+
+        ↓
+
+EVENT-042
+
+An event must have a persistent ID.
+
+Example:
+
+EVENT-000042
+
+Store:
+
+- event ID
+- first detected time
+- last observed time
+- centroid
+- bounding geometry
+- observation count
+- current state
+- source hypothesis
+- behavior
+- abnormality
+- risk
+- priority
+- confidence
+- verification status
+
+Event states can include:
+
+- Detected
+- Emerging
+- Persistent
+- Escalating
+- Active
+- Declining
+- Resolved
+- Reopened
+- Unknown
+
+==================================================
+9. FEATURE EXTRACTION
+==================================================
+
+Build a reusable feature extraction layer.
+
+Possible features:
+
+THERMAL:
+- FRP
+- brightness temperature
+- thermal intensity
+- thermal footprint
+- temperature trend
+- persistence
+- temporal frequency
+- saturation indicators
+
+SPATIAL:
+- area
+- compactness
+- centroid movement
+- growth
+- distance to facility
+- distance to road
+- distance to settlement
+- distance to critical infrastructure
+
+TEMPORAL:
+- duration
+- recurrence
+- time of day
+- day-of-week
+- seasonal pattern
+- change point
+- recent spike
+
+CONTEXT:
+- facility type
+- industrial zone
+- land cover
+- nearby infrastructure
+- weather
+- wind
+- atmospheric evidence
+
+Historical features should be calculated from existing event history where available.
+
+==================================================
+10. EXISTING AI MODELS
+==================================================
+
+This is extremely important.
+
+THE MODELS ALREADY EXIST.
+
+Create a clean inference abstraction.
+
+Example:
+
+backend/
+    ml/
+        model_registry.py
+        inference.py
+        preprocessing.py
+        explainability.py
+
+Example interface:
+
+class ThermalEventModel:
+    def load()
+    def predict(features)
+    def predict_proba(features)
+    def explain(features)
+
+The implementation must load the existing trained artifacts.
+
+Possible artifacts:
+
+- .pkl
+- .joblib
+- .onnx
+- .pt
+- .pth
+- .json model
+- other existing model format
+
+Inspect the actual repository and adapt accordingly.
+
+Do not assume the model format.
+
+The application must never train a model during normal startup.
+
+==================================================
+11. SOURCE ATTRIBUTION
+==================================================
+
+Use the existing model(s) to support classification such as:
+
+Natural:
+- Wildfire
+- Other Natural
+
+Anthropogenic:
+- Industrial Fire
+- Routine Flare
+- Abnormal/Emergency Flare
+- Agricultural Burn
+- Mining/Industrial Heat
+- Landfill/Other
+
+Unknown:
+- Unknown
+- Insufficient Evidence
+
+If the model cannot confidently classify an event:
+
+return:
+
+UNKNOWN
+
+Do not force a class.
+
+==================================================
+12. BEHAVIOR DETECTION
+==================================================
+
+Represent event behavior separately from source classification.
+
+Examples:
+
+- Persistent
+- Recurring
+- Transient
+- Stable
+- Sudden Spike
+- Expanding
+- Declining
+
+An event may be:
+
+Source = Routine Flare
+Behavior = Persistent + Stable
+
+or:
+
+Source = Industrial Fire
+Behavior = Sudden Spike + Expanding
+
+==================================================
+13. HISTORICAL FINGERPRINT
+==================================================
+
+Build a historical event/facility profile.
+
+Store:
+
+- typical FRP
+- typical duration
+- typical footprint
+- recurrence frequency
+- typical time-of-day activity
+- historical event count
+- historical source distribution
+
+Use this information to determine whether current behavior is unusual.
+
+Important:
+
+A change point means:
+
+"behavior changed"
+
+It does NOT automatically mean:
+
+"confirmed fire"
+
+==================================================
+14. ABNORMALITY DETECTION
+==================================================
+
+Represent:
+
+- Normal
+- Unusual
+- Highly Abnormal
+- Unknown
+
+Compare the current event with historical behavior.
+
+Example:
+
+Historical:
+Typical FRP = 80–120 MW
+Typical duration = 20–40 minutes
+
+Current:
+FRP = 450 MW
+Duration = 2 hours
+Footprint expanding
+
+Result:
+
+Abnormality = Highly Abnormal
+
+The UI must explain WHY.
+
+==================================================
+15. EVIDENCE FUSION
+==================================================
+
+Create an evidence layer.
+
+Each event should have evidence records.
+
+Example:
+
+Evidence:
+- source
+- evidence type
+- timestamp
+- quality
+- relevance
+- supports/contradicts
+- value
+- explanation
+
+Evidence categories:
+
+- Thermal
+- Spatial
+- Temporal
+- Optical
+- SAR
+- Weather
+- Facility
+- Historical
+- Atmospheric
+- Human
+
+The system must explicitly support:
+
+CONSISTENT
+PARTIALLY CONSISTENT
+CONFLICTING
+INSUFFICIENT
+
+Do not blindly average all evidence.
+
+==================================================
+16. EXPLAINABILITY
+==================================================
+
+Every important AI result should expose:
+
+WHY?
+
+WHY NOT?
+
+WHAT CHANGED?
+
+Example:
+
+WHY INDUSTRIAL FIRE?
+- High thermal intensity
+- Expanding footprint
+- Located inside industrial facility
+- Historical activity differs significantly
+- Wind-consistent atmospheric evidence
+
+WHY NOT ROUTINE FLARE?
+- Footprint expansion
+- FRP significantly above baseline
+- Historical flare pattern mismatch
+
+WHAT CHANGED?
+- FRP increased 3.8×
+- Event duration exceeded historical median
+- Thermal footprint expanded
+
+Use SHAP if the existing ML model supports it.
+
+Do not fabricate explanations.
+
+Only show explanations supported by actual model features/evidence.
+
+==================================================
+17. RISK INDEX
+==================================================
+
+Implement a transparent decision-support risk index.
+
+Risk can consider:
+
+- thermal intensity
+- growth
+- persistence
+- footprint
+- abnormality
+- exposure
+- nearby assets
+
+Do NOT call it a certified safety or regulatory hazard score.
+
+Name it:
+
+Agni-Netra Risk Index
+
+Show the contributing factors.
+
+==================================================
+18. PRIORITY
+==================================================
+
+Risk and priority are separate.
+
+Priority should answer:
+
+"Which event should an analyst investigate first?"
+
+Consider:
+
+- risk
+- abnormality
+- exposure
+- growth
+- critical infrastructure
+- novelty
+- uncertainty
+- operational importance
+
+Possible output:
+
+- Critical
+- High
+- Medium
+- Monitor
+
+The UI must show WHY an event received its priority.
+
+==================================================
+19. HUMAN VERIFICATION
+==================================================
+
+Human verification is mandatory for important uncertain events.
+
+Possible states:
+
+- AI Classified
+- Analyst Reviewed
+- Confirmed
+- Rejected
+- Needs More Evidence
+- Monitoring
+
+Create verification endpoint.
+
+Example:
+
+POST /api/events/{event_id}/verify
+
+Payload:
+
+{
+    "decision": "confirmed",
+    "comment": "...",
+    "reviewer": "analyst"
+}
+
+Store:
+
+- reviewer
+- decision
+- comment
+- timestamp
+
+Do not automatically overwrite the AI prediction.
+
+Keep:
+
+AI result
+
+and
+
+Human decision
+
+as separate records.
+
+==================================================
+20. DATABASE
+==================================================
+
+CURRENT DATABASE:
+
+SQLite.
+
+Use SQLAlchemy.
+
+Recommended structure:
+
+backend/
+    database/
+        database.py
+        models/
+        repositories/
+
+Tables/entities should include approximately:
+
+users
+observations
+events
+event_observations
+event_features
+event_evidence
+event_predictions
+event_history
+risk_scores
+priority_scores
+verification_records
+alerts
+data_sources
+model_versions
+audit_logs
+
+Use SQLite-compatible types.
+
+For geometry:
+
+Do not require PostGIS.
+
+Store:
+- latitude
+- longitude
+- GeoJSON
+- WKT if necessary
+
+Use Shapely for geometry operations.
+
+Keep the database abstraction clean enough that PostgreSQL/PostGIS can be introduced later.
+
+==================================================
+21. BACKEND API
+==================================================
+
+Build a clean FastAPI API.
+
+Example:
+
+/api/health
+
+/api/sources
+/api/sources/status
+
+/api/observations
+/api/observations/{id}
+
+/api/events
+/api/events/{id}
+
+/api/events/{id}/timeline
+/api/events/{id}/evidence
+/api/events/{id}/prediction
+/api/events/{id}/risk
+/api/events/{id}/priority
+/api/events/{id}/verify
+
+/api/dashboard/summary
+/api/dashboard/hotspots
+/api/dashboard/alerts
+
+/api/reports
+/api/reports/{id}
+
+/api/models
+/api/models/status
+
+Use:
+
+- Pydantic schemas
+- dependency injection
+- proper HTTP status codes
+- validation
+- structured error responses
+
+Do not put all logic inside route files.
+
+==================================================
+22. BACKEND ARCHITECTURE
+==================================================
+
+Use a maintainable structure similar to:
+
+backend/
+│
+├── app/
+│   ├── main.py
+│   │
+│   ├── api/
+│   │   ├── routes/
+│   │   │   ├── health.py
+│   │   │   ├── observations.py
+│   │   │   ├── events.py
+│   │   │   ├── dashboard.py
+│   │   │   ├── reports.py
+│   │   │   ├── alerts.py
+│   │   │   └── verification.py
+│   │   │
+│   │   └── dependencies.py
+│   │
+│   ├── core/
+│   │   ├── config.py
+│   │   └── logging.py
+│   │
+│   ├── database/
+│   │   ├── database.py
+│   │   ├── models.py
+│   │   └── repositories.py
+│   │
+│   ├── ingestion/
+│   │   ├── firms.py
+│   │   ├── insat.py
+│   │   ├── sentinel.py
+│   │   ├── weather.py
+│   │   └── osm.py
+│   │
+│   ├── pipeline/
+│   │   ├── ingestion_pipeline.py
+│   │   ├── preprocessing.py
+│   │   ├── feature_extraction.py
+│   │   ├── event_reconstruction.py
+│   │   ├── inference_pipeline.py
+│   │   ├── evidence_fusion.py
+│   │   ├── risk.py
+│   │   └── priority.py
+│   │
+│   ├── ml/
+│   │   ├── model_registry.py
+│   │   ├── inference.py
+│   │   └── explainability.py
+│   │
+│   └── services/
+│       ├── event_service.py
+│       ├── alert_service.py
+│       ├── report_service.py
+│       └── verification_service.py
+│
+├── tests/
+├── scripts/
+├── data/
+├── models/
+├── requirements.txt
+└── README.md
+
+Adapt this structure to the existing repository instead of blindly duplicating it.
+
+==================================================
+23. FRONTEND
+==================================================
+
+Build the frontend using:
+
+Next.js
+React
+TypeScript
+Tailwind CSS
+
+Primary page:
+
+/dashboard
+
+Main dashboard layout:
+
+LEFT / MAIN AREA:
+Interactive map.
+
+RIGHT / SIDE PANEL:
+Event list / priority queue.
+
+TOP:
+System summary.
+
+Example:
+
+Active Events: 24
+High Priority: 5
+Abnormal Events: 3
+Sources Online: 7/8
+
+MAP:
+
+Show event markers.
+
+Marker state can represent:
+
+- active
+- abnormal
+- high priority
+- monitoring
+- verified
+
+Clicking an event opens event details.
+
+==================================================
+24. EVENT DETAIL PAGE
+==================================================
+
+Create:
+
+/events/[id]
+
+Show:
+
+Event ID
+Classification
+Confidence
+Evidence completeness
+Risk
+Priority
+Abnormality
+Behavior
+First detected
+Last observed
+Duration
+
+Then:
+
+WHY?
+WHY NOT?
+WHAT CHANGED?
+
+Then:
+
+Timeline
+
+Then:
+
+Thermal metrics
+
+Then:
+
+Historical comparison
+
+Then:
+
+Evidence
+
+Then:
+
+Nearby facilities / exposure
+
+Then:
+
+Human verification
+
+==================================================
+25. DASHBOARD COMPONENTS
+==================================================
+
+Build reusable components:
+
+- Header
+- Sidebar
+- KPI cards
+- Map
+- Event table
+- Priority queue
+- Event detail panel
+- Timeline
+- Evidence panel
+- Risk card
+- Confidence card
+- Alert panel
+- Source health panel
+- Verification panel
+- Report panel
+
+Keep the visual style sober and consistent.
+
+Avoid huge cards.
+
+Avoid excessive icons.
+
+==================================================
+26. MAP
+==================================================
+
+Use MapLibre GL JS.
+
+The map should support:
+
+- zoom
+- pan
+- event markers
+- event clustering
+- event selection
+- facility overlays
+- optional heat layer
+- event footprint
+- surrounding exposure
+
+Click:
+
+EVENT
+
+↓
+
+EVENT DETAIL
+
+==================================================
+27. FRONTEND DATA FLOW
+==================================================
+
+Frontend should NOT directly access the database.
+
+Use:
+
+Frontend
+   ↓
+FastAPI
+   ↓
+Services
+   ↓
+SQLite
+
+Use typed API clients.
+
+Prefer a clean API layer such as:
+
+frontend/
+    lib/
+        api/
+        types/
+        utils/
+
+==================================================
+28. DATA PIPELINE
+==================================================
+
+Create a pipeline that can execute:
+
+1. Fetch source data
+2. Normalize data
+3. Validate observations
+4. Extract features
+5. Reconstruct events
+6. Load AI models
+7. Run inference
+8. Generate evidence
+9. Calculate behavior
+10. Calculate abnormality
+11. Calculate risk
+12. Calculate priority
+13. Save results
+14. Generate alerts
+15. Expose results to frontend
+
+Pipeline should be callable manually.
+
+Example:
+
+python scripts/run_pipeline.py
+
+Also allow:
+
+python scripts/seed_demo_data.py
+
+==================================================
+29. DEMO MODE
+==================================================
+
+Create a demo dataset so the complete application works without external APIs.
+
+The demo should contain multiple realistic event scenarios.
+
+At minimum:
+
+EVENT A:
+Routine industrial flare
+- persistent
+- stable
+- historically normal
+- low/moderate priority
+
+EVENT B:
+Potential abnormal industrial fire
+- sudden FRP increase
+- expanding footprint
+- abnormal historical behavior
+- higher priority
+
+EVENT C:
+Low-confidence event
+- insufficient evidence
+- UNKNOWN
+- request more evidence
+
+This is extremely important for the SIH demonstration.
+
+The demo must clearly demonstrate:
+
+SAME/SIMILAR THERMAL OBSERVATION
+
+but
+
+DIFFERENT OPERATIONAL MEANING.
+
+==================================================
+30. REPORTS
+==================================================
+
+Implement report generation.
+
+Reports should contain:
+
+- Event ID
+- Date/time
+- location
+- source classification
+- confidence
+- behavior
+- abnormality
+- risk
+- priority
+- evidence summary
+- verification status
+- timeline
+
+Support export where practical:
+
+CSV
+JSON
+PDF if already supported by the project.
+
+Do not over-engineer PDF generation initially.
+
+==================================================
+31. ALERT SYSTEM
+==================================================
+
+Implement an internal alert system.
+
+Trigger alerts when:
+
+- high priority event
+- critical risk
+- highly abnormal behavior
+- confirmed industrial fire
+- major change in event behavior
+
+For MVP:
+
+store alerts in database and display them in dashboard.
+
+Do not require SMS/email infrastructure.
+
+Email/notification adapters can be added later.
+
+==================================================
+32. MODEL VERSIONING
+==================================================
+
+Every prediction must record:
+
+- model name
+- model version
+- inference timestamp
+- input feature version
+- confidence
+
+Example:
+
+model_name:
+industrial_source_classifier
+
+model_version:
+1.0.0
+
+Do not silently replace model artifacts.
+
+==================================================
+33. AUDIT LOG
+==================================================
+
+Store important system actions:
+
+- ingestion
+- prediction
+- event creation
+- event merge/split
+- verification
+- alert
+- configuration change
+
+Audit record:
+
+- timestamp
+- actor
+- action
+- entity
+- previous state
+- new state
+
+==================================================
+34. ERROR HANDLING
+==================================================
+
+The application must fail gracefully.
+
+External API unavailable:
+
+→ mark source unavailable
+→ continue using available sources
+
+AI model unavailable:
+
+→ mark inference unavailable
+→ preserve observation/event
+→ show UNKNOWN/needs review
+
+Bad observation:
+
+→ reject or mark low quality
+→ do not crash pipeline
+
+Database error:
+
+→ log clearly
+→ return useful API error
+
+==================================================
+35. LOGGING
+==================================================
+
+Use Python logging.
+
+Provide structured logs for:
+
+- ingestion
+- pipeline stages
+- model inference
+- errors
+- API requests
+- verification
+
+Do not use print statements everywhere.
+
+==================================================
+36. CONFIGURATION
+==================================================
+
+Use environment variables.
+
+Create:
+
+.env.example
+
+Example:
+
+DATABASE_URL=sqlite:///./data/agni_netra.db
+
+FIRMS_API_KEY=
+WEATHER_API_KEY=
+MODEL_PATH=
+
+Do not commit secrets.
+
+Create:
+
+.gitignore
+
+with:
+
+.env
+__pycache__
+*.pyc
+.venv
+node_modules
+.next
+data/*.db
+logs/
+model artifacts that should remain private
+
+==================================================
+37. TESTING
+==================================================
+
+Create tests for:
+
+Backend:
+- health API
+- event creation
+- event retrieval
+- observation ingestion
+- model inference integration
+- risk calculation
+- priority calculation
+- verification
+
+Pipeline:
+- ingestion
+- normalization
+- feature extraction
+- event reconstruction
+- inference
+
+Frontend:
+- basic page rendering
+- event list
+- event detail
+- dashboard API integration
+
+Do not aim for 100% coverage initially.
+
+Focus on critical business logic.
+
+==================================================
+38. SECURITY
+==================================================
+
+Implement basic development security:
+
+- CORS configuration
+- environment-based secrets
+- input validation
+- no hardcoded API keys
+- no database credentials in code
+- safe file handling
+
+Authentication can be kept simple initially.
+
+If an authentication system already exists, reuse it.
+
+==================================================
+39. PERFORMANCE
+==================================================
+
+Do not prematurely introduce:
+
+- Redis
+- Celery
+- Kafka
+- Kubernetes
+- Docker
+- PostgreSQL
+
+Keep the architecture modular so these can be added later.
+
+For now use:
+
+FastAPI
++
+SQLite
++
+background tasks / simple pipeline execution
++
+local model inference
+
+==================================================
+40. FUTURE MIGRATION
+==================================================
+
+Although current database is SQLite, design repository/service boundaries so later migration to:
+
+PostgreSQL + PostGIS
+
+is straightforward.
+
+Although Redis is forbidden currently, keep caching/business logic independent from the API layer.
+
+Although Docker is forbidden currently, keep configuration reproducible.
+
+==================================================
+41. GITHUB READY
+==================================================
+
+The repository must be GitHub-ready.
+
+Create:
+
+README.md
+
+Include:
+
+1. Project overview
+2. Architecture
+3. Features
+4. Tech stack
+5. Installation
+6. Environment setup
+7. Running backend
+8. Running frontend
+9. Running demo pipeline
+10. Model integration instructions
+11. API documentation
+12. Project structure
+13. Testing
+14. Screenshots section placeholder
+15. Future roadmap
+
+Also create:
+
+.env.example
+.gitignore
+LICENSE if appropriate
+CONTRIBUTING.md if appropriate
+
+==================================================
+42. LOCAL DEVELOPMENT
+==================================================
+
+Backend should run with something like:
+
+python -m venv .venv
+
+Activate environment.
+
+pip install -r requirements.txt
+
+Then:
+
+uvicorn app.main:app --reload
+
+Frontend:
+
+npm install
+
+npm run dev
+
+The exact commands may be adapted to the repository.
+
+==================================================
+43. RECOMMENDED TECH STACK
+==================================================
+
+FRONTEND:
+
+Next.js
+React
+TypeScript
+Tailwind CSS
+MapLibre GL JS
+Recharts / Plotly
+
+BACKEND:
+
+Python
+FastAPI
+Pydantic
+SQLAlchemy
+
+DATABASE:
+
+SQLite
+
+GEOSPATIAL:
+
+GeoPandas
+Shapely
+PyProj
+
+AI INFERENCE:
+
+Existing trained models
+scikit-learn
+XGBoost if required
+SHAP if compatible with existing models
+
+DEVELOPMENT:
+
+VS Code
+Jupyter for investigation only
+Git
+GitHub
+
+NO:
+
+Docker
+Redis
+PostgreSQL
+
+==================================================
+44. ARCHITECTURE PRINCIPLE
+==================================================
+
+Keep these layers separate:
+
+DATA LAYER
+↓
+PIPELINE LAYER
+↓
+AI INFERENCE LAYER
+↓
+INTELLIGENCE / DECISION LAYER
+↓
+API LAYER
+↓
+FRONTEND
+
+Do not put business logic inside React components.
+
+Do not put database logic inside FastAPI route handlers.
+
+Do not put model loading inside API endpoints.
+
+Do not train models during API startup.
+
+==================================================
+45. AI MODEL INTEGRATION RULE
+==================================================
+
+This is one of the most important instructions.
+
+The existing AI models are considered BLACK-BOX READY COMPONENTS.
+
+Your responsibility:
+
+INPUT FEATURES
+    ↓
+MODEL PREPROCESSING
+    ↓
+MODEL INFERENCE
+    ↓
+PREDICTION
+    ↓
+CONFIDENCE
+    ↓
+EXPLANATION
+    ↓
+DATABASE
+    ↓
+API
+    ↓
+FRONTEND
+
+If the existing model expects a particular feature schema:
+
+adapt the pipeline to that schema.
+
+DO NOT retrain the model merely because the backend architecture is different.
+
+If a model cannot be loaded:
+
+STOP and clearly report:
+
+- model path
+- expected format
+- dependency issue
+- missing feature
+- incompatible version
+
+Then create the integration interface without inventing a replacement model.
+
+==================================================
+46. FRONTEND DESIGN REQUIREMENT
+==================================================
+
+The frontend should visually communicate:
+
+OBSERVE
+   ↓
+UNDERSTAND
+   ↓
+ANALYZE
+   ↓
+EXPLAIN
+   ↓
+PRIORITIZE
+   ↓
+VERIFY
+
+Use the uploaded reference flowchart as design inspiration.
+
+The dashboard should feel like a professional operational intelligence system.
+
+Design priorities:
+
+1. readability
+2. map visibility
+3. event status
+4. priority
+5. evidence
+6. explainability
+7. verification
+
+Not decoration.
+
+==================================================
+47. MVP PRIORITY
+==================================================
+
+Build in this order:
+
+PHASE 1
+Repository inspection
+↓
+Project setup
+↓
+SQLite database
+↓
+Core models/entities
+
+PHASE 2
+Data ingestion
+↓
+Observation normalization
+↓
+Event reconstruction
+
+PHASE 3
+Existing AI model integration
+↓
+Inference
+↓
+Source classification
+↓
+Behavior
+↓
+Abnormality
+
+PHASE 4
+Evidence
+↓
+Risk
+↓
+Priority
+↓
+Explainability
+
+PHASE 5
+FastAPI APIs
+
+PHASE 6
+Next.js dashboard
+
+PHASE 7
+Map
+↓
+Event details
+↓
+Priority queue
+↓
+Verification
+
+PHASE 8
+Reports
+↓
+Alerts
+↓
+Audit logs
+
+PHASE 9
+Testing
+↓
+Demo data
+↓
+Documentation
+↓
+GitHub cleanup
+
+==================================================
+48. DEFINITION OF DONE
+==================================================
+
+The project is considered complete when:
+
+1. Backend starts successfully.
+2. Frontend starts successfully.
+3. SQLite database initializes automatically.
+4. Demo data can be loaded.
+5. Pipeline can process observations.
+6. Existing AI model can be loaded.
+7. Model inference works.
+8. Events are created and tracked.
+9. Event IDs are persistent.
+10. Classification is visible.
+11. Behavior is visible.
+12. Abnormality is visible.
+13. Evidence is visible.
+14. Risk is visible.
+15. Priority is visible.
+16. WHY / WHY NOT / WHAT CHANGED are visible.
+17. Events appear on the map.
+18. Event details work.
+19. Human verification works.
+20. Alerts appear.
+21. Reports can be generated/exported.
+22. Audit records are stored.
+23. Demo works without external APIs.
+24. No Docker is required.
+25. No Redis is required.
+26. No PostgreSQL is required.
+27. No AI model training is performed.
+28. README contains complete setup instructions.
+29. Project can be cloned and run by another developer.
+30. Code is clean enough for GitHub submission.
+
+==================================================
+49. IMPORTANT ENGINEERING BEHAVIOR
+==================================================
+
+Do not over-engineer.
+
+Do not add technologies just because they are common in production.
+
+Do not introduce infrastructure that is explicitly prohibited.
+
+Do not rewrite working AI models.
+
+Do not fabricate data.
+
+Do not fabricate model outputs.
+
+Do not hide uncertainty.
+
+Do not hardcode fake predictions into the production pipeline.
+
+Demo data may be synthetic, but it must be clearly separated from real data.
+
+Build modular interfaces so real APIs can replace demo adapters later.
+
+==================================================
+50. FINAL PRODUCT VISION
+==================================================
+
+Agni-Netra is NOT just:
+
+"satellite hotspot detection."
+
+It is:
+
+MULTI-SENSOR OBSERVATION
+        ↓
+EVENT RECONSTRUCTION
+        ↓
+AI INTERPRETATION
+        ↓
+HISTORICAL CONTEXT
+        ↓
+EVIDENCE FUSION
+        ↓
+ABNORMALITY
+        ↓
+RISK
+        ↓
+PRIORITY
+        ↓
+EXPLAINABILITY
+        ↓
+HUMAN VERIFICATION
+
+The final user should be able to open the dashboard and immediately understand:
+
+WHAT happened?
+WHERE?
+WHEN?
+WHAT is the likely source?
+IS it normal?
+WHAT changed?
+HOW strong is the evidence?
+WHAT is the risk?
+WHY is it prioritized?
+WHAT should an analyst do?
+HAS a human verified it?
+
+==================================================
+51. START NOW
+==================================================
+
+Start by inspecting the existing repository and identifying:
+
+- frontend
+- backend
+- existing AI models
+- model input schema
+- model output schema
+- datasets
+- current APIs
+- current database
+- existing configuration
+
+Then:
+
+1. Create an implementation plan.
+2. Set up the backend architecture.
+3. Set up SQLite.
+4. Integrate the existing AI models.
+5. Build the data pipeline.
+6. Build FastAPI APIs.
+7. Build the Next.js frontend.
+8. Build the dashboard.
+9. Build the map/event workflow.
+10. Add verification.
+11. Add demo data.
+12. Add tests.
+13. Add README.
+14. Make everything GitHub-ready.
+
+DO NOT TRAIN ANY AI MODEL.
+
+DO NOT USE DOCKER.
+
+DO NOT USE REDIS.
+
+DO NOT USE POSTGRESQL.
+
+USE SQLITE FOR THE CURRENT DATABASE.
+
+FOCUS ON BUILDING THE ACTUAL WORKING SYSTEM.
+</USER_REQUEST>
+<ADDITIONAL_METADATA>
+The current local time is: 2026-09-16T09:55:35+05:30.
+
+The user's current state is as follows:
+Active Document: d:\Buildlaunchs\Agni-Netra\.env.example (LANGUAGE_UNSPECIFIED)
+Cursor is on line: 2
+Other open documents:
+- d:\Buildlaunchs\Agni-Netra\.env.example (LANGUAGE_UNSPECIFIED)
+</ADDITIONAL_METADATA>
+<USER_SETTINGS_CHANGE>
+The user changed setting `Model Selection` from None to Gemini 3.1 Pro (High). No need to comment on this change if the user doesn't ask about it. If reporting what model you are, please use a human readable name instead of the exact string.
+</USER_SETTINGS_CHANGE>

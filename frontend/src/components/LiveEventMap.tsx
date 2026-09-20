@@ -8,18 +8,28 @@ interface LiveEventMapProps {
   events: EventItem[];
   selectedEventId: string | null;
   onSelectEvent: (eventId: string) => void;
+  filterType: string;
+  onFilterChange: (type: string) => void;
+  timeRange: string;
+  onTimeRangeChange: (range: string) => void;
+  dataMode: string;
+  onDataModeChange: (mode: string) => void;
 }
 
 export const LiveEventMap: React.FC<LiveEventMapProps> = ({
   events,
   selectedEventId,
   onSelectEvent,
+  filterType,
+  onFilterChange,
+  timeRange,
+  onTimeRangeChange,
+  dataMode,
+  onDataModeChange,
 }) => {
   const mapContainer = useRef<HTMLDivElement>(null);
   const mapInstance = useRef<any>(null);
   const markersRef = useRef<{ [id: string]: any }>({});
-  const [filterType, setFilterType] = useState('All Events');
-  const [timeRange, setTimeRange] = useState('Last 7 Days');
   const [mapLoaded, setMapLoaded] = useState(false);
 
   useEffect(() => {
@@ -182,7 +192,7 @@ export const LiveEventMap: React.FC<LiveEventMapProps> = ({
           <div className="relative">
             <select
               value={filterType}
-              onChange={(e) => setFilterType(e.target.value)}
+              onChange={(e) => onFilterChange(e.target.value)}
               className="appearance-none bg-slate-50 border border-slate-200 rounded-md text-[11px] font-medium text-slate-700 py-1 pl-2.5 pr-6 cursor-pointer focus:outline-none focus:ring-1 focus:ring-slate-300"
             >
               <option>All Events</option>
@@ -193,11 +203,13 @@ export const LiveEventMap: React.FC<LiveEventMapProps> = ({
             <ChevronDown className="w-3 h-3 text-slate-400 absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none" />
           </div>
 
+
+
           {/* Time Range */}
           <div className="relative">
             <select
               value={timeRange}
-              onChange={(e) => setTimeRange(e.target.value)}
+              onChange={(e) => onTimeRangeChange(e.target.value)}
               className="appearance-none bg-slate-50 border border-slate-200 rounded-md text-[11px] font-medium text-slate-700 py-1 pl-2.5 pr-6 cursor-pointer focus:outline-none focus:ring-1 focus:ring-slate-300"
             >
               <option>Last 7 Days</option>

@@ -19,12 +19,24 @@ def list_events(
     status: Optional[str] = Query(None),
     priority: Optional[str] = Query(None),
     search: Optional[str] = Query(None),
+    start_date: Optional[str] = Query(None),
+    end_date: Optional[str] = Query(None),
+    data_mode: Optional[str] = Query(None),
     skip: int = Query(0, ge=0),
     limit: int = Query(50, ge=1, le=200),
     db: Session = Depends(get_db)
 ) -> List[Dict[str, Any]]:
     service = EventService(db)
-    events = service.get_events(skip=skip, limit=limit, status=status, priority=priority, search=search)
+    events = service.get_events(
+        skip=skip,
+        limit=limit,
+        status=status,
+        priority=priority,
+        search=search,
+        start_date=start_date,
+        end_date=end_date,
+        data_mode=data_mode
+    )
     
     return [
         {
@@ -50,9 +62,9 @@ def list_events(
             "last_seen": e.last_observed.isoformat() if e.last_observed else None,
             "observations_count": e.observation_count,
             "frp_change_pct": e.frp_change_pct,
-            "footprint_expansion_factor": e.footprint_expansion_factor,
             "current_assessment": e.current_assessment,
-            "satellite_image_url": e.satellite_image_url
+            "satellite_image_url": e.satellite_image_url,
+            "data_mode": e.data_mode
         }
         for e in events
     ]
@@ -114,10 +126,10 @@ def get_event_detail(event_id: str, db: Session = Depends(get_db)) -> Dict[str, 
         "status": event.verification_status,
         "behavior": event.behavior,
         "abnormality": event.abnormality,
-        "frp_change_pct": event.frp_change_pct,
         "footprint_expansion_factor": event.footprint_expansion_factor,
         "current_assessment": event.current_assessment,
         "satellite_image_url": event.satellite_image_url,
+        "data_mode": event.data_mode,
         "explanations": {
             "why": event.why_explanation or [],
             "why_not": event.why_not_explanation or [],

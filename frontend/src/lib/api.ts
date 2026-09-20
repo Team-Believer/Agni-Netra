@@ -51,12 +51,22 @@ export async function fetchDashboardSummary(): Promise<DashboardSummary> {
   }
 }
 
-export async function fetchEvents(params?: { status?: string; priority?: string; search?: string }): Promise<EventItem[]> {
+export async function fetchEvents(params?: { 
+  search?: string; 
+  status?: string; 
+  priority?: string;
+  start_date?: string;
+  end_date?: string;
+  data_mode?: string;
+}): Promise<EventItem[]> {
   try {
     const query = new URLSearchParams();
+    if (params?.search) query.append('search', params.search);
     if (params?.status && params.status !== 'All') query.append('status', params.status);
     if (params?.priority && params.priority !== 'All') query.append('priority', params.priority);
-    if (params?.search) query.append('search', params.search);
+    if (params?.start_date) query.append('start_date', params.start_date);
+    if (params?.end_date) query.append('end_date', params.end_date);
+    if (params?.data_mode && params.data_mode !== 'All') query.append('data_mode', params.data_mode);
     
     const queryString = query.toString();
     return await fetchAPI(`/events${queryString ? '?' + queryString : ''}`);

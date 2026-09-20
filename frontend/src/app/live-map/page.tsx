@@ -36,27 +36,6 @@ const PRIORITY_CONFIG: Record<string, { color: string; label: string }> = {
   'Monitor':  { color: '#64748b', label: 'Monitor' },
 };
 
-// Regional thermal stations directly matching reference graphic & key national hubs
-const REGIONAL_THERMAL_STATIONS = [
-  { name: 'Barmer', lon: 71.3967, lat: 25.7521, temp: '44.4°C', peak: '48.1°C', intensity: 0.98 },
-  { name: 'Delhi', lon: 77.2090, lat: 28.6139, temp: '44.1°C', peak: '40.4°C', intensity: 0.95 },
-  { name: 'Bhopal', lon: 77.4126, lat: 23.2599, temp: '40.7°C', peak: '43.9°C', intensity: 0.90 },
-  { name: 'Nagpur', lon: 79.0882, lat: 21.1458, temp: '45.2°C', peak: '46.2°C', intensity: 0.98 },
-  { name: 'Hyderabad', lon: 78.4867, lat: 17.3850, temp: '39.9°C', peak: '42.0°C', intensity: 0.88 },
-  { name: 'Mumbai', lon: 72.8777, lat: 19.0760, temp: '38.4°C', peak: '39.6°C', intensity: 0.82 },
-  { name: 'Ahmedabad', lon: 72.5714, lat: 23.0225, temp: '42.4°C', peak: '45.8°C', intensity: 0.92 },
-  { name: 'Kolkata', lon: 88.3639, lat: 22.5726, temp: '38.7°C', peak: '39.6°C', intensity: 0.85 },
-  { name: 'Jamshedpur', lon: 86.2029, lat: 22.8046, temp: '43.3°C', peak: '43.6°C', intensity: 0.94 },
-  { name: 'Kozhikode', lon: 75.7804, lat: 11.2588, temp: '36.0°C', peak: '39.0°C', intensity: 0.45 },
-  { name: 'Srinagar', lon: 74.7973, lat: 34.0837, temp: '27.4°C', peak: '31.2°C', intensity: 0.15 },
-  { name: 'Leh', lon: 77.5771, lat: 34.1526, temp: '21.5°C', peak: '25.0°C', intensity: 0.08 },
-  { name: 'Guwahati', lon: 91.7362, lat: 26.1445, temp: '34.8°C', peak: '37.1°C', intensity: 0.65 },
-  { name: 'Chennai', lon: 80.2707, lat: 13.0827, temp: '37.8°C', peak: '41.5°C', intensity: 0.75 },
-  { name: 'Bengaluru', lon: 77.5946, lat: 12.9716, temp: '33.2°C', peak: '36.8°C', intensity: 0.60 },
-  { name: 'Raipur', lon: 81.6296, lat: 21.2514, temp: '43.8°C', peak: '45.9°C', intensity: 0.94 },
-  { name: 'Singrauli', lon: 82.6734, lat: 24.1997, temp: '44.5°C', peak: '46.7°C', intensity: 0.96 },
-  { name: 'Jaipur', lon: 75.7873, lat: 26.9124, temp: '43.2°C', peak: '45.1°C', intensity: 0.92 }
-];
 
 function getRelativeUpdatedTime(lastRefreshed: Date): string {
   const diffSec = Math.max(0, Math.floor((new Date().getTime() - lastRefreshed.getTime()) / 1000));
@@ -101,7 +80,6 @@ export default function LiveMapPage() {
   const [timeAgoText, setTimeAgoText] = useState('Updated just now');
   const [isPanelOpen, setIsPanelOpen] = useState(true);
   const [autoRefresh, setAutoRefresh] = useState(true);
-  const [showCityLabels, setShowCityLabels] = useState(true);
   const [priorityFilter, setPriorityFilter] = useState<string>('All');
   const [tabFilter, setTabFilter] = useState<string>('All');
   const [selectedYear, setSelectedYear] = useState<'2024' | '2026'>('2026');
@@ -109,7 +87,6 @@ export default function LiveMapPage() {
   
   const mapContainer = useRef<HTMLDivElement>(null);
   const map = useRef<maplibregl.Map | null>(null);
-  const cityMarkersRef = useRef<maplibregl.Marker[]>([]);
   const popupRef = useRef<maplibregl.Popup | null>(null);
   const [mapReady, setMapReady] = useState(false);
 
@@ -396,58 +373,13 @@ export default function LiveMapPage() {
           }
         }));
 
-      // 2. Regional thermal stations
-      const stationFeatures = REGIONAL_THERMAL_STATIONS.map(st => ({
-        type: 'Feature' as const,
-        geometry: {
-          type: 'Point' as const,
-          coordinates: [st.lon, st.lat]
-        },
-        properties: {
-          intensity: st.intensity,
-          priority: 'High',
-          event_id: st.name
-        }
-      }));
-
       heatSource.setData({
         type: 'FeatureCollection',
-        features: [...eventFeatures, ...stationFeatures]
+        features: eventFeatures
       });
     }
 
-    // Clear previous city markers
-    cityMarkersRef.current.forEach(m => m.remove());
-    cityMarkersRef.current = [];
-
-    // Render Clean City Labels
-    if (showCityLabels) {
-      REGIONAL_THERMAL_STATIONS.slice(0, 10).forEach(st => {
-        const el = document.createElement('div');
-        el.className = 'city-temp-card';
-        el.style.cssText = `
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          pointer-events: none;
-          user-select: none;
-        `;
-        el.innerHTML = `
-          <span style="font-size: 11px; font-weight: 800; color: #ffffff; text-shadow: 0 1px 3px rgba(0,0,0,0.9), 0 0 6px rgba(0,0,0,0.8); letter-spacing: -0.01em;">${st.name}</span>
-          <div style="display: flex; flex-direction: column; align-items: center; margin-top: 2px; padding: 2px 6px; border-radius: 4px; background: rgba(185, 28, 28, 0.85); border: 1px solid rgba(254, 202, 202, 0.4); box-shadow: 0 2px 8px rgba(0,0,0,0.6); backdrop-filter: blur(2px);">
-            <span style="font-size: 10px; font-weight: 800; color: #ffffff; font-family: monospace; line-height: 1.1;">${st.temp}</span>
-            <span style="font-size: 8px; font-weight: 700; color: #fecaca; font-family: monospace; line-height: 1;">${st.peak}</span>
-          </div>
-        `;
-
-        const marker = new maplibregl.Marker({ element: el, anchor: 'center' })
-          .setLngLat([st.lon, st.lat])
-          .addTo(map.current!);
-
-        cityMarkersRef.current.push(marker);
-      });
-    }
-  }, [filteredEvents, mapReady, showCityLabels]);
+  }, [filteredEvents, mapReady]);
 
   // Snap camera back to full India view
   const focusIndia = () => {
@@ -491,12 +423,7 @@ export default function LiveMapPage() {
     }
   };
 
-  // Top 3 hottest regional stations
-  const topHottestRegions = useMemo(() => {
-    return [...REGIONAL_THERMAL_STATIONS]
-      .sort((a, b) => b.intensity - a.intensity)
-      .slice(0, 3);
-  }, []);
+
 
   return (
     <div className="fixed inset-0 w-screen h-screen bg-[#0f172a] flex flex-col overflow-hidden">
@@ -585,19 +512,6 @@ export default function LiveMapPage() {
                 <span>Focus India</span>
               </button>
 
-              {/* City Labels Toggle Button */}
-              <button
-                onClick={() => setShowCityLabels(!showCityLabels)}
-                className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold transition-all border shrink-0 ${
-                  showCityLabels
-                    ? 'bg-blue-500/20 border-blue-500/40 text-blue-300'
-                    : 'bg-slate-800/90 border-slate-700 text-slate-400'
-                }`}
-                title="Toggle City Temperature Labels"
-              >
-                <Thermometer className="w-3.5 h-3.5" />
-                <span>{showCityLabels ? 'City Labels' : 'No Labels'}</span>
-              </button>
             </div>
           </div>
 
@@ -631,7 +545,7 @@ export default function LiveMapPage() {
                 <div className="flex items-center justify-between pb-2 border-b border-slate-800">
                   <span className="text-[11px] font-extrabold text-red-500 tracking-wider uppercase flex items-center gap-1.5">
                     <Flame className="w-3.5 h-3.5" />
-                    HOTTEST REGIONS
+                    MOST CRITICAL EVENTS
                   </span>
                   {/* Labeled Year Toggle */}
                   <div className="flex items-center gap-1">
@@ -659,22 +573,31 @@ export default function LiveMapPage() {
                   </div>
                 </div>
 
-                {/* Top 3 Regions List */}
+                {/* Top 3 Events List */}
                 <div className="flex flex-col gap-1.5 mt-2.5">
-                  {topHottestRegions.map((st, idx) => (
-                    <div key={st.name} className="flex items-center justify-between py-1 px-2 rounded-lg bg-slate-800/40 border border-slate-800/80 text-xs">
-                      <div className="flex items-center gap-2">
-                        <span className="text-[10px] font-bold text-slate-500 font-mono">0{idx + 1}</span>
-                        <span className="font-semibold text-slate-200">{st.name}</span>
+                  {filteredEvents
+                    .filter(e => e.priority === 'Critical' || e.priority === 'High')
+                    .sort((a, b) => b.risk_index - a.risk_index)
+                    .slice(0, 3)
+                    .map((st, idx) => (
+                    <div key={st.event_id} className="flex flex-col py-1.5 px-2 rounded-lg bg-slate-800/40 border border-slate-800/80 text-xs hover:bg-slate-700/50 cursor-pointer" onClick={() => flyToEvent(st)}>
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <span className="text-[10px] font-bold text-slate-500 font-mono">0{idx + 1}</span>
+                          <span className="font-semibold text-slate-200">{st.event_id}</span>
+                        </div>
+                        <div className="flex items-center gap-1.5">
+                          <span className="font-mono font-bold text-red-400 text-[11px]">{st.risk_index}/100</span>
+                        </div>
                       </div>
-                      <div className="flex items-center gap-1.5">
-                        <span className="font-mono font-bold text-red-400 text-[11px]">{st.temp}</span>
-                        <span className="font-mono text-[9px] text-slate-400">Peak {st.peak}</span>
-                      </div>
+                      <div className="pl-6 text-[10px] text-slate-400 truncate">{st.location || 'Unknown Location'}</div>
                     </div>
                   ))}
+                  {filteredEvents.filter(e => e.priority === 'Critical' || e.priority === 'High').length === 0 && (
+                    <div className="text-center py-2 text-[10px] text-slate-500">No critical events currently active.</div>
+                  )}
                 </div>
-                <span className="text-[9px] text-slate-400 mt-2 font-medium tracking-tight text-right">Realtime Thermal Anomaly</span>
+                <span className="text-[9px] text-slate-400 mt-2 font-medium tracking-tight text-right">Realtime Event Anomaly</span>
               </div>
 
               {/* Thermal Priority Index (Top Left Floating Panel) */}

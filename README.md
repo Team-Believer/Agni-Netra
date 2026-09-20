@@ -90,12 +90,12 @@ python -m venv .venv
 pip install -r requirements.txt
 
 # Seed realistic demonstration database
-python scripts/seed_demo_data.py
+python backend/app/seed.py
 
 # Start FastAPI backend
 uvicorn backend.app.main:app --reload --port 8000
 ```
-*Backend will be live at `http://localhost:8000` (Interactive API docs at `http://localhost:8000/docs`).*
+*Backend will be live at `http://localhost:8000` (Interactive API docs at `http://localhost:8000/docs`). Note: Agni-Netra now supports `data_mode` (LIVE/SEED) to cleanly separate real production data from demonstration artifacts.*
 
 ### 3. Frontend Setup
 In a new terminal window:
@@ -116,22 +116,25 @@ npm run dev
 
 Agni-Netra includes seeded deterministic real-world operational scenarios:
 
-### Scenario 1: EVENT-042 — Abnormal Industrial Fire Escalation
-- **Location**: Reliance Refinery, Jamnagar, Gujarat (23.17° N, 72.63° E)
-- **Observed Behavior**: FRP surged +240% above the 90-day flare baseline; footprint expanded 3.1x outward.
-- **AI Classification**: `Industrial Fire (Hypothesis)` with 91% confidence.
-- **Risk Index**: `82 / 100` (Critical Priority).
-- **Explanation**: Footprint growth discounts normal flare stack emission; weather plume aligns with smoke aerosol detected by Sentinel-2 SWIR band.
+### Scenario 1: EVENT-SEED-002 — Abnormal Industrial Fire Escalation
+- **Location**: Korba Super Thermal Power, Chhattisgarh (22.39° N, 82.68° E)
+- **Observed Behavior**: FRP surged +140%; footprint expanded 2.1x outward.
+- **AI Classification**: `Industrial Fire (Hypothesis)` with 89% confidence.
+- **Risk Index**: `88.0 / 100` (Critical Priority).
+- **Explanation**: Footprint growth discounts normal flare stack emission.
+- **Data Mode**: SEED
 
-### Scenario 2: EVENT-038 — Routine Facility Flare
-- **Location**: IOCL Mathura Refinery, UP
-- **Observed Behavior**: Stationary point source within ±15% historical envelope.
+### Scenario 2: EVENT-SEED-001 — Routine Facility Flare
+- **Location**: Bhilai Steel Plant, Chhattisgarh
+- **Observed Behavior**: Stationary point source, stable FRP.
 - **AI Classification**: `Routine Flare` (Low Priority, Monitoring).
+- **Data Mode**: SEED
 
-### Scenario 3: EVENT-039 — Low-Confidence / Sparse Observation
-- **Location**: Paradip, Odisha
-- **Observed Behavior**: Single-pass thermal detection obscured by cloud cover.
-- **AI Classification**: `Unknown` (Needs More Evidence / Safe Abstention).
+### Scenario 3: EVENT-SEED-003 — Forest Fire
+- **Location**: Barnawapara Reserve, Chhattisgarh
+- **Observed Behavior**: Vegetation fire spreading north.
+- **AI Classification**: `Forest Fire` (Medium Priority).
+- **Data Mode**: SEED
 
 ---
 

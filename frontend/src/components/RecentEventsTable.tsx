@@ -66,13 +66,14 @@ export const RecentEventsTable: React.FC<RecentEventsTableProps> = ({
       <div className="overflow-x-auto w-full">
         <div className="min-w-[910px]">
           {/* Shared CSS Grid Header */}
-          <div className="grid grid-cols-[140px_190px_1fr_1fr_100px_190px] items-center px-4 py-2.5 border-b border-slate-100 bg-slate-50/80 text-[10px] font-bold uppercase tracking-wider text-slate-500">
+          <div className="grid grid-cols-[140px_190px_1fr_1fr_100px_140px_140px] items-center px-4 py-2.5 border-b border-slate-100 bg-slate-50/80 text-[10px] font-bold uppercase tracking-wider text-slate-500">
             <div>Event ID</div>
             <div>Date & Time (IST)</div>
             <div>Location</div>
             <div>Classification</div>
             <div>Priority</div>
             <div>Status</div>
+            <div>Source</div>
           </div>
 
           {/* Shared CSS Grid Data Rows */}
@@ -93,7 +94,7 @@ export const RecentEventsTable: React.FC<RecentEventsTableProps> = ({
                 <div
                   key={ev.event_id}
                   onClick={() => onSelectEvent(ev.event_id)}
-                  className={`grid grid-cols-[140px_190px_1fr_1fr_100px_190px] items-center px-4 py-2.5 min-h-[48px] text-xs cursor-pointer transition-all duration-150 ${
+                  className={`grid grid-cols-[140px_190px_1fr_1fr_100px_140px_140px] items-center px-4 py-2.5 min-h-[48px] text-xs cursor-pointer transition-all duration-150 ${
                     isSelected
                       ? 'bg-indigo-50/70 border-l-4 border-indigo-600 font-semibold'
                       : 'hover:bg-slate-50/90'
@@ -126,11 +127,16 @@ export const RecentEventsTable: React.FC<RecentEventsTableProps> = ({
                     </span>
                   </div>
 
-                  {/* Status (190px, single line pill) */}
+                  {/* Status (140px, single line pill) */}
                   <div className="whitespace-nowrap flex items-center">
                     <span className={`h-6 inline-flex items-center justify-center text-[10px] font-bold px-2.5 rounded-md ${getStatusBadge(ev.status)}`}>
                       {ev.status}
                     </span>
+                  </div>
+
+                  {/* Source (140px) */}
+                  <div className="whitespace-nowrap text-slate-600 font-semibold pr-3 text-[10px]">
+                    SATELLITE (MULTI)
                   </div>
                 </div>
               );
