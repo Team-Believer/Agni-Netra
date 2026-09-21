@@ -108,7 +108,7 @@ export default function FacilityDetailPage({ params }: { params: { id: string } 
                       {facility.events.map((ev: any) => (
                         <tr key={ev.event_id} className="hover:bg-slate-50 transition-colors">
                           <td className="py-3 px-4 font-semibold text-blue-600">
-                            <Link href="/dashboard" onClick={() => localStorage.setItem('selectedEventId', ev.event_id)}>
+                            <Link href={`/dashboard?eventId=${ev.event_id}`} className="hover:underline">
                               {ev.event_id}
                             </Link>
                           </td>

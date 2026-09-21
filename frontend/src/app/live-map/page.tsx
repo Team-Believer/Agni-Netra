@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
+import { useParams } from 'next/navigation';
 import { Header } from '../../components/Header';
 import { Sidebar } from '../../components/Sidebar';
 import maplibregl from 'maplibre-gl';
@@ -68,7 +69,11 @@ function formatEventTime(dateStr?: string | Date): string {
   return `${monthNames[date.getMonth()]} ${date.getDate()}, ${timeString}`;
 }
 
-export default function LiveMapPage() {
+export default function LiveMapPage({ params: propParams }: { params?: { eventId?: string } } = {}) {
+  const routerParams = useParams();
+  const routeParamEventId = propParams?.eventId || (routerParams?.eventId ? (Array.isArray(routerParams.eventId) ? routerParams.eventId[0] : routerParams.eventId) : null);
+  const targetEventId = routeParamEventId ? decodeURIComponent(routeParamEventId) : null;
+
   const [currentTab, setCurrentTab] = useState('live-map');
   const [globalSearchQuery, setGlobalSearchQuery] = useState('');
   const [sideSearchQuery, setSideSearchQuery] = useState('');
@@ -319,6 +324,49 @@ export default function LiveMapPage() {
           }
         });
 
+        // 8. Add Thermal Point Markers Layer for direct clicking & visibility
+        map.current.addLayer({
+          id: 'thermal-points',
+          type: 'circle',
+          source: 'thermal-heat',
+          paint: {
+            'circle-radius': [
+              'interpolate', ['linear'], ['zoom'],
+              3, 4,
+              6, 7,
+              10, 11
+            ],
+            'circle-color': [
+              'match',
+              ['get', 'priority'],
+              'Critical', '#ef4444',
+              'High', '#f97316',
+              'Medium', '#eab308',
+              'Low', '#3b82f6',
+              '#64748b'
+            ],
+            'circle-stroke-width': 1.5,
+            'circle-stroke-color': '#ffffff',
+            'circle-opacity': 0.95
+          }
+        });
+
+        map.current.on('click', 'thermal-points', (e: any) => {
+          if (!e.features || e.features.length === 0) return;
+          const clickedId = e.features[0].properties?.event_id;
+          if (clickedId) {
+            window.history.pushState({}, '', `/live-map/${clickedId}`);
+          }
+        });
+
+        map.current.on('mouseenter', 'thermal-points', () => {
+          if (map.current) map.current.getCanvas().style.cursor = 'pointer';
+        });
+
+        map.current.on('mouseleave', 'thermal-points', () => {
+          if (map.current) map.current.getCanvas().style.cursor = '';
+        });
+
         const fitIndia = () => {
           if (!map.current) return;
           map.current.resize();
@@ -328,9 +376,11 @@ export default function LiveMapPage() {
           });
         };
 
-        fitIndia();
-        setTimeout(fitIndia, 150);
-        setTimeout(fitIndia, 600);
+        if (!targetEventId) {
+          fitIndia();
+          setTimeout(fitIndia, 150);
+          setTimeout(fitIndia, 600);
+        }
 
         (window as any).agniMap = map.current;
         setMapReady(true);
@@ -339,7 +389,7 @@ export default function LiveMapPage() {
       console.error("Map initialization failed", err);
       setMapError(true);
     }
-  }, [mapToken]);
+  }, [mapToken, targetEventId]);
 
   useEffect(() => {
     initMap();
@@ -381,6 +431,45 @@ export default function LiveMapPage() {
 
   }, [filteredEvents, mapReady]);
 
+  const flyToEvent = useCallback((event: EventItem) => {
+    setSelectedEvent(event);
+    if (map.current && event.latitude != null && event.longitude != null) {
+      map.current.flyTo({
+        center: [event.longitude, event.latitude],
+        zoom: 7.5,
+        duration: 1000
+      });
+
+      if (popupRef.current) popupRef.current.remove();
+      popupRef.current = new maplibregl.Popup({ closeButton: true, closeOnClick: false, offset: 15 })
+        .setLngLat([event.longitude, event.latitude])
+        .setHTML(`
+          <div style="padding: 12px 16px; font-family: sans-serif; min-width: 210px;">
+            <div style="font-size: 10px; font-weight: bold; color: #f97316; letter-spacing: 0.05em; text-transform: uppercase;">${event.event_id}</div>
+            <div style="font-size: 13px; font-weight: bold; color: #ffffff; margin: 3px 0;">${event.classification || 'Thermal Anomaly'}</div>
+            <div style="font-size: 11px; color: #94a3b8; margin-bottom: 8px;">${event.location || 'India'}</div>
+            <div style="display: flex; gap: 8px; border-top: 1px solid #334155; padding-top: 6px; font-size: 10px;">
+              <span style="color: #cbd5e1;">Risk: <b style="color: #f87171;">${event.risk_index != null ? event.risk_index.toFixed(0) : '--'}/100</b></span>
+              <span style="color: #cbd5e1;">Priority: <b style="color: #fb923c;">${event.priority}</b></span>
+            </div>
+          </div>
+        `)
+        .addTo(map.current);
+    }
+  }, []);
+
+  // When targetEventId changes or map is ready and events are loaded
+  useEffect(() => {
+    if (!mapReady || !map.current || events.length === 0) return;
+
+    if (targetEventId) {
+      const target = events.find(e => e.event_id === targetEventId);
+      if (target && target.latitude != null && target.longitude != null) {
+        flyToEvent(target);
+      }
+    }
+  }, [mapReady, events, targetEventId, flyToEvent]);
+
   // Snap camera back to full India view
   const focusIndia = () => {
     if (map.current) {
@@ -393,33 +482,9 @@ export default function LiveMapPage() {
         popupRef.current.remove();
       }
       setSelectedEvent(null);
-    }
-  };
-
-  const flyToEvent = (event: EventItem) => {
-    setSelectedEvent(event);
-    if (map.current && event.latitude != null && event.longitude != null) {
-      map.current.flyTo({
-        center: [event.longitude, event.latitude],
-        zoom: 8.5,
-        duration: 1200
-      });
-
-      if (popupRef.current) popupRef.current.remove();
-      popupRef.current = new maplibregl.Popup({ closeButton: true, closeOnClick: true, offset: 15 })
-        .setLngLat([event.longitude, event.latitude])
-        .setHTML(`
-          <div style="padding: 12px 16px; font-family: sans-serif; min-width: 200px;">
-            <div style="font-size: 10px; font-weight: bold; color: #f97316; letter-spacing: 0.05em; text-transform: uppercase;">${event.event_id}</div>
-            <div style="font-size: 13px; font-weight: bold; color: #ffffff; margin: 3px 0;">${event.classification || 'Thermal Anomaly'}</div>
-            <div style="font-size: 11px; color: #94a3b8; margin-bottom: 8px;">${event.location || 'India'}</div>
-            <div style="display: flex; gap: 8px; border-top: 1px solid #334155; padding-top: 6px; font-size: 10px;">
-              <span style="color: #cbd5e1;">Risk: <b style="color: #f87171;">${event.risk_index != null ? event.risk_index.toFixed(0) : '--'}/100</b></span>
-              <span style="color: #cbd5e1;">Priority: <b style="color: #fb923c;">${event.priority}</b></span>
-            </div>
-          </div>
-        `)
-        .addTo(map.current);
+      if (targetEventId) {
+        window.history.pushState({}, '', '/live-map');
+      }
     }
   };
 

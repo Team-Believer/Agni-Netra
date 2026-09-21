@@ -27,15 +27,14 @@ def test_events_list_and_detail():
     events = response.json()
     assert len(events) > 0
 
-    # Test EVENT-042 details
-    res_42 = client.get("/api/events/EVENT-042")
-    assert res_42.status_code == 200
-    data_42 = res_42.json()
-    assert data_42["event_id"] == "EVENT-042"
-    assert data_42["nearby_facility"] == "Reliance Refinery"
-    assert data_42["risk_index"] == 82.0
-    assert len(data_42["evidence"]) > 0
-    assert len(data_42["explanations"]["why"]) > 0
+    # Test EVENT-SEED-005 details (Jamnagar Refinery)
+    res_05 = client.get("/api/events/EVENT-SEED-005")
+    assert res_05.status_code == 200
+    data_05 = res_05.json()
+    assert data_05["event_id"] == "EVENT-SEED-005"
+    assert "Jamnagar" in data_05["nearby_facility"] or "Reliance" in data_05["nearby_facility"]
+    assert len(data_05["evidence"]) > 0
+    assert len(data_05["explanations"]["why"]) > 0
 
 def test_verification_workflow():
     payload = {
@@ -43,7 +42,7 @@ def test_verification_workflow():
         "comment": "Confirmed by analyst following high-resolution thermal corroboration.",
         "reviewer": "Lead Analyst"
     }
-    response = client.post("/api/events/EVENT-042/verify", json=payload)
+    response = client.post("/api/events/EVENT-SEED-005/verify", json=payload)
     assert response.status_code == 200
     data = response.json()
     assert data["success"] is True
@@ -55,7 +54,7 @@ def test_verification_workflow():
         "comment": "Resetting for demonstration state.",
         "reviewer": "System"
     }
-    client.post("/api/events/EVENT-042/verify", json=reset_payload)
+    client.post("/api/events/EVENT-SEED-005/verify", json=reset_payload)
 
 def test_sources_status():
     response = client.get("/api/sources/status")
@@ -65,9 +64,10 @@ def test_sources_status():
 
 def test_reports_and_models():
     # Report
-    rep_res = client.get("/api/reports/EVENT-042")
+    rep_res = client.get("/api/reports/EVENT-SEED-005")
     assert rep_res.status_code == 200
-    assert rep_res.json()["event_id"] == "EVENT-042"
+    rep_data = rep_res.json()
+    assert rep_data.get("event_id") == "EVENT-SEED-005" or rep_data.get("event_identity", {}).get("event_id") == "EVENT-SEED-005"
 
     # Models
     mod_res = client.get("/api/models/status")

@@ -18,8 +18,8 @@ export const KpiCards: React.FC<KpiCardsProps> = ({ summary }) => {
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3.5 mb-4">
       {/* 1. Total Active Events */}
       <div className="bg-white border border-slate-200/90 rounded-xl p-3 flex items-center gap-3.5 shadow-sm hover:shadow-card-hover hover:border-red-200/80 transition-all duration-200">
-        <div className="w-10 h-10 rounded-xl bg-red-50/80 border border-red-100 flex items-center justify-center flex-shrink-0 text-red-500 shadow-sm">
-          <Flame className="w-5 h-5 fill-red-500 text-red-500" />
+        <div className="flex items-center justify-center flex-shrink-0 text-red-500">
+          <Flame className="w-5 h-5 sm:w-6 sm:h-6 fill-red-500 text-red-500" />
         </div>
         <div>
           <div className="text-[11px] font-semibold text-slate-500">Total Active Events</div>
@@ -34,8 +34,8 @@ export const KpiCards: React.FC<KpiCardsProps> = ({ summary }) => {
 
       {/* 2. High Priority */}
       <div className="bg-white border border-slate-200/90 rounded-xl p-3 flex items-center gap-3.5 shadow-sm hover:shadow-card-hover hover:border-orange-200/80 transition-all duration-200">
-        <div className="w-10 h-10 rounded-xl bg-orange-50/80 border border-orange-100 flex items-center justify-center flex-shrink-0 text-orange-600 shadow-sm">
-          <AlertTriangle className="w-5 h-5 text-orange-600" />
+        <div className="flex items-center justify-center flex-shrink-0 text-orange-600">
+          <AlertTriangle className="w-5 h-5 sm:w-6 sm:h-6 text-orange-600" />
         </div>
         <div>
           <div className="text-[11px] font-semibold text-slate-500">High Priority</div>
@@ -50,8 +50,8 @@ export const KpiCards: React.FC<KpiCardsProps> = ({ summary }) => {
 
       {/* 3. Under Verification */}
       <div className="bg-white border border-slate-200/90 rounded-xl p-3 flex items-center gap-3.5 shadow-sm hover:shadow-card-hover hover:border-indigo-200/80 transition-all duration-200">
-        <div className="w-10 h-10 rounded-xl bg-indigo-50/80 border border-indigo-100 flex items-center justify-center flex-shrink-0 text-indigo-600 shadow-sm">
-          <Eye className="w-5 h-5 text-indigo-600" />
+        <div className="flex items-center justify-center flex-shrink-0 text-indigo-600">
+          <Eye className="w-5 h-5 sm:w-6 sm:h-6 text-indigo-600" />
         </div>
         <div>
           <div className="text-[11px] font-semibold text-slate-500">Under Verification</div>
@@ -66,8 +66,8 @@ export const KpiCards: React.FC<KpiCardsProps> = ({ summary }) => {
 
       {/* 4. Resolved (24h) */}
       <div className="bg-white border border-slate-200/90 rounded-xl p-3 flex items-center gap-3.5 shadow-sm hover:shadow-card-hover hover:border-emerald-200/80 transition-all duration-200">
-        <div className="w-10 h-10 rounded-xl bg-emerald-50/80 border border-emerald-100 flex items-center justify-center flex-shrink-0 text-emerald-600 shadow-sm">
-          <CheckCircle2 className="w-5 h-5 text-emerald-600" />
+        <div className="flex items-center justify-center flex-shrink-0 text-emerald-600">
+          <CheckCircle2 className="w-5 h-5 sm:w-6 sm:h-6 text-emerald-600" />
         </div>
         <div>
           <div className="text-[11px] font-semibold text-slate-500">Resolved (24h)</div>

@@ -7,13 +7,6 @@
     @apply bg-[#F8FAFC] text-slate-800 antialiased font-sans;
     font-family: -apple-system, BlinkMacSystemFont, "Inter", "Segoe UI", Roboto, sans-serif;
   }
-
-  /* Force dashboard page root divs to exactly screen height to prevent body scroll and keep sidebar static */
-  body > div[class*="flex-col"] {
-    height: 100vh !important;
-    max-height: 100vh !important;
-    overflow: hidden !important;
-  }
 }
 
 @layer components {

@@ -23,6 +23,7 @@ export interface EventItem {
   frp_change_pct: number;
   footprint_expansion_factor: number;
   current_assessment: string;
+  current_state?: string;
   satellite_image_url?: string;
   data_mode?: string;
 }

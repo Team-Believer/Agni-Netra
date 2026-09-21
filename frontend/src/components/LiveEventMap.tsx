@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useEffect, useRef, useState } from 'react';
+import Link from 'next/link';
 import { Layers, ChevronDown, Plus, Minus, Compass, Crosshair } from 'lucide-react';
 import { EventItem } from '../lib/types';
 
@@ -233,14 +234,15 @@ export const LiveEventMap: React.FC<LiveEventMapProps> = ({
 
         {/* Selected Event Popup Card Overlay */}
         {selectedEvent && (
-          <div
-            className="absolute top-4 left-1/2 transform -translate-x-1/2 z-20 bg-white/95 backdrop-blur-md border border-slate-200/90 rounded-xl p-3.5 shadow-glass w-72 cursor-pointer hover:border-indigo-300 hover:shadow-card-hover transition-all"
-            onClick={() => onSelectEvent(selectedEvent.event_id)}
+          <Link
+            href={`/live-map/${selectedEvent.event_id}`}
+            className="absolute top-4 left-1/2 transform -translate-x-1/2 z-20 bg-white/95 backdrop-blur-md border border-slate-200/90 rounded-xl p-3.5 shadow-glass w-72 cursor-pointer hover:border-indigo-300 hover:shadow-card-hover transition-all block"
+            title="Click to open this event in full Live Map"
           >
             <div className="flex items-start justify-between gap-2">
               <div>
                 <div className="text-xs font-bold text-slate-900 flex items-center gap-1.5">
-                  <span className="text-indigo-600">{selectedEvent.event_id}</span>
+                  <span className="text-indigo-600 font-mono">{selectedEvent.event_id}</span>
                 </div>
                 <div className="text-[11px] text-slate-700 font-semibold leading-tight mt-0.5 line-clamp-1">
                   {selectedEvent.title}
@@ -259,7 +261,7 @@ export const LiveEventMap: React.FC<LiveEventMapProps> = ({
               <span>LON {selectedEvent.longitude != null ? selectedEvent.longitude.toFixed(2) : '--'}°</span>
               <span className="text-indigo-600 font-sans font-semibold">{selectedEvent.observations_count} obs</span>
             </div>
-          </div>
+          </Link>
         )}
 
         {/* Map Legend (Bottom Left) */}

@@ -10,15 +10,22 @@ import {
   Flame,
   Layers,
   Building,
+  Building2,
   AlertTriangle,
   CheckCircle,
+  CheckCircle2,
   HelpCircle,
   XCircle,
   Send,
   Radio,
-  FileCheck
+  FileCheck,
+  History,
+  Eye,
+  Wind,
+  Sparkles,
+  Filter
 } from 'lucide-react';
-import { EventDetail, TimelinePoint } from '../lib/types';
+import { EventDetail, TimelinePoint, EvidenceItem } from '../lib/types';
 import { verifyEvent } from '../lib/api';
 
 interface EventDetailPanelProps {
@@ -27,12 +34,187 @@ interface EventDetailPanelProps {
   onEventUpdated: () => void;
 }
 
+export function getEventOverviewMetrics(event: EventDetail | null, timeline: TimelinePoint[] = []) {
+  if (!event) {
+    return {
+      frpValue: 'Not available',
+      frpLabel: 'current thermal intensity',
+      frpTrend: '',
+      frpColor: 'text-slate-600',
+      footprintValue: 'Not available',
+      footprintLabel: 'current vs baseline',
+      footprintTrend: '',
+      footprintColor: 'text-slate-600',
+      observationsValue: 'Not available',
+      observationsLabel: 'last 6 hours',
+      observationsTrend: '',
+      behaviorValue: 'Not available',
+      behaviorLabel: 'pattern status',
+      behaviorColor: 'text-slate-600',
+    };
+  }
+
+  // 1. OBSERVATIONS COUNT (from event or chronological timeline)
+  let obsCount: number | null = null;
+  if (event.observations_count != null && !isNaN(event.observations_count)) {
+    obsCount = Number(event.observations_count);
+  } else if (timeline && timeline.length > 0) {
+    obsCount = timeline.length;
+  }
+  const observationsValue = obsCount != null ? `${obsCount}` : 'Not available';
+  const observationsLabel = 'last 6 hours';
+  const observationsTrend = obsCount != null && obsCount > 0 ? '↑' : '';
+
+  // 2. BEHAVIOR (derive from actual event.behavior, distinct from state)
+  const behaviorValue = event.behavior || 'Not available';
+  let behaviorLabel = 'pattern status';
+  let behaviorColor = 'text-red-600';
+  const bLower = (event.behavior || '').toLowerCase();
+  if (bLower.includes('rapid') || bLower.includes('expansion')) {
+    behaviorLabel = 'rapid increase';
+    behaviorColor = 'text-red-600';
+  } else if (bLower.includes('spike') || bLower.includes('surge')) {
+    behaviorLabel = 'acute surge';
+    behaviorColor = 'text-red-600';
+  } else if (bLower.includes('stable')) {
+    behaviorLabel = 'within baseline';
+    behaviorColor = 'text-emerald-600';
+  } else if (bLower.includes('declining') || bLower.includes('cooling')) {
+    behaviorLabel = 'active cooling';
+    behaviorColor = 'text-blue-600';
+  } else if (event.abnormality) {
+    behaviorLabel = event.abnormality.toLowerCase();
+    behaviorColor = event.abnormality.toLowerCase().includes('normal') ? 'text-emerald-600' : 'text-red-600';
+  }
+
+  // 3. FOOTPRINT (from event.footprint_expansion_factor or parsed historical baseline)
+  let fpFactor: number | null = null;
+  if (event.footprint_expansion_factor != null && !isNaN(event.footprint_expansion_factor)) {
+    fpFactor = Number(event.footprint_expansion_factor);
+  } else if (event.evidence) {
+    const hist = event.evidence.find(
+      (e) => (e.evidence_type || '').toLowerCase().includes('historical') || (e.source || '').toLowerCase().includes('fingerprint')
+    );
+    if (hist && hist.value) {
+      const match = hist.value.match(/([\d.]+)x/i);
+      if (match) fpFactor = parseFloat(match[1]);
+    }
+  }
+
+  let footprintValue = 'Not available';
+  let footprintLabel = 'current vs baseline';
+  let footprintTrend = '';
+  let footprintColor = 'text-slate-800';
+
+  if (fpFactor != null) {
+    footprintValue = `${fpFactor.toFixed(1)}×`;
+    if (fpFactor > 1.05) {
+      footprintLabel = 'expanding';
+      footprintTrend = '↑';
+      footprintColor = 'text-red-600';
+    } else if (fpFactor < 0.95) {
+      footprintLabel = 'contracting';
+      footprintTrend = '↓';
+      footprintColor = 'text-blue-600';
+    } else {
+      footprintLabel = 'stable';
+      footprintTrend = '';
+      footprintColor = 'text-slate-800';
+    }
+  }
+
+  // 4. FRP (Fire Radiative Power)
+  // Check for explicit API change percentage if available
+  let frpPct: number | null = null;
+  if (event.frp_change_pct != null && !isNaN(event.frp_change_pct) && event.frp_change_pct !== 0) {
+    frpPct = Number(event.frp_change_pct);
+  } else if (event.evidence) {
+    for (const ev of event.evidence) {
+      if (ev.value) {
+        const match = ev.value.match(/([+-]?\d+(?:\.\d+)?)\s*%/);
+        if (match) {
+          frpPct = parseFloat(match[1]);
+          break;
+        }
+      }
+    }
+  }
+
+  // Find latest chronological FRP from timeline
+  let latestFrp: number | null = null;
+  if (timeline && timeline.length > 0) {
+    const sortedTimeline = [...timeline].sort(
+      (a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime()
+    );
+    const lastPoint = sortedTimeline[sortedTimeline.length - 1];
+    if (lastPoint && lastPoint.frp != null && !isNaN(lastPoint.frp)) {
+      latestFrp = Number(lastPoint.frp);
+    }
+  }
+
+  if (latestFrp == null && event.evidence) {
+    for (const ev of event.evidence) {
+      if (ev.value && (ev.evidence_type === 'Thermal' || ev.source.includes('VIIRS') || ev.value.includes('MW'))) {
+        const match = ev.value.match(/([\d.]+)\s*MW/i);
+        if (match) {
+          latestFrp = parseFloat(match[1]);
+          break;
+        }
+      }
+    }
+  }
+
+  let frpValue = 'Not available';
+  let frpLabel = 'current thermal intensity';
+  let frpTrend = '';
+  let frpColor = 'text-slate-800';
+
+  if (frpPct != null) {
+    const sign = frpPct > 0 ? '+' : '';
+    frpValue = `${sign}${frpPct.toFixed(0)}%`;
+    frpLabel = 'vs historical avg.';
+    if (frpPct > 0) {
+      frpTrend = '↑';
+      frpColor = 'text-red-600';
+    } else if (frpPct < 0) {
+      frpTrend = '↓';
+      frpColor = 'text-emerald-600';
+    } else {
+      frpTrend = '';
+      frpColor = 'text-slate-800';
+    }
+  } else if (latestFrp != null) {
+    frpValue = `${latestFrp.toFixed(1)} MW`;
+    frpLabel = 'current thermal intensity';
+    frpTrend = latestFrp > 50 ? '↑' : '';
+    frpColor = latestFrp > 50 ? 'text-red-600' : 'text-slate-800';
+  }
+
+  return {
+    frpValue,
+    frpLabel,
+    frpTrend,
+    frpColor,
+    footprintValue,
+    footprintLabel,
+    footprintTrend,
+    footprintColor,
+    observationsValue,
+    observationsLabel,
+    observationsTrend,
+    behaviorValue,
+    behaviorLabel,
+    behaviorColor,
+  };
+}
+
 export const EventDetailPanel: React.FC<EventDetailPanelProps> = ({
   event,
   timeline,
   onEventUpdated,
 }) => {
   const [activeTab, setActiveTab] = useState<'Overview' | 'Evidence' | 'Timeline' | 'Media' | 'Actions'>('Overview');
+  const [evidenceFilter, setEvidenceFilter] = useState<'ALL' | 'SUPPORTING' | 'CONFLICTING' | 'MISSING'>('ALL');
   const [verifyModalOpen, setVerifyModalOpen] = useState(false);
   const [verifyDecision, setVerifyDecision] = useState<'confirmed' | 'rejected' | 'needs_more_evidence'>('confirmed');
   const [verifyComment, setVerifyComment] = useState('');
@@ -47,6 +229,8 @@ export const EventDetailPanel: React.FC<EventDetailPanelProps> = ({
       </div>
     );
   }
+
+  const metrics = getEventOverviewMetrics(event, timeline);
 
   const handleVerifySubmit = async (decision: string, comment?: string) => {
     setIsSubmitting(true);
@@ -70,48 +254,171 @@ export const EventDetailPanel: React.FC<EventDetailPanelProps> = ({
     }
   };
 
+  const getSourceIcon = (type: string, source: string) => {
+    const t = (type || '').toLowerCase();
+    const s = (source || '').toLowerCase();
+    if (t.includes('thermal') || s.includes('viirs') || s.includes('firms') || s.includes('modis')) {
+      return <Flame className="w-3.5 h-3.5 text-orange-500 shrink-0" />;
+    }
+    if (t.includes('facility') || s.includes('osm') || s.includes('gidc') || s.includes('gis')) {
+      return <Building2 className="w-3.5 h-3.5 text-indigo-500 shrink-0" />;
+    }
+    if (t.includes('historical') || s.includes('fingerprint') || s.includes('baseline')) {
+      return <History className="w-3.5 h-3.5 text-blue-500 shrink-0" />;
+    }
+    if (t.includes('sar') || s.includes('sentinel_1') || s.includes('radar')) {
+      return <Radio className="w-3.5 h-3.5 text-purple-500 shrink-0" />;
+    }
+    if (t.includes('optical') || s.includes('sentinel_2') || t.includes('swir')) {
+      return <Eye className="w-3.5 h-3.5 text-cyan-600 shrink-0" />;
+    }
+    if (t.includes('weather') || s.includes('imd') || s.includes('wind')) {
+      return <Wind className="w-3.5 h-3.5 text-teal-500 shrink-0" />;
+    }
+    if (t.includes('temporal') || s.includes('insat')) {
+      return <Clock className="w-3.5 h-3.5 text-amber-500 shrink-0" />;
+    }
+    return <Layers className="w-3.5 h-3.5 text-slate-500 shrink-0" />;
+  };
+
+  const renderEvidenceCard = (item: EvidenceItem, isPrimary = false) => {
+    const isSupporting = item.direction === 'SUPPORTING';
+    const isConflicting = item.direction === 'CONFLICTING';
+    const isMissing = item.direction === 'MISSING';
+    const isHistorical = (item.evidence_type || '').toLowerCase().includes('historical') || (item.source || '').toLowerCase().includes('fingerprint');
+    const isFacility = (item.evidence_type || '').toLowerCase().includes('facility') || (item.source || '').toLowerCase().includes('gis');
+
+    return (
+      <div 
+        key={item.id} 
+        className={`rounded-lg p-3.5 transition-all duration-150 border ${
+          isPrimary
+            ? 'bg-white border-slate-200/90 shadow-2xs border-l-3 border-l-orange-500 hover:border-slate-300'
+            : isConflicting
+            ? 'bg-red-50/20 border-red-200 hover:border-red-300'
+            : isMissing
+            ? 'bg-slate-50/50 border-dashed border-slate-200 text-slate-400'
+            : 'bg-white border-slate-200/80 hover:border-slate-300 shadow-2xs'
+        }`}
+      >
+        <div className="flex items-center justify-between gap-2 mb-1.5">
+          <div className="flex items-center gap-2 min-w-0">
+            {getSourceIcon(item.evidence_type, item.source)}
+            <span className="font-bold text-slate-800 tracking-tight text-[11px] truncate">
+              {item.source}
+            </span>
+            <span className="text-[10px] text-slate-400 font-mono">
+              • {item.evidence_type}
+            </span>
+          </div>
+
+          <div className="flex items-center gap-1.5 shrink-0">
+            {isSupporting && (
+              <span className="px-1.5 py-0.5 rounded text-[9px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200/60">
+                SUPPORTING
+              </span>
+            )}
+            {isConflicting && (
+              <span className="px-1.5 py-0.5 rounded text-[9px] font-bold bg-red-50 text-red-700 border border-red-200">
+                ⚠ CONFLICTING
+              </span>
+            )}
+            {isMissing && (
+              <span className="px-1.5 py-0.5 rounded text-[9px] font-bold bg-slate-100 text-slate-500 border border-slate-200">
+                MISSING
+              </span>
+            )}
+          </div>
+        </div>
+
+        <div className="mt-1">
+          <div className="text-xs font-bold text-slate-900 leading-snug">
+            {item.value}
+          </div>
+          {item.explanation && (
+            <p className="text-[11px] text-slate-500 mt-1 leading-relaxed">
+              {item.explanation}
+            </p>
+          )}
+        </div>
+
+        {!isMissing && (
+          <div className="mt-2.5 pt-2 border-t border-slate-100 grid grid-cols-2 gap-3">
+            <div>
+              <div className="flex justify-between items-center text-[10px] font-medium text-slate-500 mb-1">
+                <span>Quality</span>
+                <span className="text-slate-800 font-bold">
+                  {item.quality != null ? `${Math.round(item.quality * 100)}%` : '--'}
+                </span>
+              </div>
+              <div className="w-full bg-slate-100 rounded-full h-1 overflow-hidden">
+                <div 
+                  className="bg-emerald-500 h-full rounded-full transition-all duration-300" 
+                  style={{ width: `${item.quality != null ? item.quality * 100 : 0}%` }}
+                />
+              </div>
+            </div>
+
+            <div>
+              <div className="flex justify-between items-center text-[10px] font-medium text-slate-500 mb-1">
+                <span>Relevance</span>
+                <span className="text-slate-800 font-bold">
+                  {item.relevance != null ? `${Math.round(item.relevance * 100)}%` : '--'}
+                </span>
+              </div>
+              <div className="w-full bg-slate-100 rounded-full h-1 overflow-hidden">
+                <div 
+                  className="bg-indigo-500 h-full rounded-full transition-all duration-300" 
+                  style={{ width: `${item.relevance != null ? item.relevance * 100 : 0}%` }}
+                />
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+    );
+  };
+
   return (
     <div className="bg-white border border-slate-200/90 rounded-xl shadow-sm overflow-hidden flex flex-col h-[740px]">
-      {/* 1. Header Bar with Persistent ID & Badges */}
-      <div className="px-5 py-3 border-b border-slate-100 flex items-center justify-between bg-white/80">
-        <div className="flex items-center gap-2">
-          <span className="text-sm font-extrabold text-slate-900">{event.event_id}</span>
-          <span className="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-red-50 text-red-700 border border-red-200/80 flex items-center gap-1.5 shadow-sm">
-            <span className="w-1.5 h-1.5 rounded-full bg-red-600 animate-pulse"></span>
-            High Priority
-          </span>
-          <span className="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-amber-50 text-amber-800 border border-amber-200/80 flex items-center gap-1.5 shadow-sm">
-            <span className="w-1.5 h-1.5 rounded-full bg-amber-500"></span>
-            {event.status}
-          </span>
+      {/* 1. Event Workspace Header */}
+      <div className="px-5 py-3.5 sm:py-4 border-b border-slate-200/80 bg-white">
+        <div className="flex items-center justify-between mb-1.5">
+          <div className="flex items-center gap-2.5 flex-wrap">
+            <span className="text-[14px] sm:text-[15px] font-bold text-slate-900 tracking-tight">{event.event_id}</span>
+            <span className="text-[10px] sm:text-[11px] font-semibold px-2 py-0.5 rounded-md bg-red-50 text-red-700 border border-red-200/80 flex items-center gap-1.5">
+              <span className="w-1.5 h-1.5 rounded-full bg-red-600 animate-pulse"></span>
+              {event.risk_level === 'Critical' ? 'Critical Priority' : `${event.priority || 'High'} Priority`}
+            </span>
+            <span className="text-[10px] sm:text-[11px] font-semibold px-2 py-0.5 rounded-md bg-amber-50 text-amber-800 border border-amber-200/80 flex items-center gap-1.5">
+              <span className="w-1.5 h-1.5 rounded-full bg-amber-500"></span>
+              {event.status || 'Needs Verification'}
+            </span>
+          </div>
+          <button className="text-slate-400 hover:text-slate-600 p-1 rounded-md hover:bg-slate-100 transition-colors">
+            <MoreVertical className="w-4 h-4" />
+          </button>
         </div>
-        <button className="text-slate-400 hover:text-slate-600 p-1.5 rounded-lg hover:bg-slate-100 transition-colors">
-          <MoreVertical className="w-4 h-4" />
-        </button>
-      </div>
 
-      {/* 2. Title & Facility Info */}
-      <div className="px-5 py-3 border-b border-slate-100 bg-slate-50/40">
-        <div className="flex items-center gap-2 text-orange-600">
-          <Factory className="w-4 h-4 shrink-0" />
-          <h2 className="text-xs font-extrabold text-slate-900 leading-tight">{event.title}</h2>
-        </div>
-        <div className="flex items-center gap-1.5 text-xs text-slate-500 mt-1 font-medium">
+        <h2 className="text-[17px] sm:text-[18px] font-semibold text-slate-900 leading-snug">
+          {event.title}
+        </h2>
+        <div className="flex items-center gap-1.5 text-[13px] sm:text-[14px] text-slate-500 mt-0.5 font-normal">
           <MapPin className="w-3.5 h-3.5 text-slate-400 shrink-0" />
           <span>{event.location}</span>
         </div>
       </div>
 
-      {/* 3. Sub-navigation Tabs */}
-      <div className="px-5 border-b border-slate-200/80 bg-slate-50/70 flex items-center gap-6 text-xs font-semibold">
+      {/* 2. Sub-navigation Tabs */}
+      <div className="px-5 border-b border-slate-200/80 bg-slate-50/50 flex items-center gap-6 text-xs font-semibold h-[48px]">
         {(['Overview', 'Evidence', 'Timeline', 'Media', 'Actions'] as const).map((tab) => (
           <button
             key={tab}
             onClick={() => setActiveTab(tab)}
-            className={`py-2.5 relative transition-all duration-150 ${
+            className={`h-full relative px-1 flex items-center text-[13px] transition-colors ${
               activeTab === tab
-                ? 'text-indigo-600 font-extrabold border-b-2 border-indigo-600'
-                : 'text-slate-500 hover:text-slate-800'
+                ? 'text-indigo-600 font-bold border-b-2 border-indigo-600'
+                : 'text-slate-500 hover:text-slate-800 font-medium'
             }`}
           >
             {tab}
@@ -119,12 +426,12 @@ export const EventDetailPanel: React.FC<EventDetailPanelProps> = ({
         ))}
       </div>
 
-      {/* 4. Tab Body Content (Scrollable) */}
-      <div className="flex-1 overflow-y-auto p-5 space-y-4 text-xs">
+      {/* 3. Tab Body Content (Scrollable) */}
+      <div className="flex-1 overflow-y-auto p-5 text-xs">
         {activeTab === 'Overview' && (
           <>
             {/* Satellite Context Preview Canvas */}
-            <div className="w-full h-40 rounded-lg overflow-hidden relative border border-slate-200 bg-slate-900 group cursor-pointer" onClick={() => setImageModalOpen(true)}>
+            <div className="w-full h-36 rounded-xl overflow-hidden relative border border-slate-200 bg-slate-900 group cursor-pointer mb-4" onClick={() => setImageModalOpen(true)}>
               <img
                 src={event.satellite_image_url || "https://images.unsplash.com/photo-1578328819058-b69f3a3b0f6b?auto=format&fit=crop&w=600&q=80"}
                 alt="Satellite Optical & Thermal"
@@ -140,168 +447,176 @@ export const EventDetailPanel: React.FC<EventDetailPanelProps> = ({
               {/* Thermal Hotspot Pulsing Indicator */}
               <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 flex items-center justify-center">
                 <span className="w-8 h-8 rounded-full bg-red-500/40 animate-ping absolute"></span>
-                <span className="w-4 h-4 rounded-full bg-red-500 ring-2 ring-white shadow-lg"></span>
+                <span className="w-3.5 h-3.5 rounded-full bg-red-500 ring-2 ring-white shadow-lg"></span>
               </div>
             </div>
 
-            {/* Meta Attributes Grid */}
-            <div className="grid grid-cols-2 gap-y-2 gap-x-4 border-b border-slate-100 pb-3 text-[11px]">
+            {/* Compact 2-Column Metadata Grid */}
+            <div className="grid grid-cols-[1fr_auto] gap-y-2.5 items-center text-[12px] sm:text-[13px]">
               <div className="flex items-center gap-2 text-slate-500">
-                <Compass className="w-3.5 h-3.5 text-slate-400" />
-                <span>Latitude / Longitude</span>
+                <Compass className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                <span className="font-normal">Latitude / Longitude</span>
               </div>
-              <div className="font-semibold text-slate-800 text-right">
-                {event.latitude != null ? event.latitude.toFixed(2) : '--'}° N, {event.longitude != null ? event.longitude.toFixed(2) : '--'}° E
+              <div className="font-semibold text-slate-800 text-right font-mono text-[12px] sm:text-[13px]">
+                {event.latitude != null ? `${event.latitude.toFixed(2)}° N` : '--'}, {event.longitude != null ? `${event.longitude.toFixed(2)}° E` : '--'}
               </div>
 
               <div className="flex items-center gap-2 text-slate-500">
-                <Clock className="w-3.5 h-3.5 text-slate-400" />
-                <span>First Seen</span>
+                <Clock className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                <span className="font-normal">First Seen</span>
               </div>
               <div className="font-semibold text-slate-800 text-right">
                 {event.first_seen ? new Date(event.first_seen).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) : 'Unknown'}, {event.first_seen ? new Date(event.first_seen).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' }) : '--:--'}
               </div>
 
               <div className="flex items-center gap-2 text-slate-500">
-                <Clock className="w-3.5 h-3.5 text-slate-400" />
-                <span>Last Seen</span>
+                <Clock className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                <span className="font-normal">Last Seen</span>
               </div>
               <div className="font-semibold text-slate-800 text-right">
                 {event.last_seen ? new Date(event.last_seen).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) : 'Unknown'}, {event.last_seen ? new Date(event.last_seen).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' }) : '--:--'}
               </div>
 
               <div className="flex items-center gap-2 text-slate-500">
-                <Radio className="w-3.5 h-3.5 text-slate-400" />
-                <span>Observations</span>
+                <Radio className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                <span className="font-normal">Observations</span>
               </div>
               <div className="font-semibold text-slate-800 text-right">
-                {event.observations_count} (last 6 hours)
+                {metrics.observationsValue} (last 6 hours)
               </div>
 
               <div className="flex items-center gap-2 text-slate-500">
-                <Building className="w-3.5 h-3.5 text-slate-400" />
-                <span>Nearby Facility</span>
+                <Building className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                <span className="font-normal">Nearby Facility</span>
               </div>
-              <div className="font-semibold text-slate-800 text-right truncate">
+              <div className="font-semibold text-slate-800 text-right truncate max-w-[220px]">
                 {event.nearby_facility}
               </div>
 
               <div className="flex items-center gap-2 text-slate-500">
-                <MapPin className="w-3.5 h-3.5 text-slate-400" />
-                <span>District</span>
+                <MapPin className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                <span className="font-normal">District</span>
               </div>
-              <div className="font-semibold text-slate-800 text-right truncate">
+              <div className="font-semibold text-slate-800 text-right truncate max-w-[220px]">
                 {event.district}
               </div>
             </div>
 
-            {/* 4 Score Cards (Matches Reference UI) */}
-            <div className="grid grid-cols-4 gap-2">
-              <div className="bg-slate-50/80 border border-slate-200/90 rounded-lg p-2.5 text-center">
-                <div className="text-[10px] text-slate-500 font-medium leading-tight">Classification Confidence</div>
-                <div className="text-base font-bold text-emerald-600 mt-1">
+            {/* Subtle Divider between Context and Assessment */}
+            <div className="my-4 border-b border-slate-200/80" />
+
+            {/* 4 KPI Cards Assessment Strip */}
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 sm:gap-3">
+              <div className="bg-slate-50/70 border border-slate-200/90 rounded-xl p-3 sm:p-3.5 flex flex-col justify-between min-h-[86px]">
+                <div className="text-[11px] sm:text-[12px] text-slate-500 font-medium leading-tight">Classification Confidence</div>
+                <div className="text-[18px] sm:text-[20px] font-bold text-emerald-600 leading-snug pb-0.5">
                   {event.confidence != null ? (event.confidence * 100).toFixed(0) : '--'}%
                 </div>
               </div>
 
-              <div className="bg-slate-50/80 border border-slate-200/90 rounded-lg p-2.5 text-center">
-                <div className="text-[10px] text-slate-500 font-medium leading-tight">Evidence Completeness</div>
-                <div className="text-base font-bold text-amber-600 mt-1">
+              <div className="bg-slate-50/70 border border-slate-200/90 rounded-xl p-3 sm:p-3.5 flex flex-col justify-between min-h-[86px]">
+                <div className="text-[11px] sm:text-[12px] text-slate-500 font-medium leading-tight">Evidence Completeness</div>
+                <div className="text-[18px] sm:text-[20px] font-bold text-amber-600 leading-snug pb-0.5">
                   {event.evidence_completeness != null ? (event.evidence_completeness * 100).toFixed(0) : '--'}%
                 </div>
               </div>
 
-              <div className="bg-red-50/50 border border-red-200/80 rounded-lg p-2.5 text-center">
-                <div className="text-[10px] text-red-600 font-medium leading-tight">Risk Index</div>
-                <div className="text-base font-bold text-red-600 mt-1">
-                  {event.risk_index != null ? event.risk_index.toFixed(0) : '--'} <span className="text-[10px] font-normal text-slate-400">/ 100</span>
+              <div className="bg-red-50/40 border border-red-200/70 rounded-xl p-3 sm:p-3.5 flex flex-col justify-between min-h-[86px]">
+                <div className="text-[11px] sm:text-[12px] text-red-600 font-medium leading-tight">Risk Index</div>
+                <div className="text-[18px] sm:text-[20px] font-bold text-red-600 leading-snug pb-0.5">
+                  {event.risk_index != null ? event.risk_index.toFixed(0) : '--'}{' '}
+                  <span className="text-[11px] font-normal text-slate-400">/ 100</span>
                 </div>
               </div>
 
-              <div className="bg-red-50/50 border border-red-200/80 rounded-lg p-2.5 text-center">
-                <div className="text-[10px] text-red-600 font-medium leading-tight">Priority</div>
-                <div className="text-base font-bold text-red-600 mt-1">
-                  {event.risk_level === 'Critical' ? 'Critical' : event.priority}
+              <div className="bg-red-50/40 border border-red-200/70 rounded-xl p-3 sm:p-3.5 flex flex-col justify-between min-h-[86px]">
+                <div className="text-[11px] sm:text-[12px] text-red-600 font-medium leading-tight">Priority</div>
+                <div className="text-[18px] sm:text-[20px] font-bold text-red-600 leading-snug pb-0.5">
+                  {event.risk_level === 'Critical' ? 'Critical' : event.priority || 'High'}
                 </div>
               </div>
             </div>
 
-            {/* Current Assessment Alert Banner */}
-            <div className="bg-red-50/70 border border-red-200/80 rounded-lg p-3 flex items-start gap-2.5">
+            {/* Current Assessment Alert Panel */}
+            <div className="mt-3.5 sm:mt-4 bg-red-50/60 border border-red-200/80 rounded-xl p-3.5 sm:p-4 flex items-start gap-3">
               <AlertTriangle className="w-4 h-4 text-red-600 flex-shrink-0 mt-0.5" />
               <div>
-                <div className="text-[11px] font-bold text-red-700">Current Assessment</div>
-                <div className="text-[11px] text-red-700 leading-snug mt-0.5">
+                <div className="text-[13px] font-semibold text-red-800 tracking-tight">CURRENT ASSESSMENT</div>
+                <div className="text-[13px] sm:text-[14px] text-red-700 leading-relaxed mt-0.5">
                   {event.current_assessment}
                 </div>
               </div>
             </div>
 
             {/* "What Happened?" Section with 4 Cards */}
-            <div>
-              <h4 className="text-xs font-bold text-slate-900 mb-2">What Happened?</h4>
-              <div className="grid grid-cols-4 gap-2">
-                <div className="bg-white border border-slate-200 rounded-lg p-2 shadow-sm">
-                  <div className="text-[10px] text-slate-400 font-medium">FRP</div>
-                  <div className="text-xs font-bold text-red-600 flex items-center gap-0.5 mt-0.5">
-                    ↑ {event.frp_change_pct !== undefined && event.frp_change_pct !== null ? event.frp_change_pct.toFixed(0) : '0'}%
+            <div className="mt-4.5 sm:mt-5">
+              <h4 className="text-[12px] sm:text-[13px] font-bold text-slate-900 uppercase tracking-wider mb-2.5">
+                WHAT HAPPENED?
+              </h4>
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-2.5">
+                <div className="bg-white border border-slate-200/90 rounded-xl p-2.5 sm:p-3 shadow-2xs flex flex-col justify-between min-h-[80px]">
+                  <div className="text-[11px] text-slate-500 font-medium">FRP</div>
+                  <div className={`text-[15px] sm:text-[16px] font-bold flex items-center gap-0.5 leading-snug pb-0.5 ${metrics.frpColor}`}>
+                    {metrics.frpTrend && <span>{metrics.frpTrend}</span>} {metrics.frpValue}
                   </div>
-                  <div className="text-[9px] text-slate-400">vs. historical avg.</div>
+                  <div className="text-[10px] sm:text-[11px] text-slate-400 truncate">{metrics.frpLabel}</div>
                 </div>
 
-                <div className="bg-white border border-slate-200 rounded-lg p-2 shadow-sm">
-                  <div className="text-[10px] text-slate-400 font-medium">Footprint</div>
-                  <div className="text-xs font-bold text-red-600 flex items-center gap-0.5 mt-0.5">
-                    ↑ {event.footprint_expansion_factor !== undefined && event.footprint_expansion_factor !== null ? event.footprint_expansion_factor.toFixed(1) : '1.0'}×
+                <div className="bg-white border border-slate-200/90 rounded-xl p-2.5 sm:p-3 shadow-2xs flex flex-col justify-between min-h-[80px]">
+                  <div className="text-[11px] text-slate-500 font-medium">Footprint</div>
+                  <div className={`text-[15px] sm:text-[16px] font-bold flex items-center gap-0.5 leading-snug pb-0.5 ${metrics.footprintColor}`}>
+                    {metrics.footprintTrend && <span>{metrics.footprintTrend}</span>} {metrics.footprintValue}
                   </div>
-                  <div className="text-[9px] text-slate-400">expanding</div>
+                  <div className="text-[10px] sm:text-[11px] text-slate-400 truncate">{metrics.footprintLabel}</div>
                 </div>
 
-                <div className="bg-white border border-slate-200 rounded-lg p-2 shadow-sm">
-                  <div className="text-[10px] text-slate-400 font-medium">Observations</div>
-                  <div className="text-xs font-bold text-red-600 flex items-center gap-0.5 mt-0.5">
-                    ↑ {event.observations_count}
+                <div className="bg-white border border-slate-200/90 rounded-xl p-2.5 sm:p-3 shadow-2xs flex flex-col justify-between min-h-[80px]">
+                  <div className="text-[11px] text-slate-500 font-medium">Observations</div>
+                  <div className="text-[15px] sm:text-[16px] font-bold text-red-600 flex items-center gap-0.5 leading-snug pb-0.5">
+                    {metrics.observationsTrend && <span>{metrics.observationsTrend}</span>} {metrics.observationsValue}
                   </div>
-                  <div className="text-[9px] text-slate-400">in last 6 hours</div>
+                  <div className="text-[10px] sm:text-[11px] text-slate-400 truncate">{metrics.observationsLabel}</div>
                 </div>
 
-                <div className="bg-white border border-slate-200 rounded-lg p-2 shadow-sm">
-                  <div className="text-[10px] text-slate-400 font-medium">Behavior</div>
-                  <div className="text-xs font-bold text-red-600 mt-0.5 truncate">
-                    Escalating
+                <div className="bg-white border border-slate-200/90 rounded-xl p-2.5 sm:p-3 shadow-2xs flex flex-col justify-between min-h-[80px]">
+                  <div className="text-[11px] text-slate-500 font-medium">Behavior</div>
+                  <div className={`text-[15px] sm:text-[16px] font-bold leading-snug pb-0.5 ${metrics.behaviorColor}`}>
+                    {metrics.behaviorValue}
                   </div>
-                  <div className="text-[9px] text-slate-400">rapid increase</div>
+                  <div className="text-[10px] sm:text-[11px] text-slate-400 truncate">{metrics.behaviorLabel}</div>
                 </div>
               </div>
             </div>
 
-            {/* Explainability Breakdown (WHY, WHY NOT, WHAT CHANGED) */}
-            <div className="space-y-2 border-t border-slate-100 pt-3">
-              <div className="bg-slate-50 border border-slate-200 rounded-lg p-2.5">
-                <div className="text-[10px] font-bold text-slate-800 uppercase tracking-wide">
-                  WHY {(event.classification || 'UNKNOWN').toUpperCase()}?
+            {/* Explainability Breakdown (WHY / WHY NOT) */}
+            <div className="mt-5.5 sm:mt-6 space-y-2.5">
+              <div className="bg-slate-50/70 border border-slate-200/90 rounded-xl p-3 sm:p-3.5">
+                <div className="text-[11px] sm:text-[12px] font-bold text-slate-800 uppercase tracking-wide">
+                  WHY {(event.classification || 'FOREST FIRE').toUpperCase()}?
                 </div>
-                <ul className="list-disc list-inside text-[11px] text-slate-600 space-y-1 mt-1">
+                <ul className="list-disc list-inside text-[12px] text-slate-600 space-y-1 mt-1.5 leading-relaxed">
                   {event.explanations?.why?.map((w, i) => (
                     <li key={i}>{w}</li>
                   ))}
                 </ul>
               </div>
 
-              <div className="bg-slate-50 border border-slate-200 rounded-lg p-2.5">
-                <div className="text-[10px] font-bold text-slate-800 uppercase tracking-wide">
-                  WHY NOT ROUTINE FLARE?
+              {event.explanations?.why_not && event.explanations.why_not.length > 0 && (
+                <div className="bg-slate-50/70 border border-slate-200/90 rounded-xl p-3 sm:p-3.5">
+                  <div className="text-[11px] sm:text-[12px] font-bold text-slate-800 uppercase tracking-wide">
+                    WHY NOT ROUTINE FLARE?
+                  </div>
+                  <ul className="list-disc list-inside text-[12px] text-slate-600 space-y-1 mt-1.5 leading-relaxed">
+                    {event.explanations.why_not.map((wn, i) => (
+                      <li key={i}>{wn}</li>
+                    ))}
+                  </ul>
                 </div>
-                <ul className="list-disc list-inside text-[11px] text-slate-600 space-y-1 mt-1">
-                  {event.explanations?.why_not?.map((wn, i) => (
-                    <li key={i}>{wn}</li>
-                  ))}
-                </ul>
-              </div>
+              )}
             </div>
 
-            {/* Action Buttons (Matches Reference UI) */}
-            <div className="grid grid-cols-3 gap-2 pt-2">
+            {/* Bottom Action Buttons */}
+            <div className="grid grid-cols-3 gap-2 pt-3">
               <button
                 onClick={() => setVerifyModalOpen(true)}
                 className="bg-slate-900 hover:bg-slate-800 text-white font-semibold py-2 px-3 rounded-lg text-xs flex items-center justify-center gap-1.5 shadow-xs transition-colors"
@@ -331,86 +646,208 @@ export const EventDetailPanel: React.FC<EventDetailPanelProps> = ({
 
         {activeTab === 'Evidence' && (
           <div className="space-y-4">
-            {/* Multi-sensor Visual Summary */}
-            <div className="bg-white border border-slate-200 rounded-xl p-4 shadow-sm">
-              <h4 className="text-xs font-bold text-slate-800 mb-3">Multi-Sensor Contribution Summary</h4>
-              <div className="space-y-3">
-                {['SUPPORTING', 'CONFLICTING', 'NEUTRAL'].map(direction => {
-                  const sources = event.evidence?.filter(e => e.direction === direction) || [];
-                  const count = sources.length;
-                  const total = event.evidence?.length || 1;
-                  const pct = Math.round((count / total) * 100);
-                  
-                  if (count === 0 && direction !== 'SUPPORTING') return null;
-                  
-                  let barColor = 'bg-slate-300';
-                  let textColor = 'text-slate-700';
-                  if (direction === 'SUPPORTING') { barColor = 'bg-emerald-500'; textColor = 'text-emerald-700'; }
-                  if (direction === 'CONFLICTING') { barColor = 'bg-red-500'; textColor = 'text-red-700'; }
+            {/* 1. Compact Multi-Sensor Contribution Summary (90-110px) */}
+            {(() => {
+              const allItems = event.evidence || [];
+              const supportingItems = allItems.filter(e => e.direction === 'SUPPORTING');
+              const conflictingItems = allItems.filter(e => e.direction === 'CONFLICTING');
+              const missingItems = allItems.filter(e => e.direction === 'MISSING');
+              const total = allItems.length;
+              const supportPct = total > 0 ? Math.round((supportingItems.length / total) * 100) : 100;
+              const activeCategories = Array.from(new Set(allItems.map(e => e.evidence_type))).filter(Boolean);
 
-                  return (
-                    <div key={direction} className="space-y-1">
-                      <div className="flex justify-between text-[10px] font-semibold">
-                        <span className={textColor}>{direction} SOURCES ({count})</span>
-                        <span>{pct}%</span>
-                      </div>
-                      <div className="w-full bg-slate-100 rounded-full h-2 overflow-hidden">
-                        <div className={`h-full ${barColor} rounded-full`} style={{ width: `${pct}%` }}></div>
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
+              // Semantic Groups
+              const isPrimary = (item: EvidenceItem) => {
+                const t = (item.evidence_type || '').toLowerCase();
+                const s = (item.source || '').toLowerCase();
+                return t.includes('thermal') || s.includes('viirs') || s.includes('firms') || s.includes('modis');
+              };
+              const isContextual = (item: EvidenceItem) => {
+                const t = (item.evidence_type || '').toLowerCase();
+                const s = (item.source || '').toLowerCase();
+                return t.includes('facility') || t.includes('historical') || s.includes('osm') || s.includes('gidc') || s.includes('fingerprint') || s.includes('baseline');
+              };
 
-            <div className="space-y-2.5">
-              <div className="flex items-center justify-between pb-2 border-b border-slate-100">
-                <span className="font-semibold text-slate-700">Detailed Evidence Ledger</span>
-                <span className="text-[10px] bg-slate-100 text-slate-600 px-2 py-0.5 rounded-full font-medium">
-                  {event.evidence?.length || 0} Sources
-                </span>
-              </div>
-              {event.evidence?.map((item) => (
-                <div key={item.id} className="bg-slate-50 border border-slate-200/90 rounded-lg p-3 space-y-2">
-                  <div className="flex items-center justify-between">
-                    <span className="font-bold text-slate-900">{item.source} ({item.evidence_type})</span>
-                    <span className={`text-[10px] font-bold px-2 py-0.5 rounded ${
-                      item.direction === 'SUPPORTING'
-                        ? 'bg-emerald-100 text-emerald-800'
-                        : item.direction === 'CONFLICTING'
-                        ? 'bg-red-100 text-red-800'
-                        : 'bg-slate-200 text-slate-700'
-                    }`}>
-                      {item.direction}
-                    </span>
-                  </div>
-                  <div className="text-[11px] font-semibold text-slate-700">{item.value}</div>
-                  <div className="text-[11px] text-slate-600">{item.explanation}</div>
-                  
-                  {/* Quality & Relevance Mini-bars */}
-                  <div className="grid grid-cols-2 gap-3 pt-1">
-                    <div>
-                      <div className="flex justify-between text-[9px] text-slate-500 mb-0.5">
-                        <span>Quality</span>
-                        <span>{item.quality != null ? (item.quality * 100).toFixed(0) : '--'}%</span>
-                      </div>
-                      <div className="w-full bg-slate-200 rounded-full h-1">
-                        <div className="bg-blue-500 h-1 rounded-full" style={{ width: `${item.quality != null ? item.quality * 100 : 0}%` }}></div>
-                      </div>
+              const filteredItems = allItems.filter(item => {
+                if (evidenceFilter === 'SUPPORTING') return item.direction === 'SUPPORTING';
+                if (evidenceFilter === 'CONFLICTING') return item.direction === 'CONFLICTING';
+                if (evidenceFilter === 'MISSING') return item.direction === 'MISSING';
+                return true;
+              });
+
+              const primaryGroup = filteredItems.filter(item => isPrimary(item));
+              const contextualGroup = filteredItems.filter(item => isContextual(item));
+              const corroboratingGroup = filteredItems.filter(item => !isPrimary(item) && !isContextual(item));
+
+              return (
+                <>
+                  {/* Summary Card */}
+                  <div className="bg-white border border-slate-200/90 rounded-xl p-3.5 sm:p-4 shadow-2xs space-y-2">
+                    <div className="flex items-center justify-between">
+                      <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500">
+                        Multi-Sensor Contribution
+                      </span>
+                      <span className="text-xs font-black text-emerald-700 font-mono">
+                        {supportPct}% Support
+                      </span>
                     </div>
-                    <div>
-                      <div className="flex justify-between text-[9px] text-slate-500 mb-0.5">
-                        <span>Relevance</span>
-                        <span>{item.relevance != null ? (item.relevance * 100).toFixed(0) : '--'}%</span>
-                      </div>
-                      <div className="w-full bg-slate-200 rounded-full h-1">
-                        <div className="bg-indigo-500 h-1 rounded-full" style={{ width: `${item.relevance != null ? item.relevance * 100 : 0}%` }}></div>
-                      </div>
+
+                    <div className="flex items-center justify-between text-xs">
+                      <span className="font-semibold text-slate-700">
+                        {supportingItems.length} Supporting {supportingItems.length === 1 ? 'Source' : 'Sources'}
+                      </span>
+                      <span className="text-[11px] text-slate-500 font-medium">
+                        {total} Connected Feeds
+                      </span>
                     </div>
+
+                    {/* Thin Progress Bar (4-5px) */}
+                    <div className="w-full bg-slate-100 rounded-full h-1.5 overflow-hidden">
+                      <div 
+                        className={`h-full rounded-full transition-all duration-300 ${
+                          supportPct >= 80 ? 'bg-emerald-500' : supportPct >= 50 ? 'bg-amber-500' : 'bg-red-500'
+                        }`} 
+                        style={{ width: `${supportPct}%` }}
+                      />
+                    </div>
+
+                    {/* Category Checklist Chips */}
+                    {activeCategories.length > 0 && (
+                      <div className="flex flex-wrap items-center gap-1.5 pt-1">
+                        {activeCategories.map((cat, idx) => (
+                          <span 
+                            key={idx} 
+                            className="inline-flex items-center gap-1 text-[10px] font-semibold px-2 py-0.5 rounded-md bg-slate-50 border border-slate-200/80 text-slate-700"
+                          >
+                            <span>{cat}</span>
+                            <span className="text-emerald-600 font-bold">✓</span>
+                          </span>
+                        ))}
+                      </div>
+                    )}
                   </div>
-                </div>
-              ))}
-            </div>
+
+                  {/* 2. Detailed Evidence Ledger Header & Filter Tabs */}
+                  <div className="space-y-2 pt-1">
+                    <div className="flex items-center justify-between pb-1.5 border-b border-slate-100">
+                      <div>
+                        <h4 className="text-xs font-bold uppercase tracking-wide text-slate-900">
+                          Detailed Evidence Ledger
+                        </h4>
+                        <p className="text-[10px] text-slate-500">
+                          Evidence contributing to current event assessment
+                        </p>
+                      </div>
+                      <span className="text-[10px] bg-slate-100 border border-slate-200/80 text-slate-700 px-2 py-0.5 rounded-full font-bold">
+                        {total} {total === 1 ? 'Source' : 'Sources'}
+                      </span>
+                    </div>
+
+                    {/* Filter Pills (All / Supporting / Conflicting / Missing) */}
+                    {total > 3 && (
+                      <div className="flex items-center gap-1.5 text-[10px] font-semibold overflow-x-auto pb-1">
+                        <button
+                          onClick={() => setEvidenceFilter('ALL')}
+                          className={`px-2.5 py-1 rounded-md transition-colors ${
+                            evidenceFilter === 'ALL'
+                              ? 'bg-slate-900 text-white font-bold shadow-2xs'
+                              : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                          }`}
+                        >
+                          All ({total})
+                        </button>
+                        <button
+                          onClick={() => setEvidenceFilter('SUPPORTING')}
+                          className={`px-2.5 py-1 rounded-md transition-colors ${
+                            evidenceFilter === 'SUPPORTING'
+                              ? 'bg-emerald-700 text-white font-bold shadow-2xs'
+                              : 'bg-emerald-50 text-emerald-700 border border-emerald-200 hover:bg-emerald-100'
+                          }`}
+                        >
+                          Supporting ({supportingItems.length})
+                        </button>
+                        {conflictingItems.length > 0 && (
+                          <button
+                            onClick={() => setEvidenceFilter('CONFLICTING')}
+                            className={`px-2.5 py-1 rounded-md transition-colors ${
+                              evidenceFilter === 'CONFLICTING'
+                                ? 'bg-red-700 text-white font-bold shadow-2xs'
+                                : 'bg-red-50 text-red-700 border border-red-200 hover:bg-red-100'
+                            }`}
+                          >
+                            Conflicting ({conflictingItems.length})
+                          </button>
+                        )}
+                        {missingItems.length > 0 && (
+                          <button
+                            onClick={() => setEvidenceFilter('MISSING')}
+                            className={`px-2.5 py-1 rounded-md transition-colors ${
+                              evidenceFilter === 'MISSING'
+                                ? 'bg-slate-700 text-white font-bold shadow-2xs'
+                                : 'bg-slate-100 text-slate-600 border border-slate-200 hover:bg-slate-200'
+                            }`}
+                          >
+                            Missing ({missingItems.length})
+                          </button>
+                        )}
+                      </div>
+                    )}
+                  </div>
+
+                  {/* 3. Structured Evidence Rows by Semantic Grouping */}
+                  {filteredItems.length === 0 ? (
+                    <div className="p-6 text-center text-slate-400 bg-slate-50 border border-slate-200 rounded-lg text-xs italic">
+                      No evidence records match the selected filter.
+                    </div>
+                  ) : evidenceFilter !== 'ALL' ? (
+                    <div className="space-y-2.5">
+                      {filteredItems.map(item => renderEvidenceCard(item))}
+                    </div>
+                  ) : (
+                    <div className="space-y-3.5">
+                      {/* Section A: Primary Evidence */}
+                      {primaryGroup.length > 0 && (
+                        <div className="space-y-2">
+                          <div className="flex items-center gap-1.5 text-[10px] font-bold text-slate-500 uppercase tracking-wider">
+                            <Flame className="w-3 h-3 text-orange-500" />
+                            <span>Primary Evidence (Thermal Passes)</span>
+                          </div>
+                          <div className="space-y-2">
+                            {primaryGroup.map(item => renderEvidenceCard(item, true))}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Section B: Corroborating Evidence */}
+                      {corroboratingGroup.length > 0 && (
+                        <div className="space-y-2">
+                          <div className="flex items-center gap-1.5 text-[10px] font-bold text-slate-500 uppercase tracking-wider pt-1 border-t border-slate-100">
+                            <Layers className="w-3 h-3 text-cyan-600" />
+                            <span>Corroborating Evidence (Multi-Sensor Overpasses)</span>
+                          </div>
+                          <div className="space-y-2">
+                            {corroboratingGroup.map(item => renderEvidenceCard(item, false))}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Section C: Contextual & Historical Baseline */}
+                      {contextualGroup.length > 0 && (
+                        <div className="space-y-2">
+                          <div className="flex items-center gap-1.5 text-[10px] font-bold text-slate-500 uppercase tracking-wider pt-1 border-t border-slate-100">
+                            <History className="w-3 h-3 text-blue-500" />
+                            <span>Contextual & Historical Baseline</span>
+                          </div>
+                          <div className="space-y-2">
+                            {contextualGroup.map(item => renderEvidenceCard(item, false))}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </>
+              );
+            })()}
           </div>
         )}
 

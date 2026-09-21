@@ -15,10 +15,8 @@ export const Header: React.FC<HeaderProps> = ({ searchQuery, onSearchChange }) =
   return (
     <header className="bg-white border-b border-slate-200 px-6 py-2.5 flex items-center justify-between sticky top-0 z-30 shadow-sm">
       {/* Brand & Tagline */}
-      <div className="flex items-center gap-3">
-        <div className="w-8 h-8 rounded-lg bg-orange-500/10 flex items-center justify-center text-orange-600">
-          <Flame className="w-5 h-5 fill-orange-500 text-orange-600" />
-        </div>
+      <div className="flex items-center gap-2.5">
+        <Flame className="w-6 h-6 fill-orange-500 text-orange-600 shrink-0" />
         <div>
           <div className="flex items-baseline gap-2">
             <h1 className="text-lg font-bold tracking-tight text-slate-900 leading-tight">Agni-Netra</h1>
