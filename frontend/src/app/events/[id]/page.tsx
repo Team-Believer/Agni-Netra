@@ -341,7 +341,7 @@ export default function EventDetailPage({ params }: { params: { id: string } }) 
   };
 
   return (
-    <div className="min-h-screen bg-[#F4F6F9] flex flex-col font-sans">
+    <div className="h-screen bg-[#F4F6F9] flex flex-col font-sans">
       <Header searchQuery={searchQuery} onSearchChange={setSearchQuery} />
 
       <div className="flex-1 flex overflow-hidden">

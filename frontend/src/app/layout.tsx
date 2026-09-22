@@ -16,7 +16,7 @@ export default function RootLayout({
       <head>
         <link rel="stylesheet" href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css" />
       </head>
-      <body className="min-h-screen bg-[#F4F6F9] text-slate-800 flex flex-col antialiased">
+      <body className="h-screen bg-[#F4F6F9] text-slate-800 flex flex-col antialiased">
         {children}
       </body>
     </html>

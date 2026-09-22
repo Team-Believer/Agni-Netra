@@ -50,7 +50,7 @@ export default function AlertsPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#F4F6F9] flex flex-col">
+    <div className="h-screen bg-[#F4F6F9] flex flex-col">
       <Header searchQuery={searchQuery} onSearchChange={setSearchQuery} />
       <div className="flex-1 flex overflow-hidden">
         <Sidebar currentTab={currentTab} onTabChange={setCurrentTab} />

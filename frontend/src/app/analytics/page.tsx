@@ -45,7 +45,7 @@ export default function AnalyticsPage() {
   const COLORS = ['#16A34A', '#F59E0B', '#DC2626', '#3B82F6', '#8B5CF6'];
 
   return (
-    <div className="min-h-screen bg-[#F4F6F9] flex flex-col">
+    <div className="h-screen bg-[#F4F6F9] flex flex-col">
       <Header searchQuery={searchQuery} onSearchChange={setSearchQuery} />
 
       <div className="flex-1 flex overflow-hidden">

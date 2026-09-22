@@ -368,7 +368,7 @@ export default function FacilitiesPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#F8FAFC] flex flex-col text-slate-800">
+    <div className="h-screen bg-[#F8FAFC] flex flex-col text-slate-800">
       <Header searchQuery={searchQuery} onSearchChange={setSearchQuery} />
 
       <div className="flex-1 flex overflow-hidden">

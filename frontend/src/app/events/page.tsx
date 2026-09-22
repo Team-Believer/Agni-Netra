@@ -389,7 +389,7 @@ export default function EventsPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#F4F6F9] flex flex-col font-sans">
+    <div className="h-screen bg-[#F4F6F9] flex flex-col font-sans">
       <Header searchQuery={globalSearchQuery} onSearchChange={setGlobalSearchQuery} />
 
       <div className="flex-1 flex overflow-hidden">
