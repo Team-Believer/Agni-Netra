@@ -51,10 +51,10 @@ export const LiveEventMap: React.FC<LiveEventMapProps> = ({
               tileSize: 256,
               attribution: '&copy; Esri &mdash; Earthstar Geographics',
             },
-            'carto-labels': {
+            'esri-labels': {
               type: 'raster',
               tiles: [
-                'https://cartodb-basemaps-a.global.ssl.fastly.net/light_only_labels/{z}/{x}/{y}.png',
+                'https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}',
               ],
               tileSize: 256,
             }
@@ -70,7 +70,7 @@ export const LiveEventMap: React.FC<LiveEventMapProps> = ({
             {
               id: 'labels-layer',
               type: 'raster',
-              source: 'carto-labels',
+              source: 'esri-labels',
               minzoom: 3,
               maxzoom: 18,
             }
