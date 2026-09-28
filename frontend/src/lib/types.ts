@@ -108,3 +108,23 @@ export interface DataSourceItem {
   last_fetch: string | null;
   last_observation: string | null;
 }
+
+export interface AlertItem {
+  id: number;
+  event_id: string;
+  alert_type: string;
+  severity: string;
+  title: string;
+  message: string;
+  status: string;
+  created_at: string;
+}
+
+export interface ModelStatus {
+  model_id: string;
+  status: string;
+  version: string;
+  last_loaded: string;
+  config: any;
+}
+

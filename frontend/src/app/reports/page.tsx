@@ -22,7 +22,7 @@ import {
   ChevronRight
 } from 'lucide-react';
 import { EventItem } from '../../lib/types';
-import { fetchEvents } from '../../lib/api';
+import { fetchEvents, fetchReportData, exportReportCsvBlob, exportReportPdfBlob } from '../../lib/api';
 
 export default function ReportsPage() {
   const [currentTab, setCurrentTab] = useState('reports');
@@ -54,12 +54,7 @@ export default function ReportsPage() {
 
   const handleDownloadCsv = async () => {
     try {
-      const token = localStorage.getItem('access_token');
-      const res = await fetch('http://localhost:8000/api/reports/export/csv', {
-        headers: token ? { 'Authorization': `Bearer ${token}` } : {}
-      });
-      if (!res.ok) throw new Error('Export failed');
-      const blob = await res.blob();
+      const blob = await exportReportCsvBlob();
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
@@ -75,30 +70,18 @@ export default function ReportsPage() {
   const handleGenerateReport = async (eventId: string) => {
     try {
       setSelectedEventForReport(eventId);
-      const token = localStorage.getItem('access_token');
-      const response = await fetch(`http://localhost:8000/api/reports/${eventId}`, {
-        headers: token ? { 'Authorization': `Bearer ${token}` } : {}
-      });
-      if (response.ok) {
-        const data = await response.json();
-        setReportData(data);
-      } else {
-        alert('Report generation failed');
-      }
+      const data = await fetchReportData(eventId);
+      setReportData(data);
     } catch (err) {
-      console.error(err);
+      console.error('Report generation failed', err);
+      alert('Report generation failed');
     }
   };
 
   const handleDownloadPdf = async (eventId: string) => {
     setIsGeneratingPdf(true);
     try {
-      const token = localStorage.getItem('access_token');
-      const res = await fetch(`http://localhost:8000/api/reports/export/${eventId}/pdf`, {
-        headers: token ? { 'Authorization': `Bearer ${token}` } : {}
-      });
-      if (!res.ok) throw new Error('PDF export failed');
-      const blob = await res.blob();
+      const blob = await exportReportPdfBlob(eventId);
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;

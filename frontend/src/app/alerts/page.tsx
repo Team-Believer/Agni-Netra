@@ -4,17 +4,8 @@ import React, { useState, useEffect } from 'react';
 import { Header } from '../../components/Header';
 import { Sidebar } from '../../components/Sidebar';
 import { Bell, AlertTriangle, Info, CheckCircle } from 'lucide-react';
-
-interface AlertItem {
-  id: number;
-  event_id: string;
-  alert_type: string;
-  severity: string;
-  title: string;
-  message: string;
-  status: string;
-  created_at: string;
-}
+import { fetchAlerts } from '../../lib/api';
+import { AlertItem } from '../../lib/types';
 
 export default function AlertsPage() {
   const [currentTab, setCurrentTab] = useState('alerts');
@@ -23,10 +14,9 @@ export default function AlertsPage() {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const fetchAlerts = async () => {
+    const loadAlerts = async () => {
       try {
-        const response = await fetch('http://localhost:8000/api/alerts');
-        const data = await response.json();
+        const data = await fetchAlerts();
         setAlerts(data);
       } catch (error) {
         console.error('Error fetching alerts:', error);
@@ -34,7 +24,7 @@ export default function AlertsPage() {
         setIsLoading(false);
       }
     };
-    fetchAlerts();
+    loadAlerts();
   }, []);
 
   const getSeverityIcon = (severity: string) => {

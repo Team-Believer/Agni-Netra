@@ -35,7 +35,7 @@ app.add_middleware(
 
 from backend.app.api.dependencies import get_current_user
 
-# Register routes
+# Register primary API routes (/api/...)
 app.include_router(auth.router, prefix="/api/auth", tags=["Auth"])
 app.include_router(health.router, prefix="/api", tags=["Health"])
 app.include_router(dashboard.router, prefix="/api", tags=["Dashboard"], dependencies=[Depends(get_current_user)])
@@ -47,6 +47,27 @@ app.include_router(alerts.router, prefix="/api", tags=["Alerts"], dependencies=[
 app.include_router(models.router, prefix="/api", tags=["Models"], dependencies=[Depends(get_current_user)])
 app.include_router(analytics.router, prefix="/api", tags=["Analytics"], dependencies=[Depends(get_current_user)])
 app.include_router(facilities.router, prefix="/api", tags=["Facilities"], dependencies=[Depends(get_current_user)])
+
+# Register root-level routes (/events, /dashboard/summary, etc.) for direct root compatibility
+app.include_router(auth.router, prefix="/auth", tags=["Auth"], include_in_schema=False)
+app.include_router(dashboard.router, prefix="", tags=["Dashboard"], dependencies=[Depends(get_current_user)], include_in_schema=False)
+app.include_router(events.router, prefix="", tags=["Events"], dependencies=[Depends(get_current_user)], include_in_schema=False)
+app.include_router(observations.router, prefix="", tags=["Observations"], dependencies=[Depends(get_current_user)], include_in_schema=False)
+app.include_router(sources.router, prefix="", tags=["Sources"], dependencies=[Depends(get_current_user)], include_in_schema=False)
+app.include_router(reports.router, prefix="", tags=["Reports"], dependencies=[Depends(get_current_user)], include_in_schema=False)
+app.include_router(alerts.router, prefix="", tags=["Alerts"], dependencies=[Depends(get_current_user)], include_in_schema=False)
+app.include_router(models.router, prefix="", tags=["Models"], dependencies=[Depends(get_current_user)], include_in_schema=False)
+app.include_router(analytics.router, prefix="", tags=["Analytics"], dependencies=[Depends(get_current_user)], include_in_schema=False)
+app.include_router(facilities.router, prefix="", tags=["Facilities"], dependencies=[Depends(get_current_user)], include_in_schema=False)
+
+@app.get("/health", tags=["Health"])
+@app.head("/health", tags=["Health"])
+def root_health():
+    return {"status": "ok"}
+
+@app.head("/", include_in_schema=False)
+def root_head():
+    return {}
 
 @app.get("/")
 def root():
@@ -60,3 +81,4 @@ def root():
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run("backend.app.main:app", host="0.0.0.0", port=8000, reload=True)
+

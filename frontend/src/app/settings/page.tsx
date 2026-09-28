@@ -4,39 +4,25 @@ import React, { useState, useEffect } from 'react';
 import { Header } from '../../components/Header';
 import { Sidebar } from '../../components/Sidebar';
 import { Settings, Database, Cpu, Activity, Server, Shield } from 'lucide-react';
-
-interface DataSource {
-  name: string;
-  source_type: string;
-  status: string;
-  coverage: string;
-  latency_ms: number;
-}
-
-interface ModelStatus {
-  model_id: string;
-  status: string;
-  version: string;
-  last_loaded: string;
-  config: any;
-}
+import { fetchSources, fetchModelStatus } from '../../lib/api';
+import { DataSourceItem, ModelStatus } from '../../lib/types';
 
 export default function SettingsPage() {
   const [currentTab, setCurrentTab] = useState('settings');
   const [searchQuery, setSearchQuery] = useState('');
-  const [sources, setSources] = useState<DataSource[]>([]);
+  const [sources, setSources] = useState<DataSourceItem[]>([]);
   const [modelStatus, setModelStatus] = useState<ModelStatus | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [sourcesRes, modelRes] = await Promise.all([
-          fetch('http://localhost:8000/api/sources'),
-          fetch('http://localhost:8000/api/models/status')
+        const [sourcesData, modelData] = await Promise.all([
+          fetchSources(),
+          fetchModelStatus()
         ]);
-        if (sourcesRes.ok) setSources(await sourcesRes.json());
-        if (modelRes.ok) setModelStatus(await modelRes.json());
+        setSources(sourcesData);
+        setModelStatus(modelData);
       } catch (err) {
         console.error('Error fetching settings data', err);
       } finally {

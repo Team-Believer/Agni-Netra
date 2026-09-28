@@ -1,8 +1,28 @@
-import { EventItem, EventDetail, DashboardSummary, TimelinePoint, DataSourceItem } from './types';
+import { EventItem, EventDetail, DashboardSummary, TimelinePoint, DataSourceItem, AlertItem, ModelStatus } from './types';
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api';
+/**
+ * Returns the normalized API base URL without any trailing slashes.
+ * Supports:
+ *   - Localhost (e.g. "http://localhost:8000", "http://localhost:8000/")
+ *   - Production (e.g. "https://agni-netra.onrender.com", "https://agni-netra.onrender.com/")
+ *   - Configured with or without /api suffix
+ */
+export function getApiBaseUrl(): string {
+  const rawUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+  return rawUrl.trim().replace(/\/+$/, '');
+}
 
-const getHeaders = (extraHeaders: Record<string, string> = {}) => {
+/**
+ * Constructs a fully normalized API URL without double slashes.
+ * Example: buildApiUrl('/events') -> "https://agni-netra.onrender.com/events"
+ */
+export function buildApiUrl(endpoint: string): string {
+  const baseUrl = getApiBaseUrl();
+  const cleanEndpoint = endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
+  return `${baseUrl}${cleanEndpoint}`;
+}
+
+export const getHeaders = (extraHeaders: Record<string, string> = {}) => {
   const headers: Record<string, string> = { ...extraHeaders };
   if (typeof window !== 'undefined') {
     const token = localStorage.getItem('access_token');
@@ -13,8 +33,9 @@ const getHeaders = (extraHeaders: Record<string, string> = {}) => {
   return headers;
 };
 
-async function fetchAPI(endpoint: string, options: RequestInit = {}) {
-  const res = await fetch(`${API_BASE_URL}${endpoint}`, {
+export async function fetchAPI(endpoint: string, options: RequestInit = {}) {
+  const url = buildApiUrl(endpoint);
+  const res = await fetch(url, {
     cache: 'no-store',
     ...options,
     headers: getHeaders(options.headers as Record<string, string>)
@@ -118,6 +139,22 @@ export async function fetchSources(): Promise<DataSourceItem[]> {
   }
 }
 
+export async function fetchAlerts(): Promise<AlertItem[]> {
+  try {
+    return await fetchAPI('/alerts');
+  } catch (err) {
+    return [];
+  }
+}
+
+export async function fetchModelStatus(): Promise<ModelStatus | null> {
+  try {
+    return await fetchAPI('/models/status');
+  } catch (err) {
+    return null;
+  }
+}
+
 // --- Analytics API ---
 export async function fetchAnalyticsEventsOverTime(): Promise<{ date: string; count: number }[]> {
   try {
@@ -175,3 +212,27 @@ export async function fetchFacilityDetails(facilityId: string): Promise<any> {
     return null;
   }
 }
+
+// --- Reports API ---
+export async function fetchReportData(eventId: string): Promise<any> {
+  return await fetchAPI(`/reports/${eventId}`);
+}
+
+export async function exportReportCsvBlob(): Promise<Blob> {
+  const url = buildApiUrl('/reports/export/csv');
+  const res = await fetch(url, {
+    headers: getHeaders()
+  });
+  if (!res.ok) throw new Error('Export CSV failed');
+  return await res.blob();
+}
+
+export async function exportReportPdfBlob(eventId: string): Promise<Blob> {
+  const url = buildApiUrl(`/reports/export/${eventId}/pdf`);
+  const res = await fetch(url, {
+    headers: getHeaders()
+  });
+  if (!res.ok) throw new Error('Export PDF failed');
+  return await res.blob();
+}
+
